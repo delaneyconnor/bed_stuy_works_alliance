@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bed Stuy Works Alliance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Gotham', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
             background: #000;
             color: #fff;
             height: 100vh;
@@ -22,28 +23,29 @@
         /* ── Header ── */
         header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            padding: 1rem 2rem;
+            padding: 1.25rem 4rem;
             flex-shrink: 0;
         }
 
         .header-logo {
-            height: 150px;
+            height: 125px;
             width: auto;
         }
 
         /* ── Tabs ── */
         nav {
             display: flex;
-            gap: 0;
+            gap: 0.5rem;
         }
 
         nav button {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.75rem;
+            border-radius: 0;
+            color: #fff;
+            font-size: 0.9rem;
             font-weight: 800;
             letter-spacing: 0.12em;
             text-transform: uppercase;
@@ -54,7 +56,8 @@
         }
 
         nav button:hover {
-            color: #fff;
+            background: #fff;
+            color: #000;
         }
 
         nav button.active {
@@ -99,7 +102,7 @@
         .tab-panel h2 {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -107,8 +110,9 @@
 
         .tab-panel p {
             font-size: 1rem;
+            font-weight: 300;
             line-height: 1.7;
-            color: rgba(255,255,255,0.75);
+            color: #fff;
             max-width: 680px;
             margin-bottom: 1rem;
         }
@@ -137,8 +141,9 @@
 
         .tab-panel ul li {
             font-size: 1rem;
+            font-weight: 300;
             line-height: 1.7;
-            color: rgba(255,255,255,0.75);
+            color: #fff;
             margin-bottom: 0.25rem;
         }
 
@@ -158,12 +163,13 @@
         }
 
         .resource-block p {
+            font-weight: 300;
             margin-bottom: 0.4rem;
         }
 
         .resource-block address {
             font-style: normal;
-            color: rgba(255,255,255,0.6);
+            color: #fff;
             font-size: 0.9rem;
             line-height: 1.7;
         }
@@ -277,15 +283,13 @@
 
         /* Footer */
         .site-footer {
-            background: #111;
-            color: #ccc;
+            color: #fff;
             text-align: center;
-            padding: 12px 20px;
+            padding: 2rem 20px 1rem;
             font-size: 13px;
-            flex-shrink: 0;
         }
         .site-footer a {
-            color: #ccc;
+            color: #fff;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -317,6 +321,8 @@
     <!-- About -->
     <div class="tab-panel active" id="tab-about">
         <h2>About</h2>
+        <div style="display:flex; gap:3rem; align-items:flex-start;">
+        <div style="flex:1; min-width:0;">
         <p>Bridge Street Development Corporation was established in 1995 to develop affordable housing. Bridge Street Development Corporation (BSDC) is a faith-based, 501(c)(3) not-for-profit organization whose mission is to build partnerships with businesses, government, and other community stakeholders to provide civic and economic opportunity.</p>
         <p>Bridge Street Development Corp. vision is to preserve Bedford-Stuyvesant as a desirable neighborhood for raising families, owning businesses and taking part in rich cultural, spiritual and recreational opportunities. Our motto, "Building on Community Strength," describes our core belief that the most effective way to improve a community is to develop and promote local assets, including people, homes, businesses, and organizations.</p>
         <p>The members of the Bedford-Stuyvesant Youth, Education and Safety Task Force will work toward the creation of a crime-free community by engaging both the community and law enforcement entities in meaningful and long-lasting initiatives that will bring about positive change.</p>
@@ -333,6 +339,12 @@
             <li>Strengthen existing civic initiatives such as the Community Board and the 79th and 81st Precinct Councils</li>
             <li>Improve police-community relations in order to maximize safety services throughout the neighborhood</li>
         </ul>
+        </div>
+        <div style="flex-shrink:0; width:480px;">
+            <img src="BSWA_photo.jpg" alt="BedStuy Works Alliance" style="width:100%; display:block;">
+        </div>
+        </div>
+        <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
 
     <!-- History -->
@@ -344,6 +356,7 @@
         <p>In addition to the block parties, these associations would organize around issues regarding crime and public safety, lack of or the increase of public services and all political issues of the time. They would also organize stoop sales and block cleaning efforts. Some block associations have been in existence for more than 40 years. Some of these block associations even create the many community gardens that are all over this progressive neighborhood.</p>
         <p>Although the community has always been ahead of the pack in regards to community engagement, at times the associations have waned in strength and impact on the lives of their residents. Many reasons can be pointed out that lead to this decline of significance and impact. Some of the reasons include: officers having aged out, leadership relocated, the economy, shift of family dynamics, cuts to government funding, etc.</p>
         <p>Today organized associations are needed more than ever. An active association leads to a stable, safer, community. Associations are the thread that creates a tightly knitted neighborhood. This is the type of neighborhood that many native Bedford Stuyvesant residents are used to and would like to pass on to the next generation. Thriving associations are the backbone to a community of which everyone can be proud to be a resident.</p>
+        <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
 
     <!-- Events Calendar -->
@@ -363,6 +376,7 @@
         <p style="font-size:13px; color:#888; margin-top:10px;">
             <a href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener" style="color:#7DBBBB;">Open in Google Calendar ↗</a>
         </p>
+        <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
 
     <!-- Association Map -->
@@ -442,6 +456,7 @@
                 Website: <a href="https://www.citizensnyc.org" target="_blank" style="color:#7DBBBB;">citizensnyc.org</a>
             </address>
         </div>
+        <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
 
     <!-- Community Resources -->
@@ -518,6 +533,7 @@
             <h3>NYC 311</h3>
             <p>Call <strong>311</strong> to report problems with city services 24 hours a day, 7 days a week. You can also navigate all city agencies at <a href="https://www.nyc.gov" target="_blank" style="color:#7DBBBB;">nyc.gov</a>.</p>
         </div>
+        <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
 
 </main>
@@ -538,12 +554,6 @@ buttons.forEach(btn => {
 
 </script>
 
-<footer class="site-footer">
-    <a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener">
-        <i class="fab fa-facebook-f"></i>
-        Follow us on Facebook
-    </a>
-</footer>
 
 </body>
 </html>
