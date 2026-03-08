@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bed Stuy Works Alliance</title>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Gotham', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #000;
             color: #fff;
             height: 100vh;
@@ -24,12 +25,11 @@
             align-items: center;
             justify-content: space-between;
             padding: 1rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
             flex-shrink: 0;
         }
 
         .header-logo {
-            height: 48px;
+            height: 150px;
             width: auto;
         }
 
@@ -43,13 +43,13 @@
             background: none;
             border: none;
             color: rgba(255,255,255,0.5);
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            padding: 0.5rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.5rem 1.1rem;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: color 0.15s, border-color 0.15s;
+            transition: color 0.15s, background 0.15s;
             white-space: nowrap;
         }
 
@@ -58,8 +58,8 @@
         }
 
         nav button.active {
-            color: #fff;
-            border-bottom-color: #fff;
+            background: #fff;
+            color: #000;
         }
 
         /* ── Content area ── */
@@ -101,6 +101,8 @@
             font-weight: 700;
             margin-bottom: 1.5rem;
             color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .tab-panel p {
@@ -116,6 +118,54 @@
             font-style: italic;
             font-size: 0.9rem;
             margin-top: 2rem;
+        }
+
+        .tab-panel h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #fff;
+            max-width: 680px;
+        }
+
+        .tab-panel ul {
+            max-width: 680px;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .tab-panel ul li {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 0.25rem;
+        }
+
+        .resource-block {
+            max-width: 680px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .resource-block h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .resource-block p {
+            margin-bottom: 0.4rem;
+        }
+
+        .resource-block address {
+            font-style: normal;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            line-height: 1.7;
         }
 
         /* ── Map UI (carried over from bedstuy.html) ── */
@@ -211,6 +261,39 @@
 
         .info-value { font-size: 14px; color: #000; margin-bottom: 16px; line-height: 1.5; }
         .placeholder-text { color: #aaa; font-style: italic; }
+
+        .status-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+            text-transform: uppercase; margin-bottom: 14px;
+        }
+        .status-active { background: #e0f4f4; color: #2a8a8a; }
+        .status-dormant { background: #f0f0f0; color: #888; }
+
+        .year-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; }
+        .year-chip { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .year-chip.active { background: #e0f4f4; color: #2a8a8a; }
+        .year-chip.inactive { background: #f0f0f0; color: #bbb; }
+
+        /* Footer */
+        .site-footer {
+            background: #111;
+            color: #ccc;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .site-footer a {
+            color: #ccc;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover { color: #fff; }
+        .site-footer .fa-facebook-f { font-size: 16px; }
     </style>
 </head>
 <body>
@@ -222,8 +305,9 @@
     <nav>
         <button class="active" data-tab="about">About</button>
         <button data-tab="history">History</button>
-        <button data-tab="events">Events Calendar</button>
+        <button data-tab="events">Events</button>
         <button data-tab="map">Association Map</button>
+        <button data-tab="assoc-resources">Association Resources</button>
         <button data-tab="resources">Community Resources</button>
     </nav>
 </header>
@@ -233,57 +317,214 @@
     <!-- About -->
     <div class="tab-panel active" id="tab-about">
         <h2>About</h2>
-        <p>Bed Stuy Works Alliance is an alliance of block and resident associations that has convened monthly since 2010 to strengthen organizing capacity in Bedford-Stuyvesant.</p>
-        <p class="placeholder">More content coming soon.</p>
+        <p>Bridge Street Development Corporation was established in 1995 to develop affordable housing. Bridge Street Development Corporation (BSDC) is a faith-based, 501(c)(3) not-for-profit organization whose mission is to build partnerships with businesses, government, and other community stakeholders to provide civic and economic opportunity.</p>
+        <p>Bridge Street Development Corp. vision is to preserve Bedford-Stuyvesant as a desirable neighborhood for raising families, owning businesses and taking part in rich cultural, spiritual and recreational opportunities. Our motto, "Building on Community Strength," describes our core belief that the most effective way to improve a community is to develop and promote local assets, including people, homes, businesses, and organizations.</p>
+        <p>The members of the Bedford-Stuyvesant Youth, Education and Safety Task Force will work toward the creation of a crime-free community by engaging both the community and law enforcement entities in meaningful and long-lasting initiatives that will bring about positive change.</p>
+        <p>Since its inception in 2006, the Bedford-Stuyvesant Safety Task Force (now the Youth, Education, and Safety Task Force) has had a close working partnership with the Bridge Street Development Corporation. Staffs from Bridge Street have been instrumental in the development and support of the Malcolm X Merchants' Association, which led to the transformation of Malcolm X Boulevard from a crime-ridden "hot spot" where guns and drugs were openly sold, and youth gangs menaced the store owners and residents.</p>
+        <p>With the participation of the 81st Precinct, Community Board 3, elected officials, and the Bainbridge Street Block Association, this once-thriving commercial corridor has experienced a major reduction in crime. Malcolm X Boulevard is now home to several new businesses, and Bridge Street continues to provide technical assistance to the Merchants' Association.</p>
+        <h3>The BedStuy Works Alliance</h3>
+        <p>Follow us on <a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" style="color:#7DBBBB;">Facebook</a>.</p>
+        <p>The BedStuy Works Alliance of Block and Tenant Associations began in 2010 as a small collaborative of block and tenant groups. The alliance is the result of the dynamic partnership between the Bedford-Stuyvesant Youth, Education, and Safety Task Force and the Bridge Street Development Corporation. Both groups had the common long-term goal to strengthen and galvanize block and tenant associations for the purpose of establishing a unified voice that would:</p>
+        <ul>
+            <li>Identify issues that impact tenants and homeowners</li>
+            <li>Provide a forum for common concerns</li>
+            <li>Generate ideas that would contribute to the ongoing revitalization of Bedford-Stuyvesant</li>
+            <li>Advocate for improvements/change in a cohesive and proactive manner</li>
+            <li>Strengthen existing civic initiatives such as the Community Board and the 79th and 81st Precinct Councils</li>
+            <li>Improve police-community relations in order to maximize safety services throughout the neighborhood</li>
+        </ul>
     </div>
 
     <!-- History -->
     <div class="tab-panel" id="tab-history">
         <h2>History</h2>
-        <p class="placeholder">Content coming soon.</p>
+        <p>The historical neighborhood Bedford Stuyvesant in Brooklyn, N.Y. is the home to over 150,000 people. Largely an African American community, Bedford Stuyvesant also has people of Asian, Latino and European descent. This neighborhood is known for its beautiful brownstones that were built in the early 1900's and its rich culture. Many artists, musicians and community activists have come from this neighborhood. Any visitor will quickly see beautiful painted murals of political leaders and community advocates, hear the beating of drums and the songs from the many choirs located in the area.</p>
+        <p>Bedford Stuyvesant is a strong community thanks to the people that make it up. These residents have weathered the hard times of redlining, the slashing of government funds, and the crack epidemic. This community has also celebrated the good times of the thriving business corridors of the past, and the emergence of hip hop music that forever changed the mindset of the residents, and put many young people to work to make a positive difference on their peers.</p>
+        <p>Despite the lean and problematic years this neighborhood has always been civically minded. In the summertime, you could find evidence in one of the mainstays of Brooklyn: the Block Party. Associations from all across the neighborhood would organize this annual event that brought together families, friends and neighbors.</p>
+        <p>In addition to the block parties, these associations would organize around issues regarding crime and public safety, lack of or the increase of public services and all political issues of the time. They would also organize stoop sales and block cleaning efforts. Some block associations have been in existence for more than 40 years. Some of these block associations even create the many community gardens that are all over this progressive neighborhood.</p>
+        <p>Although the community has always been ahead of the pack in regards to community engagement, at times the associations have waned in strength and impact on the lives of their residents. Many reasons can be pointed out that lead to this decline of significance and impact. Some of the reasons include: officers having aged out, leadership relocated, the economy, shift of family dynamics, cuts to government funding, etc.</p>
+        <p>Today organized associations are needed more than ever. An active association leads to a stable, safer, community. Associations are the thread that creates a tightly knitted neighborhood. This is the type of neighborhood that many native Bedford Stuyvesant residents are used to and would like to pass on to the next generation. Thriving associations are the backbone to a community of which everyone can be proud to be a resident.</p>
     </div>
 
     <!-- Events Calendar -->
     <div class="tab-panel" id="tab-events">
         <h2>Events Calendar</h2>
-        <p class="placeholder">Content coming soon.</p>
+        <p>Stay up to date with upcoming block association events, meetings, and community gatherings in Bedford-Stuyvesant.</p>
+        <div style="position:relative; width:100%; padding-bottom:75%; height:0; overflow:hidden; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1);">
+            <!-- Replace YOUR_CALENDAR_ID below with your Google Calendar ID (found in Calendar Settings → Integrate calendar) -->
+            <iframe
+                src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=America%2FNew_York&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&mode=MONTH"
+                style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+                frameborder="0"
+                scrolling="no"
+                title="BedStuy Works Alliance Events Calendar">
+            </iframe>
+        </div>
+        <p style="font-size:13px; color:#888; margin-top:10px;">
+            <a href="https://calendar.google.com/calendar/r" target="_blank" rel="noopener" style="color:#7DBBBB;">Open in Google Calendar ↗</a>
+        </p>
     </div>
 
     <!-- Association Map -->
     <div class="tab-panel map-panel" id="tab-map">
-        <div id="map"></div>
-        <div class="search-box">
-            <h3>Search Your Street</h3>
-            <input type="text" class="search-input" id="street-search" placeholder="Type a street name...">
-            <div class="search-results" id="search-results"></div>
+        <iframe
+            src="https://delaneyconnor.github.io/block_associations/blockassociations.html"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+            title="Bed-Stuy Block Associations Map"
+            loading="lazy">
+        </iframe>
+    </div>
+
+    <!-- Association Resources -->
+    <div class="tab-panel" id="tab-assoc-resources">
+        <h2>Association Resources</h2>
+        <p>Resources for block and tenant associations operating in Bedford-Stuyvesant.</p>
+
+        <div class="resource-block">
+            <h3>Community Board 3</h3>
+            <p>Bedford-Stuyvesant's boundaries are Flushing Avenue to the north, Broadway to the northeast, Saratoga Avenue to the east, Classon Avenue to the west, and Atlantic Avenue to the South. If you live in this area then Community Board 3 (CB3) is the board that represents your neighborhood. CB3 advocates for city services and programs for Bedford Stuyvesant and holds monthly general board meetings.</p>
+            <address>
+                1360 Fulton Street, Brooklyn, NY<br>
+                Phone: 718-622-6601<br>
+                Open Monday–Friday, 9:00am–5:00pm
+            </address>
         </div>
-        <div class="info-panel" id="info-panel">
-            <button class="close-btn" id="close-panel">×</button>
-            <h2 id="association-name"></h2>
-            <div class="info-label">Street Location</div>
-            <div class="info-value" id="street-location"></div>
-            <div class="info-label">Block Parties Held</div>
-            <div class="info-value" id="block-parties"></div>
-            <div class="info-label">President</div>
-            <div class="info-value"><span class="placeholder-text">Data unavailable</span></div>
-            <div class="info-label">Contact</div>
-            <div class="info-value"><span class="placeholder-text">Data unavailable</span></div>
+
+        <div class="resource-block">
+            <h3>79th Precinct Council</h3>
+            <p>The 79th Precinct Council President: Kim Best. Meetings are held the fourth Wednesday of the month at 7:00pm at Brooklyn Job Corps, located at 585 Dekalb Avenue.</p>
+            <address>
+                Precinct Address: 263 Tompkins Avenue, Brooklyn, NY 11221<br>
+                Tel: (718) 636-6611
+            </address>
+        </div>
+
+        <div class="resource-block">
+            <h3>79th Clergy Council</h3>
+            <address>
+                417 Throop Avenue<br>
+                Brooklyn, NY 11221
+            </address>
+        </div>
+
+        <div class="resource-block">
+            <h3>Bridge Street Development Corp</h3>
+            <p>A faith-based community development corporation whose mission is to help residents of the Bedford Stuyvesant section of Brooklyn acquire appreciating assets including real estate, businesses, and education.</p>
+        </div>
+
+        <div class="resource-block">
+            <h3>Dr. Betty Shabazz ATTAIN Lab</h3>
+            <p>A public computer lab that offers free computer classes, adult education and certifications.</p>
+            <address>
+                700 Gates Ave, #1F, Brooklyn, NY 11221<br>
+                (718) 453-3243
+            </address>
+        </div>
+
+        <div class="resource-block">
+            <h3>NYC Office of Emergency Management — CERT Team</h3>
+            <p>The NYC CERT team consists of volunteers that assist response teams in the event of an emergency. They assist associations in developing emergency kits and evacuation plans.</p>
+            <address>
+                Website: nyc.gov/cert<br>
+                Phone: 718-422-8585
+            </address>
+        </div>
+
+        <div class="resource-block">
+            <h3>Grants and How to Apply</h3>
+            <p>There are many grants available for associations from public and private companies. To find assistance on how to write grants and proposals and other important aspects, go to <a href="https://www.nyc.gov/nonprofits" target="_blank" style="color:#7DBBBB;">nyc.gov/nonprofits</a>.</p>
+        </div>
+
+        <div class="resource-block">
+            <h3>Citizens Committee of NYC</h3>
+            <p>The Citizens Committee of NYC provides grants for block and tenant associations on a periodic basis.</p>
+            <address>
+                Website: <a href="https://www.citizensnyc.org" target="_blank" style="color:#7DBBBB;">citizensnyc.org</a>
+            </address>
         </div>
     </div>
 
     <!-- Community Resources -->
     <div class="tab-panel" id="tab-resources">
         <h2>Community Resources</h2>
-        <p class="placeholder">Content coming soon.</p>
+
+        <h3>Community Resources Map</h3>
+        <p>Cooperatives, gardens, credit unions, food resources, and solidarity economy organizations in Bed-Stuy. Use the <strong>+/−</strong> controls inside the map to zoom, or scroll to zoom. Click any marker for details.</p>
+        <div style="width:100%;max-width:680px;position:relative;margin-bottom:0.5rem;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
+            <iframe src="https://delaneyconnor.github.io/block_associations/communityresources.html" width="100%" height="560" frameborder="0" style="display:block;"></iframe>
+        </div>
+        <div style="max-width:680px;margin-bottom:2rem;text-align:right;">
+            <a href="https://delaneyconnor.github.io/block_associations/communityresources.html" target="_blank" style="color:#7DBBBB;font-size:0.85rem;text-decoration:none;letter-spacing:0.05em;">Open full map ↗</a>
+        </div>
+
+        <h3>Elected Officials</h3>
+
+        <div class="resource-block">
+            <h3>City Council</h3>
+            <p><strong>36th District — Chi Ossé</strong><br>
+            1360 Fulton Street, Suite 500, Brooklyn, NY 11216<br>
+            Phone: 718-919-0740 · <a href="mailto:District36@council.nyc.gov" style="color:#7DBBBB;">District36@council.nyc.gov</a></p>
+            <p><strong>41st District — Darlene Mealy</strong><br>
+            400 Rockaway Avenue, Brooklyn, NY 11212<br>
+            Phone: 718-953-3097 · <a href="mailto:District41@council.nyc.gov" style="color:#7DBBBB;">District41@council.nyc.gov</a></p>
+            <p><strong>35th District — Crystal Hudson</strong><br>
+            55 Hanson Place, Suite 778, Brooklyn, NY 11217<br>
+            Phone: 718-260-9191 · <a href="mailto:District35@council.nyc.gov" style="color:#7DBBBB;">District35@council.nyc.gov</a></p>
+        </div>
+
+        <div class="resource-block">
+            <h3>State Senators</h3>
+            <p><strong>25th Senate District — Jabari Brisport</strong><br>
+            The Shirley Chisholm State Office Building, 55 Hanson Place, Suite 702, Brooklyn, NY 11217<br>
+            Phone: (718) 643-6140 · Fax: (718) 237-4137</p>
+            <p><strong>18th Senate District — Julia Salazar</strong><br>
+            212 Evergreen Avenue, Brooklyn, NY 11221<br>
+            Phone: (718) 573-1726</p>
+        </div>
+
+        <div class="resource-block">
+            <h3>State Assembly Members</h3>
+            <p><strong>56th Assembly District — Stefani Zinerman</strong><br>
+            1368 Fulton Street, 3rd Fl., NW, Brooklyn, N.Y 11216<br>
+            Phone: (718) 399-7630</p>
+            <p><strong>55th Assembly District — Latrice Walker</strong><br>
+            400 Rockaway Avenue, 2nd Floor, Brooklyn, N.Y 11212<br>
+            Phone: (718) 342-1258</p>
+            <p><strong>57th Assembly District — Phara Souffrant Forrest</strong><br>
+            55 Hanson Place, Brooklyn, N.Y 11217<br>
+            Phone: (718) 596-0100</p>
+        </div>
+
+        <div class="resource-block">
+            <h3>Brooklyn Borough President — Antonio Reynoso</h3>
+            <address>
+                209 Joralemon Street, Brooklyn, NY 11201<br>
+                Phone: 718-802-3700<br>
+                <a href="https://www.brooklyn-usa.org" target="_blank" style="color:#7DBBBB;">brooklyn-usa.org</a>
+            </address>
+        </div>
+
+        <div class="resource-block">
+            <h3>Fair Housing Counselors</h3>
+            <p><strong>Bedford Stuyvesant Restoration Corp</strong><br>
+            1368 Fulton Street, Brooklyn, NY 11216 · (718) 435-7585 (English, Spanish)</p>
+            <p><strong>Brooklyn Neighborhood Improvement Association</strong><br>
+            465 Sterling Place, Brooklyn, NY 11238 · (718) 773-4116 ext. 11</p>
+            <p><strong>Neighborhood Housing Services of Brooklyn</strong><br>
+            506 MacDonough Street, Lower Level, Nazarene Community Center, Brooklyn, NY 11233 · 718-919-2100</p>
+        </div>
+
+        <div class="resource-block">
+            <h3>NYC 311</h3>
+            <p>Call <strong>311</strong> to report problems with city services 24 hours a day, 7 days a week. You can also navigate all city agencies at <a href="https://www.nyc.gov" target="_blank" style="color:#7DBBBB;">nyc.gov</a>.</p>
+        </div>
     </div>
 
 </main>
 
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
 <script>
 // ── Tab switching ──
 const buttons = document.querySelectorAll('nav button');
-let mapInitialized = false;
 
 buttons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -291,109 +532,18 @@ buttons.forEach(btn => {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-
-        // Initialize map on first visit to map tab
-        if (btn.dataset.tab === 'map' && !mapInitialized) {
-            initMap();
-            mapInitialized = true;
-        }
     });
 });
 
-// ── Map ──
-function initMap() {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZGVsYW5leWNvbm5vciIsImEiOiJjbTRnM2Q1ZGkxZzhuMmpvbXByY2wwaDgwIn0.HSEo0pqv9ZN6DorMNmTB8A';
 
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/delaneyconnor/cmie08kl4000901s32neo2nsz',
-        center: [-73.9351, 40.6872],
-        zoom: 14
-    });
-
-    map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
-
-    let allFeatures = [];
-
-    map.on('load', function () {
-        const colors = ['#E5D854', '#7CB25C', '#7DBBBB', '#EC7D84'];
-
-        map.setPaintProperty('block_associations', 'line-color', [
-            'case',
-            ['==', ['%', ['get', 'Event.ID'], 4], 0], colors[0],
-            ['==', ['%', ['get', 'Event.ID'], 4], 1], colors[1],
-            ['==', ['%', ['get', 'Event.ID'], 4], 2], colors[2],
-            colors[3]
-        ]);
-        map.setPaintProperty('block_associations', 'line-width', 4);
-        map.setPaintProperty('block_associations', 'line-opacity', 1);
-        map.setPaintProperty('block_associations', 'line-cap', 'round');
-        map.setPaintProperty('block_associations', 'line-join', 'round');
-
-        map.once('idle', () => {
-            allFeatures = map.querySourceFeatures('composite', { sourceLayer: 'block_associations' });
-        });
-    });
-
-    map.on('mouseenter', 'block_associations', () => map.getCanvas().style.cursor = 'pointer');
-    map.on('mouseleave', 'block_associations', () => map.getCanvas().style.cursor = '');
-
-    map.on('click', function (e) {
-        const features = map.queryRenderedFeatures(
-            [[e.point.x - 20, e.point.y - 20], [e.point.x + 20, e.point.y + 20]],
-            { layers: ['block_associations'] }
-        );
-        if (features.length > 0) showInfo(features[0].properties);
-    });
-
-    // Search
-    document.getElementById('street-search').addEventListener('input', function () {
-        const term = this.value.toLowerCase().trim();
-        if (term.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
-
-        const results = [...new Map(
-            allFeatures
-                .filter(f => (f.properties['Event.Location'] || '').toLowerCase().includes(term) ||
-                             (f.properties['Event.Name'] || '').toLowerCase().includes(term))
-                .map(f => [f.properties['Event.Location'], f])
-        ).values()].slice(0, 8);
-
-        document.getElementById('search-results').innerHTML = results.map(f => `
-            <div class="result-item" data-props='${JSON.stringify(f.properties)}'>
-                <strong>${extractName(f.properties['Event.Name'])}</strong>
-                <small>${f.properties['Event.Location']}</small>
-            </div>
-        `).join('');
-
-        document.querySelectorAll('.result-item').forEach(item => {
-            item.addEventListener('click', function () {
-                showInfo(JSON.parse(this.getAttribute('data-props')));
-                document.getElementById('street-search').value = '';
-                document.getElementById('search-results').innerHTML = '';
-            });
-        });
-    });
-
-    function extractName(name) {
-        if (!name) return 'Block Association';
-        let n = name.replace(/block party|annual|\d{4}|celebration/gi, '').trim();
-        const i = n.toLowerCase().indexOf('association');
-        if (i !== -1) n = n.substring(0, i + 11);
-        return n.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()).trim();
-    }
-
-    function showInfo(props) {
-        document.getElementById('association-name').textContent = extractName(props['Event.Name']);
-        document.getElementById('street-location').textContent = props['Event.Location'] || '—';
-        document.getElementById('block-parties').textContent = `${props['Location_Count'] || 0} events`;
-        document.getElementById('info-panel').classList.add('active');
-    }
-
-    document.getElementById('close-panel').addEventListener('click', () => {
-        document.getElementById('info-panel').classList.remove('active');
-    });
-}
 </script>
+
+<footer class="site-footer">
+    <a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+        Follow us on Facebook
+    </a>
+</footer>
 
 </body>
 </html>
