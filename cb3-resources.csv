@@ -1,0 +1,63 @@
+name,category,address,zip,phone,hours,lat,lng
+"Interfaith Medical Center",Health Care,"1545 Atlantic Avenue, Brooklyn, NY",11213,718-613-4000,,40.6771,-73.9271
+"Woodhull Medical and Mental Health Center",Health Care,"760 Broadway, Brooklyn, NY",11206,718-963-8000,,40.7014,-73.9443
+"Bedford-Stuyvesant Family Health Center (Fulton)",Health Care,"1413 Fulton Street, Brooklyn, NY",11216,718-636-4500,,40.6806,-73.9543
+"Bedford-Stuyvesant Family Health Center (Kingston)",Health Care,"1456 Fulton Street, Brooklyn, NY",11216,718-636-4500,,40.6806,-73.9516
+"Total Family Medical Care",Health Care,"1074 DeKalb Avenue, Brooklyn, NY",11221,718-452-6013,,40.6900,-73.9370
+"Bedford Stuyvesant Volunteer Ambulance Corps",Health Care,"727 Greene Avenue, Brooklyn, NY",11221,718-453-4617,,40.6844,-73.9388
+"SUNY Downstate Medical Center",Health Care,"450 Clarkson Avenue, Brooklyn, NY",11203,718-270-1000,,40.6550,-73.9440
+"Kings County Hospital Center",Health Care,"451 Clarkson Avenue, Brooklyn, NY",11203,718-245-3131,,40.6549,-73.9437
+"Brooklyn Hospital Center",Health Care,"121 DeKalb Avenue, Brooklyn, NY",11201,718-250-8000,,40.6906,-73.9766
+"79th Precinct",Police,"263 Tompkins Avenue, Brooklyn, NY",11221,718-636-6611,"Community Council: 4th Wed of month 7pm at 585 DeKalb Ave",40.6955,-73.9334
+"81st Precinct",Police,"30 Ralph Avenue, Brooklyn, NY",11221,718-574-0411,"Community Council: 2nd Tue of month 7pm at 794 Monroe St",40.6883,-73.9215
+"83rd Precinct",Police,"480 Knickerbocker Avenue, Brooklyn, NY",11237,718-574-1605,"Community Council: 3rd Tue of month 7:30pm",40.6926,-73.9146
+"88th Precinct",Police,"298 Classon Avenue, Brooklyn, NY",11205,718-636-6511,"Community Council: 3rd Tue of month 7:30pm",40.6884,-73.9639
+"Engine 277 / Ladder 112",Fire Department,"582 Knickerbocker Avenue, Brooklyn, NY",11221,,,40.6965,-73.9146
+"Engine 218",Fire Department,"650 Hart Street, Brooklyn, NY",11221,,,40.6971,-73.9332
+"Engine 217",Fire Department,"940 DeKalb Avenue, Brooklyn, NY",11221,,,40.6906,-73.9264
+"Engine 222 / Battalion 37",Fire Department,"32 Ralph Avenue, Brooklyn, NY",11221,,,40.6883,-73.9216
+"Engine 210",Fire Department,"160 Carlton Avenue, Brooklyn, NY",11205,,,40.6878,-73.9664
+"Engine 230",Fire Department,"701 Park Avenue, Brooklyn, NY",11206,,,40.7003,-73.9443
+"Engine 235 / Battalion 57",Fire Department,"206 Monroe Street, Brooklyn, NY",11216,,,40.6849,-73.9562
+"Engine 214 / Ladder 111",Fire Department,"495 Hancock Street, Brooklyn, NY",11233,,,40.6913,-73.9207
+"Engine 227",Fire Department,"423 Ralph Avenue, Brooklyn, NY",11233,,,40.6872,-73.9215
+"Engine 233 / Ladder 176",Fire Department,"25 Rockaway Avenue, Brooklyn, NY",11233,,,40.6827,-73.9197
+"Engine 280 / Ladder 132",Fire Department,"489 St. Johns Place, Brooklyn, NY",11238,,,40.6763,-73.9565
+"Marcy Library",Library,"617 DeKalb Avenue, Brooklyn, NY",11216,718-935-0032,,40.6908,-73.9555
+"Lewis Avenue Library (Macon Branch)",Library,"361 Lewis Avenue, Brooklyn, NY",11233,718-573-5606,,40.6855,-73.9391
+"Bedford Branch Library",Library,"496 Franklin Avenue, Brooklyn, NY",11238,718-623-0012,,40.6820,-73.9574
+"Clinton Hill Library",Library,"380 Washington Avenue, Brooklyn, NY",11238,718-398-8713,,40.6867,-73.9639
+"Crown Heights Branch Library",Library,"560 New York Avenue, Brooklyn, NY",11225,718-773-1180,,40.6733,-73.9462
+"Brower Park Branch Library",Library,"725 Saint Marks Avenue, Brooklyn, NY",11216,718-773-7208,,40.6741,-73.9510
+"Central Library (Grand Army Plaza)",Library,"10 Grand Army Plaza, Brooklyn, NY",11238,718-230-2100,,40.6727,-73.9703
+"Saratoga Branch Library",Library,"8 Hopkinson Avenue, Brooklyn, NY",11233,718-573-5224,,40.6803,-73.9153
+"Washington Irving Library",Library,"360 Irving Avenue, Brooklyn, NY",11237,718-628-8378,,40.6944,-73.9124
+"DeKalb Library",Library,"790 Bushwick Avenue, Brooklyn, NY",11221,718-455-3898,,40.6908,-73.9271
+"Bushwick Branch Library",Library,"340 Bushwick Avenue, Brooklyn, NY",11206,718-602-1348,,40.7028,-73.9325
+"NEBHDCo Golden Harvest Food Pantry",Food Pantry,"745 Lafayette Avenue, Brooklyn, NY",11221,718-453-9490,"Tue & Thu 10am–12pm",40.6930,-73.9361
+"St. John's Bread and Life",Food Pantry & Soup Kitchen,"795 Lexington Avenue, Brooklyn, NY",11221,718-574-0058,"Mon–Fri breakfast 8–9:30am; lunch 10:30am–12:30pm",40.6913,-73.9334
+"Bed-Stuy Campaign Against Hunger",Food Pantry,"2004 Fulton Street, Brooklyn, NY",11233,718-773-3551,"Mon–Fri 10am–3pm",40.6792,-73.9180
+"Neighbors Together",Soup Kitchen,"2094 Fulton Street, Brooklyn, NY",11233,718-498-7256,"Mon–Fri 12–2pm & 4–6pm",40.6792,-73.9167
+"Brooklyn Rescue Mission",Food Pantry,"255 Bainbridge Street, Brooklyn, NY",11233,718-363-3085,"Tue & Thu 7am–12pm",40.6841,-73.9165
+"The Salvation Army Bedford",Food Pantry,"601 Lafayette Avenue, Brooklyn, NY",11216,718-622-0614,"Mon–Thu 1–2:30pm",40.6930,-73.9488
+"Agape Social Services / Beulah Church",Food Pantry & Soup Kitchen,"929 Marcy Avenue, Brooklyn, NY",11216,718-484-3823,"Pantry: Tue/Thu/Fri 10:30am–2pm; Soup Kitchen: Wed 12:30–2pm",40.6872,-73.9553
+"Siloam Presbyterian Church Food Pantry",Food Pantry,"260 Jefferson Avenue, Brooklyn, NY",11216,718-789-7050,"Wed & Fri 10am–1pm",40.6883,-73.9544
+"John Wesley United Methodist Church",Food Pantry & Soup Kitchen,"260 Quincy Street, Brooklyn, NY",11216,718-783-5735,"Pantry: Tue 2–6pm; Soup Kitchen: Thu 12:30–2pm",40.6913,-73.9535
+"Newman Memorial United Methodist Church",Food Pantry & Soup Kitchen,"257 Macon Street, Brooklyn, NY",11216,718-622-7955,"Tue 9am–2pm",40.6883,-73.9539
+"Bridge Street AME Church",Soup Kitchen,"277 Stuyvesant Avenue, Brooklyn, NY",11221,718-452-3936,"Wed 11am–1pm",40.6893,-73.9379
+"Cornerstone Baptist Food Pantry",Food Pantry,"562 Madison Street, Brooklyn, NY",11221,718-789-0946,"Tue 11am–1pm",40.6957,-73.9347
+"Upper Room Full Gospel Baptist Church",Food Pantry & Soup Kitchen,"180 Van Buren Street, Brooklyn, NY",11221,347-680-6781,"Mon–Fri 10am–3pm; Soup Kitchen 12–2pm",40.6931,-73.9321
+"Faith Assemblies",Food Pantry & Soup Kitchen,"1014 Gates Avenue, Brooklyn, NY",11221,347-853-4966,"Sat 9–11:30am",40.6858,-73.9267
+"The Salvation Army Bushwick",Food Pantry & Soup Kitchen,"1151 Bushwick Avenue, Brooklyn, NY",11221,718-455-4102,"Pantry: Mon/Tue/Thu/Fri 10am–1pm",40.6952,-73.9253
+"Black Veterans for Social Justice",Food Pantry,"357 Marcus Garvey Blvd, Brooklyn, NY",11221,718-852-6004,"Every other Fri 2–3:30pm",40.6886,-73.9400
+"St. Philip's Christian Church",Food Pantry,"765 Lafayette Avenue, Brooklyn, NY",11221,718-453-0691,"Thu 12:30–2:30pm",40.6930,-73.9355
+"Child Development Support Corp",Food Pantry,"352 Classon Avenue, Brooklyn, NY",11238,718-398-2050,"Thu 10am–1pm",40.6818,-73.9631
+"Hope City Empowerment Center",Food Pantry & Soup Kitchen,"650 Washington Avenue, Brooklyn, NY",11238,718-857-5698,"Soup Kitchen: Tue/Thu/Fri 12:30–2pm; Pantry: every other Fri 9–11am",40.6832,-73.9639
+"Bethel Seventh Day Adventist Church",Food Pantry & Soup Kitchen,"457 Grand Avenue, Brooklyn, NY",11238,718-783-3630,"Soup Kitchen: Sun 1–2pm",40.6783,-73.9624
+"Quincy Community Service Inc.",Food Pantry & Soup Kitchen,"84 Quincy Street, Brooklyn, NY",11238,718-740-1680,"Soup Kitchen: Wed 1–3pm; Pantry: varies",40.6908,-73.9631
+"Union Baptist Church",Food Pantry & Soup Kitchen,"461 Decatur Street, Brooklyn, NY",11233,718-452-7248,"Wed & Fri 12–2pm",40.6873,-73.9180
+"St. Benedict's Pantry (St. Phillips Church)",Food Pantry,"265 Decatur Street, Brooklyn, NY",11233,718-778-0962,"Wed 11am–1pm (closed Aug)",40.6873,-73.9215
+"Calvary AME Church",Soup Kitchen,"790 Herkimer Street, Brooklyn, NY",11233,718-467-0987,"Tue 12:30–2pm",40.6787,-73.9195
+"Chance for Children",Food Pantry,"2097 Fulton Street, Brooklyn, NY",11233,718-566-2823,"Fri 10am–12pm",40.6792,-73.9162
+"Community Board 3 Office",Community,"1360 Fulton Street, Brooklyn, NY",11216,718-622-6601,"Mon–Fri 9am–5pm",40.6805,-73.9551
+"NEBHDCo Main Office",Community,"132 Ralph Avenue, Brooklyn, NY",11233,718-453-9490,,40.6850,-73.9215

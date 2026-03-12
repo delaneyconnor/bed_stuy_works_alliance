@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CB3 Community Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            color: black;
+            padding: 20px;
+            z-index: 2;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Hide header and filter panel when embedded */
+        body.embedded .header,
+        body.embedded .filter-panel {
+            display: none;
+        }
+
+        /* Hide map controls when embedded */
+        body.embedded .mapboxgl-control-container {
+            display: none;
+        }
+
+        .header h1 {
+            margin: 0 0 5px 0;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1;
+            width: 330px;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+
+        .filter-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: black;
+        }
+
+        .category-filters {
+            margin-bottom: 15px;
+        }
+
+        .category-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .filter-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 4px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            color: black;
+        }
+
+        .filter-btn:hover { opacity: 0.8; }
+
+        .filter-btn.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-btn[data-category="all"].active      { background: black; border-color: black; }
+        .filter-btn[data-category="Health Care"].active       { background: #C0392B; }
+        .filter-btn[data-category="Police"].active            { background: #2980B9; }
+        .filter-btn[data-category="Fire Department"].active   { background: #E67E22; }
+        .filter-btn[data-category="Library"].active           { background: #8E44AD; }
+        .filter-btn[data-category="Food Pantry"].active       { background: #27AE60; }
+        .filter-btn[data-category="Soup Kitchen"].active      { background: #16A085; }
+        .filter-btn[data-category="Food Pantry & Soup Kitchen"].active { background: #1E8449; }
+        .filter-btn[data-category="Community"].active         { background: #7F8C8D; }
+        .filter-btn[data-category="Single Stop"].active       { background: #0E6655; }
+        .filter-btn[data-category="Senior Center"].active     { background: #B7950B; }
+        .filter-btn[data-category="Community Garden"].active  { background: #229954; }
+
+        /* Hover Tooltip */
+        .hover-tooltip {
+            position: absolute;
+            background: #ffffff;
+            color: #000000;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 1px solid #000000;
+        }
+        .hover-tooltip.visible { opacity: 1; }
+
+        /* Info Panel */
+        .info-panel {
+            position: absolute;
+            top: 120px;
+            right: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1;
+            width: 350px;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+            display: none;
+        }
+        .info-panel.active { display: block; }
+
+        .info-panel h2 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            color: black;
+            padding-right: 30px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 1;
+        }
+        .close-btn:hover { color: black; }
+
+        .info-section { margin-bottom: 20px; }
+
+        .info-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: black;
+            line-height: 1.5;
+        }
+
+        .hours-value {
+            font-size: 14px;
+            color: #1a7a5e;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* About / Home Buttons */
+        .about-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: black;
+        }
+        .about-btn:hover { background: #f0f7f7; border-color: #7DBBBB; transform: scale(1.05); }
+
+        .home-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: black;
+        }
+        .home-btn:hover { background: #f0f7f7; border-color: #7DBBBB; transform: scale(1.05); }
+
+        /* About Modal */
+        .about-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .about-modal.active { display: flex; }
+
+        .about-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .about-content h2 { margin: 0 0 20px 0; font-size: 24px; color: black; padding-right: 30px; }
+        .about-content p { margin: 0 0 15px 0; line-height: 1.6; color: #333; font-size: 14px; }
+        .about-content p:last-child { margin-bottom: 0; }
+
+        /* Hide Mapbox logo */
+        .mapboxgl-ctrl-logo { display: none !important; }
+        .mapboxgl-ctrl-bottom-left { bottom: 90px !important; }
+
+        @media (max-width: 768px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 25px; }
+            .filter-panel { position: static; width: 100%; max-height: none; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .info-panel { position: fixed; top: auto; bottom: 10px; left: 10px; right: 10px; width: calc(100% - 20px); max-height: 40vh; }
+            .about-btn, .home-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>CB3 Community Services</h1>
+    <p>Health care, libraries, food resources, senior centers, and more in Bedford-Stuyvesant</p>
+</div>
+
+<div class="filter-panel">
+    <h3>Filter by Category</h3>
+    <div class="category-filters">
+        <button class="filter-btn active" data-category="all">All</button>
+        <button class="filter-btn" data-category="Health Care">Health Care</button>
+        <button class="filter-btn" data-category="Police">Police</button>
+        <button class="filter-btn" data-category="Fire Department">Fire Dept</button>
+        <button class="filter-btn" data-category="Library">Library</button>
+        <button class="filter-btn" data-category="Food Pantry">Food Pantry</button>
+        <button class="filter-btn" data-category="Soup Kitchen">Soup Kitchen</button>
+        <button class="filter-btn" data-category="Food Pantry & Soup Kitchen">Pantry + Kitchen</button>
+        <button class="filter-btn" data-category="Community">Community</button>
+        <button class="filter-btn" data-category="Single Stop">Single Stop</button>
+        <button class="filter-btn" data-category="Senior Center">Senior Center</button>
+        <button class="filter-btn" data-category="Community Garden">Gardens</button>
+    </div>
+</div>
+
+<div class="hover-tooltip" id="hover-tooltip"></div>
+
+<div class="info-panel" id="info-panel">
+    <button class="close-btn" id="close-panel">×</button>
+    <h2 id="resource-name"></h2>
+    <div class="info-section">
+        <div class="info-label">Category</div>
+        <div class="info-value" id="resource-category"></div>
+    </div>
+    <div class="info-section">
+        <div class="info-label">Address</div>
+        <div class="info-value" id="resource-address"></div>
+    </div>
+    <div class="info-section" id="phone-section" style="display:none">
+        <div class="info-label">Phone</div>
+        <div class="info-value" id="resource-phone"></div>
+    </div>
+    <div class="info-section" id="hours-section" style="display:none">
+        <div class="info-label">Hours</div>
+        <div class="hours-value" id="resource-hours"></div>
+    </div>
+</div>
+
+<div id="map"></div>
+
+<a href="site.html" class="home-btn" title="Back to Site">
+    <i class="fas fa-arrow-left"></i>
+</a>
+
+<button class="about-btn" id="about-btn">?</button>
+
+<div class="about-modal" id="about-modal">
+    <div class="about-content">
+        <button class="close-btn" id="close-about">×</button>
+        <h2>About This Map</h2>
+        <p>This map shows community services in Bedford-Stuyvesant and the surrounding Community Board 3 area, organized by the Northeast Brooklyn Housing Development Corporation (NEBHDCo).</p>
+        <p><strong>Categories include:</strong></p>
+        <p>
+            • Health Care — Hospitals, clinics, and emergency services<br>
+            • Police — NYPD precincts serving CB3<br>
+            • Fire Department — FDNY engine and ladder companies<br>
+            • Library — Brooklyn Public Library branches<br>
+            • Food Pantry / Soup Kitchen — Emergency food resources<br>
+            • Community — Civic organizations and offices<br>
+            • Single Stop — Free benefits, tax, and legal services<br>
+            • Senior Center — Centers serving older adults<br>
+            • Community Garden — Gardens open to residents
+        </p>
+        <p><strong>Data source:</strong> NEBHDCo CB3 Resource Guide. Contact <a href="mailto:delaneyconnor1@gmail.com">delaneyconnor1@gmail.com</a> to suggest updates.</p>
+    </div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+<script>
+if (window.self !== window.top) {
+    document.body.classList.add('embedded');
+}
+
+const COLORS = {
+    'Health Care':                '#C0392B',
+    'Police':                     '#2980B9',
+    'Fire Department':            '#E67E22',
+    'Library':                    '#8E44AD',
+    'Food Pantry':                '#27AE60',
+    'Soup Kitchen':               '#16A085',
+    'Food Pantry & Soup Kitchen': '#1E8449',
+    'Community':                  '#7F8C8D',
+    'Single Stop':                '#0E6655',
+    'Senior Center':              '#B7950B',
+    'Community Garden':           '#229954'
+};
+
+const resources = [
+    // Health Care
+    { name: "Interfaith Medical Center", category: "Health Care", address: "1545 Atlantic Avenue, Brooklyn, NY 11213", phone: "718-613-4000", hours: "", lat: 40.6771, lng: -73.9271 },
+    { name: "Woodhull Medical and Mental Health Center", category: "Health Care", address: "760 Broadway, Brooklyn, NY 11206", phone: "718-963-8000", hours: "", lat: 40.7014, lng: -73.9443 },
+    { name: "Bedford-Stuyvesant Family Health Center (Fulton)", category: "Health Care", address: "1413 Fulton Street, Brooklyn, NY 11216", phone: "718-636-4500", hours: "", lat: 40.6806, lng: -73.9543 },
+    { name: "Bedford-Stuyvesant Family Health Center (Kingston)", category: "Health Care", address: "1456 Fulton Street, Brooklyn, NY 11216", phone: "718-636-4500", hours: "", lat: 40.6806, lng: -73.9516 },
+    { name: "Total Family Medical Care", category: "Health Care", address: "1074 DeKalb Avenue, Brooklyn, NY 11221", phone: "718-452-6013", hours: "", lat: 40.6900, lng: -73.9370 },
+    { name: "Bedford Stuyvesant Volunteer Ambulance Corps", category: "Health Care", address: "727 Greene Avenue, Brooklyn, NY 11221", phone: "718-453-4617", hours: "", lat: 40.6844, lng: -73.9388 },
+    { name: "SUNY Downstate Medical Center", category: "Health Care", address: "450 Clarkson Avenue, Brooklyn, NY 11203", phone: "718-270-1000", hours: "", lat: 40.6550, lng: -73.9440 },
+    { name: "Kings County Hospital Center", category: "Health Care", address: "451 Clarkson Avenue, Brooklyn, NY 11203", phone: "718-245-3131", hours: "", lat: 40.6549, lng: -73.9437 },
+    { name: "Brooklyn Hospital Center", category: "Health Care", address: "121 DeKalb Avenue, Brooklyn, NY 11201", phone: "718-250-8000", hours: "", lat: 40.6906, lng: -73.9766 },
+    // Police
+    { name: "79th Precinct", category: "Police", address: "263 Tompkins Avenue, Brooklyn, NY 11221", phone: "718-636-6611", hours: "Community Council: 4th Wed of month 7pm at 585 DeKalb Ave", lat: 40.6955, lng: -73.9334 },
+    { name: "81st Precinct", category: "Police", address: "30 Ralph Avenue, Brooklyn, NY 11221", phone: "718-574-0411", hours: "Community Council: 2nd Tue of month 7pm at 794 Monroe St", lat: 40.6883, lng: -73.9215 },
+    { name: "83rd Precinct", category: "Police", address: "480 Knickerbocker Avenue, Brooklyn, NY 11237", phone: "718-574-1605", hours: "Community Council: 3rd Tue of month 7:30pm", lat: 40.6926, lng: -73.9146 },
+    { name: "88th Precinct", category: "Police", address: "298 Classon Avenue, Brooklyn, NY 11205", phone: "718-636-6511", hours: "Community Council: 3rd Tue of month 7:30pm", lat: 40.6884, lng: -73.9639 },
+    // Fire Department
+    { name: "Engine 277 / Ladder 112", category: "Fire Department", address: "582 Knickerbocker Avenue, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6965, lng: -73.9146 },
+    { name: "Engine 218", category: "Fire Department", address: "650 Hart Street, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6971, lng: -73.9332 },
+    { name: "Engine 217", category: "Fire Department", address: "940 DeKalb Avenue, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6906, lng: -73.9264 },
+    { name: "Engine 222 / Battalion 37", category: "Fire Department", address: "32 Ralph Avenue, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6883, lng: -73.9216 },
+    { name: "Engine 210", category: "Fire Department", address: "160 Carlton Avenue, Brooklyn, NY 11205", phone: "", hours: "", lat: 40.6878, lng: -73.9664 },
+    { name: "Engine 230", category: "Fire Department", address: "701 Park Avenue, Brooklyn, NY 11206", phone: "", hours: "", lat: 40.7003, lng: -73.9443 },
+    { name: "Engine 235 / Battalion 57", category: "Fire Department", address: "206 Monroe Street, Brooklyn, NY 11216", phone: "", hours: "", lat: 40.6849, lng: -73.9562 },
+    { name: "Engine 214 / Ladder 111", category: "Fire Department", address: "495 Hancock Street, Brooklyn, NY 11233", phone: "", hours: "", lat: 40.6913, lng: -73.9207 },
+    { name: "Engine 227", category: "Fire Department", address: "423 Ralph Avenue, Brooklyn, NY 11233", phone: "", hours: "", lat: 40.6872, lng: -73.9215 },
+    { name: "Engine 233 / Ladder 176", category: "Fire Department", address: "25 Rockaway Avenue, Brooklyn, NY 11233", phone: "", hours: "", lat: 40.6827, lng: -73.9197 },
+    { name: "Engine 280 / Ladder 132", category: "Fire Department", address: "489 St. Johns Place, Brooklyn, NY 11238", phone: "", hours: "", lat: 40.6763, lng: -73.9565 },
+    // Libraries
+    { name: "Marcy Library", category: "Library", address: "617 DeKalb Avenue, Brooklyn, NY 11216", phone: "718-935-0032", hours: "", lat: 40.6908, lng: -73.9555 },
+    { name: "Lewis Avenue Library (Macon Branch)", category: "Library", address: "361 Lewis Avenue, Brooklyn, NY 11233", phone: "718-573-5606", hours: "", lat: 40.6855, lng: -73.9391 },
+    { name: "Bedford Branch Library", category: "Library", address: "496 Franklin Avenue, Brooklyn, NY 11238", phone: "718-623-0012", hours: "", lat: 40.6820, lng: -73.9574 },
+    { name: "Clinton Hill Library", category: "Library", address: "380 Washington Avenue, Brooklyn, NY 11238", phone: "718-398-8713", hours: "", lat: 40.6867, lng: -73.9639 },
+    { name: "Crown Heights Branch Library", category: "Library", address: "560 New York Avenue, Brooklyn, NY 11225", phone: "718-773-1180", hours: "", lat: 40.6733, lng: -73.9462 },
+    { name: "Brower Park Branch Library", category: "Library", address: "725 Saint Marks Avenue, Brooklyn, NY 11216", phone: "718-773-7208", hours: "", lat: 40.6741, lng: -73.9510 },
+    { name: "Central Library (Grand Army Plaza)", category: "Library", address: "10 Grand Army Plaza, Brooklyn, NY 11238", phone: "718-230-2100", hours: "", lat: 40.6727, lng: -73.9703 },
+    { name: "Saratoga Branch Library", category: "Library", address: "8 Hopkinson Avenue, Brooklyn, NY 11233", phone: "718-573-5224", hours: "", lat: 40.6803, lng: -73.9153 },
+    { name: "Washington Irving Library", category: "Library", address: "360 Irving Avenue, Brooklyn, NY 11237", phone: "718-628-8378", hours: "", lat: 40.6944, lng: -73.9124 },
+    { name: "DeKalb Library", category: "Library", address: "790 Bushwick Avenue, Brooklyn, NY 11221", phone: "718-455-3898", hours: "", lat: 40.6908, lng: -73.9271 },
+    { name: "Bushwick Branch Library", category: "Library", address: "340 Bushwick Avenue, Brooklyn, NY 11206", phone: "718-602-1348", hours: "", lat: 40.7028, lng: -73.9325 },
+    // Food
+    { name: "NEBHDCo Golden Harvest Food Pantry", category: "Food Pantry", address: "745 Lafayette Avenue, Brooklyn, NY 11221", phone: "718-453-9490", hours: "Tue & Thu 10am–12pm", lat: 40.6930, lng: -73.9361 },
+    { name: "St. John's Bread and Life", category: "Food Pantry & Soup Kitchen", address: "795 Lexington Avenue, Brooklyn, NY 11221", phone: "718-574-0058", hours: "Mon–Fri breakfast 8–9:30am; lunch 10:30am–12:30pm", lat: 40.6913, lng: -73.9334 },
+    { name: "Bed-Stuy Campaign Against Hunger", category: "Food Pantry", address: "2004 Fulton Street, Brooklyn, NY 11233", phone: "718-773-3551", hours: "Mon–Fri 10am–3pm", lat: 40.6792, lng: -73.9180 },
+    { name: "Neighbors Together", category: "Soup Kitchen", address: "2094 Fulton Street, Brooklyn, NY 11233", phone: "718-498-7256", hours: "Mon–Fri 12–2pm & 4–6pm", lat: 40.6792, lng: -73.9167 },
+    { name: "Brooklyn Rescue Mission", category: "Food Pantry", address: "255 Bainbridge Street, Brooklyn, NY 11233", phone: "718-363-3085", hours: "Tue & Thu 7am–12pm", lat: 40.6841, lng: -73.9165 },
+    { name: "The Salvation Army Bedford", category: "Food Pantry", address: "601 Lafayette Avenue, Brooklyn, NY 11216", phone: "718-622-0614", hours: "Mon–Thu 1–2:30pm", lat: 40.6930, lng: -73.9488 },
+    { name: "Agape Social Services / Beulah Church", category: "Food Pantry & Soup Kitchen", address: "929 Marcy Avenue, Brooklyn, NY 11216", phone: "718-484-3823", hours: "Pantry: Tue/Thu/Fri 10:30am–2pm; Soup Kitchen: Wed 12:30–2pm", lat: 40.6872, lng: -73.9553 },
+    { name: "Siloam Presbyterian Church Food Pantry", category: "Food Pantry", address: "260 Jefferson Avenue, Brooklyn, NY 11216", phone: "718-789-7050", hours: "Wed & Fri 10am–1pm", lat: 40.6883, lng: -73.9544 },
+    { name: "John Wesley United Methodist Church", category: "Food Pantry & Soup Kitchen", address: "260 Quincy Street, Brooklyn, NY 11216", phone: "718-783-5735", hours: "Pantry: Tue 2–6pm; Soup Kitchen: Thu 12:30–2pm", lat: 40.6913, lng: -73.9535 },
+    { name: "Newman Memorial United Methodist Church", category: "Food Pantry & Soup Kitchen", address: "257 Macon Street, Brooklyn, NY 11216", phone: "718-622-7955", hours: "Tue 9am–2pm", lat: 40.6883, lng: -73.9539 },
+    { name: "Bridge Street AME Church", category: "Soup Kitchen", address: "277 Stuyvesant Avenue, Brooklyn, NY 11221", phone: "718-452-3936", hours: "Wed 11am–1pm", lat: 40.6893, lng: -73.9379 },
+    { name: "Cornerstone Baptist Food Pantry", category: "Food Pantry", address: "562 Madison Street, Brooklyn, NY 11221", phone: "718-789-0946", hours: "Tue 11am–1pm", lat: 40.6957, lng: -73.9347 },
+    { name: "Upper Room Full Gospel Baptist Church", category: "Food Pantry & Soup Kitchen", address: "180 Van Buren Street, Brooklyn, NY 11221", phone: "347-680-6781", hours: "Mon–Fri 10am–3pm; Soup Kitchen 12–2pm", lat: 40.6931, lng: -73.9321 },
+    { name: "Faith Assemblies", category: "Food Pantry & Soup Kitchen", address: "1014 Gates Avenue, Brooklyn, NY 11221", phone: "347-853-4966", hours: "Sat 9–11:30am", lat: 40.6858, lng: -73.9267 },
+    { name: "The Salvation Army Bushwick", category: "Food Pantry & Soup Kitchen", address: "1151 Bushwick Avenue, Brooklyn, NY 11221", phone: "718-455-4102", hours: "Pantry: Mon/Tue/Thu/Fri 10am–1pm", lat: 40.6952, lng: -73.9253 },
+    { name: "Black Veterans for Social Justice", category: "Food Pantry", address: "357 Marcus Garvey Blvd, Brooklyn, NY 11221", phone: "718-852-6004", hours: "Every other Fri 2–3:30pm", lat: 40.6886, lng: -73.9400 },
+    { name: "St. Philip's Christian Church", category: "Food Pantry", address: "765 Lafayette Avenue, Brooklyn, NY 11221", phone: "718-453-0691", hours: "Thu 12:30–2:30pm", lat: 40.6930, lng: -73.9355 },
+    { name: "Child Development Support Corp", category: "Food Pantry", address: "352 Classon Avenue, Brooklyn, NY 11238", phone: "718-398-2050", hours: "Thu 10am–1pm", lat: 40.6818, lng: -73.9631 },
+    { name: "Hope City Empowerment Center", category: "Food Pantry & Soup Kitchen", address: "650 Washington Avenue, Brooklyn, NY 11238", phone: "718-857-5698", hours: "Soup Kitchen: Tue/Thu/Fri 12:30–2pm; Pantry: every other Fri 9–11am", lat: 40.6832, lng: -73.9639 },
+    { name: "Bethel Seventh Day Adventist Church", category: "Food Pantry & Soup Kitchen", address: "457 Grand Avenue, Brooklyn, NY 11238", phone: "718-783-3630", hours: "Soup Kitchen: Sun 1–2pm", lat: 40.6783, lng: -73.9624 },
+    { name: "Quincy Community Service Inc.", category: "Food Pantry & Soup Kitchen", address: "84 Quincy Street, Brooklyn, NY 11238", phone: "718-740-1680", hours: "Soup Kitchen: Wed 1–3pm; Pantry: varies", lat: 40.6908, lng: -73.9631 },
+    { name: "Union Baptist Church", category: "Food Pantry & Soup Kitchen", address: "461 Decatur Street, Brooklyn, NY 11233", phone: "718-452-7248", hours: "Wed & Fri 12–2pm", lat: 40.6873, lng: -73.9180 },
+    { name: "St. Benedict's Pantry (St. Phillips Church)", category: "Food Pantry", address: "265 Decatur Street, Brooklyn, NY 11233", phone: "718-778-0962", hours: "Wed 11am–1pm (closed Aug)", lat: 40.6873, lng: -73.9215 },
+    { name: "Calvary AME Church", category: "Soup Kitchen", address: "790 Herkimer Street, Brooklyn, NY 11233", phone: "718-467-0987", hours: "Tue 12:30–2pm", lat: 40.6787, lng: -73.9195 },
+    { name: "Chance for Children", category: "Food Pantry", address: "2097 Fulton Street, Brooklyn, NY 11233", phone: "718-566-2823", hours: "Fri 10am–12pm", lat: 40.6792, lng: -73.9162 },
+    // Community
+    { name: "Community Board 3 Office", category: "Community", address: "1360 Fulton Street, Brooklyn, NY 11216", phone: "718-622-6601", hours: "Mon–Fri 9am–5pm", lat: 40.6805, lng: -73.9551 },
+    { name: "NEBHDCo Main Office", category: "Community", address: "132 Ralph Avenue, Brooklyn, NY 11233", phone: "718-453-9490", hours: "", lat: 40.6850, lng: -73.9215 },
+    // Single Stop
+    { name: "Single Stop — Bed-Stuy Restoration Corp", category: "Single Stop", address: "1368 Fulton Street, 4th Floor, Brooklyn, NY 11216", phone: "718-636-6942", hours: "Mon–Fri 10am–6pm | Tax: Mon–Thu 11am–7pm, Sat 9am–5pm", lat: 40.6805, lng: -73.9549 },
+    { name: "Single Stop — St. John's Bread and Life", category: "Single Stop", address: "795 Lexington Avenue, Brooklyn, NY 11221", phone: "718-574-0058 ext 110", hours: "Mon–Fri 8am–5pm | Legal: Tue 9am–12pm", lat: 40.6913, lng: -73.9336 },
+    { name: "Single Stop — S.C.O. at M.S. 35 Beacon", category: "Single Stop", address: "272 MacDonough Street, Room 101, Brooklyn, NY 11233", phone: "718-453-7004", hours: "Financial & Legal: 2nd & 4th Mon 4–7pm", lat: 40.6873, lng: -73.9210 },
+    { name: "Single Stop — Health Leads / Woodhull Hospital", category: "Single Stop", address: "760 Broadway, Brooklyn, NY 11206", phone: "718-630-3055", hours: "Mon–Fri 9am–5pm", lat: 40.7016, lng: -73.9441 },
+    { name: "Single Stop — Make the Road NY (Bushwick)", category: "Single Stop", address: "301 Grove Street, Brooklyn, NY 11237", phone: "718-418-7690", hours: "Mon–Fri 9:30am–7:30pm", lat: 40.6925, lng: -73.9148 },
+    // Senior Centers
+    { name: "Bridge Street Dev Corp Senior Center", category: "Senior Center", address: "460 Nostrand Avenue, Brooklyn, NY 11216", phone: "718-399-0146", hours: "", lat: 40.6800, lng: -73.9508 },
+    { name: "NYCHA Armstrong Senior Center", category: "Senior Center", address: "360 Nostrand Avenue, Brooklyn, NY 11216", phone: "718-789-9672", hours: "", lat: 40.6765, lng: -73.9508 },
+    { name: "Stuyvesant Heights Senior Center", category: "Senior Center", address: "69 McDonough Street, Brooklyn, NY 11216", phone: "718-230-0824", hours: "", lat: 40.6873, lng: -73.9394 },
+    { name: "Fort Greene Grant Square Senior Center", category: "Senior Center", address: "19 Grant Square, Brooklyn, NY 11216", phone: "718-363-3133", hours: "", lat: 40.6752, lng: -73.9462 },
+    { name: "Decatur Grant Square Senior Center", category: "Senior Center", address: "19 Rogers Avenue, Brooklyn, NY 11216", phone: "718-467-9590", hours: "", lat: 40.6733, lng: -73.9492 },
+    { name: "Hope Gardens Multi-Service Center", category: "Senior Center", address: "195 Linden Street, Brooklyn, NY 11221", phone: "718-455-1100", hours: "", lat: 40.6976, lng: -73.9260 },
+    { name: "Roundtable for Senior Citizens Center", category: "Senior Center", address: "1175 Gates Avenue, 3rd Floor, Brooklyn, NY 11221", phone: "718-443-7071", hours: "", lat: 40.6858, lng: -73.9253 },
+    { name: "NYCHA Stuyvesant Gardens Senior Center", category: "Senior Center", address: "150 Malcolm X Boulevard, Brooklyn, NY 11221", phone: "718-919-0279", hours: "", lat: 40.6896, lng: -73.9393 },
+    { name: "Divinity Amour Senior Center", category: "Senior Center", address: "499 Quincy Street, Brooklyn, NY 11221", phone: "718-484-7027", hours: "", lat: 40.6924, lng: -73.9292 },
+    { name: "Brevoort Senior Center", category: "Senior Center", address: "280 Ralph Avenue, Brooklyn, NY 11233", phone: "718-467-7381", hours: "", lat: 40.6849, lng: -73.9217 },
+    { name: "Hugh Gilroy Senior Center", category: "Senior Center", address: "447 Kingsboro 4th Walk, Brooklyn, NY 11233", phone: "718-756-8400", hours: "", lat: 40.6775, lng: -73.9150 },
+    { name: "Berean HDFC Senior Center", category: "Senior Center", address: "1481 Saint Marks Avenue, Brooklyn, NY 11233", phone: "718-498-2960", hours: "", lat: 40.6755, lng: -73.9200 },
+    { name: "Atlantic Terminal Senior Center", category: "Senior Center", address: "501 Carlton Avenue, Brooklyn, NY 11238", phone: "718-857-0281", hours: "", lat: 40.6789, lng: -73.9662 },
+    { name: "Grace Agard Harewood Senior Center", category: "Senior Center", address: "966 Fulton Street, Brooklyn, NY 11238", phone: "718-638-6910", hours: "", lat: 40.6808, lng: -73.9620 },
+    // Community Gardens
+    { name: "Hattie Carthan Community Garden", category: "Community Garden", address: "677 Lafayette Avenue, Brooklyn, NY 11216", phone: "718-638-3566", hours: "", lat: 40.6920, lng: -73.9468 },
+    { name: "Garden of Hope", category: "Community Garden", address: "392 Hancock Street, Brooklyn, NY 11216", phone: "", hours: "", lat: 40.6909, lng: -73.9544 },
+    { name: "NEBHDCo Community Gardens @ Kosciusko", category: "Community Garden", address: "385 Kosciusko Street, Brooklyn, NY 11221", phone: "718-453-9490", hours: "", lat: 40.6960, lng: -73.9348 },
+    { name: "Bed-Stuy Community Garden", category: "Community Garden", address: "95 Malcolm X Boulevard, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6886, lng: -73.9400 },
+    { name: "Madison Street Community Gardens", category: "Community Garden", address: "974 Madison Street, Brooklyn, NY 11221", phone: "", hours: "", lat: 40.6953, lng: -73.9268 },
+    { name: "Halsey Street Community Gardens", category: "Community Garden", address: "462 Halsey Street, Brooklyn, NY 11233", phone: "", hours: "", lat: 40.6876, lng: -73.9211 },
+    { name: "Phoenix Community Gardens", category: "Community Garden", address: "2037 Fulton Street, Brooklyn, NY 11233", phone: "212-594-2155", hours: "", lat: 40.6781, lng: -73.9182 },
+    { name: "Hollenback Community Garden", category: "Community Garden", address: "460 Washington Avenue, Brooklyn, NY 11238", phone: "", hours: "", lat: 40.6831, lng: -73.9637 }
+];
+
+const geojson = {
+    type: 'FeatureCollection',
+    features: resources.map((r, i) => ({
+        type: 'Feature',
+        id: i,
+        geometry: { type: 'Point', coordinates: [r.lng, r.lat] },
+        properties: { ...r, color: COLORS[r.category] || '#999' }
+    }))
+};
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGVsYW5leWNvbm5vciIsImEiOiJjbTRnM2Q1ZGkxZzhuMmpvbXByY2wwaDgwIn0.HSEo0pqv9ZN6DorMNmTB8A';
+
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/delaneyconnor/cmiuzxumn006c01qn5xjk2trz',
+    center: [-73.9400, 40.6870],
+    zoom: 13
+});
+
+map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
+
+const tooltip  = document.getElementById('hover-tooltip');
+const panel    = document.getElementById('info-panel');
+let hoveredId  = null;
+let selectedId = null;
+let selectedCategories = [];
+
+map.on('load', function() {
+    map.addSource('cb3', { type: 'geojson', data: geojson });
+
+    map.addLayer({
+        id: 'cb3-halo',
+        type: 'circle',
+        source: 'cb3',
+        paint: {
+            'circle-radius': 14,
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.15,
+            'circle-stroke-width': 0
+        }
+    });
+
+    map.addLayer({
+        id: 'cb3-points',
+        type: 'circle',
+        source: 'cb3',
+        paint: {
+            'circle-radius': [
+                'case',
+                ['boolean', ['feature-state', 'selected'], false], 14,
+                ['boolean', ['feature-state', 'hover'], false], 14,
+                8
+            ],
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.8,
+            'circle-stroke-width': [
+                'case',
+                ['boolean', ['feature-state', 'selected'], false], 3,
+                ['boolean', ['feature-state', 'hover'], false], 3,
+                0
+            ],
+            'circle-stroke-color': '#FFFFFF'
+        }
+    });
+});
+
+map.on('mousemove', 'cb3-points', function(e) {
+    map.getCanvas().style.cursor = 'pointer';
+    if (e.features.length > 0) {
+        const f = e.features[0];
+        if (hoveredId !== null && hoveredId !== f.id) {
+            map.setFeatureState({ source: 'cb3', id: hoveredId }, { hover: false });
+        }
+        hoveredId = f.id;
+        map.setFeatureState({ source: 'cb3', id: hoveredId }, { hover: true });
+        tooltip.textContent = f.properties.name;
+        tooltip.style.left = (e.point.x + 15) + 'px';
+        tooltip.style.top  = (e.point.y + 15) + 'px';
+        tooltip.classList.add('visible');
+    }
+});
+
+map.on('mouseleave', 'cb3-points', function() {
+    map.getCanvas().style.cursor = '';
+    tooltip.classList.remove('visible');
+    if (hoveredId !== null) {
+        map.setFeatureState({ source: 'cb3', id: hoveredId }, { hover: false });
+        hoveredId = null;
+    }
+});
+
+map.on('click', 'cb3-points', function(e) {
+    if (e.features.length > 0) {
+        const f = e.features[0];
+        const p = f.properties;
+
+        if (selectedId !== null) {
+            map.setFeatureState({ source: 'cb3', id: selectedId }, { selected: false });
+        }
+        selectedId = f.id;
+        map.setFeatureState({ source: 'cb3', id: selectedId }, { selected: true });
+
+        document.getElementById('resource-name').textContent = p.name;
+        document.getElementById('resource-category').textContent = p.category;
+        document.getElementById('resource-address').textContent = p.address;
+
+        const phoneSection = document.getElementById('phone-section');
+        if (p.phone) {
+            document.getElementById('resource-phone').textContent = p.phone;
+            phoneSection.style.display = 'block';
+        } else {
+            phoneSection.style.display = 'none';
+        }
+
+        const hoursSection = document.getElementById('hours-section');
+        if (p.hours) {
+            document.getElementById('resource-hours').textContent = p.hours;
+            hoursSection.style.display = 'block';
+        } else {
+            hoursSection.style.display = 'none';
+        }
+
+        tooltip.classList.remove('visible');
+        panel.classList.add('active');
+
+        map.flyTo({ center: e.lngLat, zoom: Math.max(map.getZoom(), 14), duration: 800 });
+    }
+});
+
+// Close panel on background click
+map.on('click', function(e) {
+    const fs = map.queryRenderedFeatures(e.point, { layers: ['cb3-points'] });
+    if (!fs.length) {
+        panel.classList.remove('active');
+        if (selectedId !== null) {
+            map.setFeatureState({ source: 'cb3', id: selectedId }, { selected: false });
+            selectedId = null;
+        }
+    }
+});
+
+document.getElementById('close-panel').addEventListener('click', function() {
+    panel.classList.remove('active');
+    if (selectedId !== null) {
+        map.setFeatureState({ source: 'cb3', id: selectedId }, { selected: false });
+        selectedId = null;
+    }
+});
+
+// Category filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const category = this.dataset.category;
+
+        if (category === 'all') {
+            selectedCategories = [];
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            if (map.getLayer('cb3-points')) {
+                map.setFilter('cb3-points', null);
+                map.setFilter('cb3-halo', null);
+            }
+            return;
+        }
+
+        const idx = selectedCategories.indexOf(category);
+        if (idx > -1) {
+            selectedCategories.splice(idx, 1);
+            this.classList.remove('active');
+        } else {
+            selectedCategories.push(category);
+            this.classList.add('active');
+            document.querySelector('.filter-btn[data-category="all"]').classList.remove('active');
+        }
+
+        if (!map.getLayer('cb3-points')) return;
+
+        if (selectedCategories.length === 0) {
+            map.setFilter('cb3-points', null);
+            map.setFilter('cb3-halo', null);
+            document.querySelector('.filter-btn[data-category="all"]').classList.add('active');
+        } else {
+            const f = ['in', ['get', 'category'], ['literal', selectedCategories]];
+            map.setFilter('cb3-points', f);
+            map.setFilter('cb3-halo', f);
+        }
+    });
+});
+
+// About modal
+document.getElementById('about-btn').addEventListener('click', function() {
+    document.getElementById('about-modal').classList.add('active');
+});
+document.getElementById('close-about').addEventListener('click', function() {
+    document.getElementById('about-modal').classList.remove('active');
+});
+document.getElementById('about-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+});
+</script>
+</body>
+</html>
