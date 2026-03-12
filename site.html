@@ -133,7 +133,6 @@
         }
 
         .tab-panel ul {
-            max-width: 680px;
             margin-bottom: 1rem;
             padding-left: 1.5rem;
         }
@@ -330,6 +329,30 @@
             margin-bottom: 0.75rem;
         }
 
+        /* ── Association Resources two-column layout ── */
+        .assoc-content {
+            columns: 2 340px;
+            column-gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        .assoc-content > h3 {
+            column-span: all;
+            font-size: 1.1rem !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            color: #FF3B30 !important;
+            margin-top: 2.5rem !important;
+            margin-bottom: 0.75rem !important;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255,59,48,0.25);
+        }
+        .assoc-content p,
+        .assoc-content ul,
+        .assoc-content .resource-block {
+            break-inside: avoid;
+        }
+
         /* ── Section jump nav ── */
         .section-nav {
             display: flex;
@@ -474,6 +497,8 @@
             <a href="growing-your-block-association.pdf" download style="display:inline-block; margin-top:0.75rem; background:#FF3B30; color:#000; font-weight:700; font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.5rem 1.25rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Download PDF</a>
         </div>
 
+        <div class="assoc-content">
+
         <h3>Purpose &amp; Mission Statement</h3>
         <p>A mission statement is a short, formal written statement of the purpose of your association. It should guide decision-making and be something all officers and members know well. A good mission statement is:</p>
         <ul>
@@ -572,6 +597,8 @@
             <p>Find assistance writing grants and proposals and learn how to become a nonprofit.</p>
             <address><a href="https://www.nyc.gov/nonprofits" target="_blank" style="color:#FF3B30;">nyc.gov/nonprofits</a></address>
         </div>
+
+        </div><!-- /assoc-content -->
 
         <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
     </div>
