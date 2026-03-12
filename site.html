@@ -130,7 +130,6 @@
             margin-top: 2rem;
             margin-bottom: 0.75rem;
             color: #fff;
-            max-width: 680px;
         }
 
         .tab-panel ul {
@@ -286,17 +285,31 @@
         .year-chip.active { background: #e0f4f4; color: #2a8a8a; }
         .year-chip.inactive { background: #f0f0f0; color: #bbb; }
 
+        /* ── Resources two-column layout ── */
+        .resources-layout {
+            display: flex;
+            gap: 2.5rem;
+            align-items: flex-start;
+        }
+        .resources-sidebar {
+            flex-shrink: 0;
+            width: 160px;
+            position: sticky;
+            top: 0;
+        }
+        .resources-content {
+            flex: 1;
+            min-width: 0;
+        }
+
         /* ── Section jump nav ── */
         .section-nav {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 2rem;
-            padding: 0.75rem 0;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-direction: column;
+            gap: 0.35rem;
         }
         .section-nav a {
+            display: block;
             font-size: 0.75rem;
             font-weight: 500;
             letter-spacing: 0.04em;
@@ -304,7 +317,7 @@
             color: #000;
             background: #fff;
             text-decoration: none;
-            padding: 0.3rem 0.6rem;
+            padding: 0.35rem 0.6rem;
             border: 1px solid #fff;
             border-radius: 4px;
             transition: background 0.15s, color 0.15s;
@@ -546,19 +559,25 @@
             <a href="https://delaneyconnor.github.io/block_associations/communityresources.html" target="_blank" style="color:#FF3B30;font-size:0.85rem;text-decoration:none;letter-spacing:0.05em;">Open full map ↗</a>
         </div>
 
-        <nav class="section-nav" aria-label="Jump to section">
-            <a href="#sec-orgs">Community Orgs</a>
-            <a href="#sec-officials">Elected Officials</a>
-            <a href="#sec-housing">Housing</a>
-            <a href="#sec-singlestop">Single Stop</a>
-            <a href="#sec-employment">Employment</a>
-            <a href="#sec-childcare">Child Care</a>
-            <a href="#sec-homeless">Homeless Prevention</a>
-            <a href="#sec-seniors">Senior Centers</a>
-            <a href="#sec-gardens">Gardens &amp; Markets</a>
-            <a href="#sec-parks">Parks</a>
-            <a href="#sec-cdcs">CDCs</a>
-        </nav>
+        <div class="resources-layout">
+
+        <div class="resources-sidebar">
+            <nav class="section-nav" aria-label="Jump to section">
+                <a href="#sec-orgs">Community Orgs</a>
+                <a href="#sec-officials">Elected Officials</a>
+                <a href="#sec-housing">Housing</a>
+                <a href="#sec-singlestop">Single Stop</a>
+                <a href="#sec-employment">Employment</a>
+                <a href="#sec-childcare">Child Care</a>
+                <a href="#sec-homeless">Homeless Prevention</a>
+                <a href="#sec-seniors">Senior Centers</a>
+                <a href="#sec-gardens">Gardens &amp; Markets</a>
+                <a href="#sec-parks">Parks</a>
+                <a href="#sec-cdcs">CDCs</a>
+            </nav>
+        </div>
+
+        <div class="resources-content">
 
         <h3 id="sec-orgs">Community Organizations</h3>
 
@@ -827,6 +846,9 @@
         </div>
 
         <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
+
+        </div><!-- /resources-content -->
+        </div><!-- /resources-layout -->
     </div>
 
 </main>
