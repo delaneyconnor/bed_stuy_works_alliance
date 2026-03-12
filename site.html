@@ -286,6 +286,33 @@
         .year-chip.active { background: #e0f4f4; color: #2a8a8a; }
         .year-chip.inactive { background: #f0f0f0; color: #bbb; }
 
+        /* ── Section jump nav ── */
+        .section-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 2rem;
+            padding: 0.75rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .section-nav a {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .section-nav a:hover {
+            color: #fff;
+            border-color: rgba(255,255,255,0.45);
+        }
+
         /* Footer */
         .site-footer {
             color: #fff;
@@ -520,7 +547,21 @@
             <a href="https://delaneyconnor.github.io/block_associations/communityresources.html" target="_blank" style="color:#FF3B30;font-size:0.85rem;text-decoration:none;letter-spacing:0.05em;">Open full map ↗</a>
         </div>
 
-        <h3>Community Organizations</h3>
+        <nav class="section-nav" aria-label="Jump to section">
+            <a href="#sec-orgs">Community Orgs</a>
+            <a href="#sec-officials">Elected Officials</a>
+            <a href="#sec-housing">Housing</a>
+            <a href="#sec-singlestop">Single Stop</a>
+            <a href="#sec-employment">Employment</a>
+            <a href="#sec-childcare">Child Care</a>
+            <a href="#sec-homeless">Homeless Prevention</a>
+            <a href="#sec-seniors">Senior Centers</a>
+            <a href="#sec-gardens">Gardens &amp; Markets</a>
+            <a href="#sec-parks">Parks</a>
+            <a href="#sec-cdcs">CDCs</a>
+        </nav>
+
+        <h3 id="sec-orgs">Community Organizations</h3>
 
         <div class="resource-block">
             <h3>Community Board 3</h3>
@@ -570,82 +611,48 @@
             </address>
         </div>
 
-        <h3>Elected Officials</h3>
+        <h3 id="sec-officials">Elected Officials</h3>
+        <p>For the full list of elected officials serving Community Board 3: <a href="https://www.nyc.gov/site/brooklyncb3/resources/elected-officials.page" target="_blank" style="color:#FF3B30;">nyc.gov/brooklyncb3 — Elected Officials ↗</a></p>
 
         <div class="resource-block">
-            <h3>Federal — U.S. Congress</h3>
-            <p><strong>8th Congressional District — Hakeem Jeffries</strong><br>
-            55 Hanson Place, Suite 603, Brooklyn, NY 11217<br>
-            Phone: (718) 237-2211 · <a href="https://jeffries.house.gov/" target="_blank" style="color:#FF3B30;">jeffries.house.gov</a></p>
-            <p style="margin-top:0.75rem;"><strong>U.S. Senators — New York</strong><br>
-            Chuck Schumer · <a href="https://www.schumer.senate.gov" target="_blank" style="color:#FF3B30;">schumer.senate.gov</a><br>
-            Kirsten Gillibrand · <a href="https://www.gillibrand.senate.gov" target="_blank" style="color:#FF3B30;">gillibrand.senate.gov</a></p>
+            <h3>Citywide</h3>
+            <p>Mayor Eric Adams<br>
+            Public Advocate Jumaane Williams<br>
+            Comptroller Brad Lander</p>
         </div>
 
         <div class="resource-block">
-            <h3>NYS — Governor &amp; Attorney General</h3>
-            <p><strong>Governor Kathy Hochul</strong><br>
-            NYS State Capitol Building, Albany, NY 12224<br>
-            Phone: (518) 474-8390 · <a href="https://www.governor.ny.gov" target="_blank" style="color:#FF3B30;">governor.ny.gov</a></p>
-            <p style="margin-top:0.75rem;"><strong>Attorney General Letitia James</strong><br>
-            Brooklyn Office: 55 Hanson Place, Suite 1080, Brooklyn, NY 11217 · (718) 560-2040<br>
-            <a href="https://www.ag.ny.gov" target="_blank" style="color:#FF3B30;">ag.ny.gov</a></p>
+            <h3>Boroughwide</h3>
+            <p>Brooklyn Borough President Antonio Reynoso<br>
+            Brooklyn District Attorney Eric Gonzalez</p>
         </div>
 
         <div class="resource-block">
-            <h3>State Senators</h3>
-            <p><strong>25th Senate District — Jabari Brisport</strong><br>
-            55 Hanson Place, Suite 702, Brooklyn, NY 11217<br>
-            Phone: (718) 643-6140 · <a href="https://www.nysenate.gov/senators/jabari-brisport" target="_blank" style="color:#FF3B30;">nysenate.gov</a></p>
-            <p style="margin-top:0.75rem;"><strong>18th Senate District — Julia Salazar</strong><br>
-            212 Evergreen Avenue, Brooklyn, NY 11221<br>
-            Phone: (718) 573-1726 · <a href="https://www.nysenate.gov/senators/julia-salazar" target="_blank" style="color:#FF3B30;">nysenate.gov</a></p>
+            <h3>Federal</h3>
+            <p>U.S. Senator Charles E. Schumer<br>
+            U.S. Senator Kirsten E. Gillibrand<br>
+            Congresswoman Nydia Velasquez — 7th District<br>
+            Congressman Hakeem S. Jeffries — 8th District</p>
         </div>
 
         <div class="resource-block">
-            <h3>State Assembly Members</h3>
-            <p><strong>56th District — Stefani Zinerman</strong><br>
-            1368 Fulton Street, 3rd Fl., NW, Brooklyn, NY 11216 · (718) 399-7630</p>
-            <p><strong>55th District — Latrice Walker</strong><br>
-            400 Rockaway Avenue, 2nd Floor, Brooklyn, NY 11212 · (718) 342-1258</p>
-            <p><strong>57th District — Phara Souffrant Forrest</strong><br>
-            55 Hanson Place, Brooklyn, NY 11217 · (718) 596-0100</p>
+            <h3>State</h3>
+            <p>NY State Senator Jabari Brisport — 25th Senate District<br>
+            NY State Senator Julia Salazar — 18th Senate District<br>
+            NY State Assemblywoman Stefani Zinerman — District 56<br>
+            NY State Assemblywoman Phara Souffrant Forrest — District 57<br>
+            NY State Assemblywoman Latrice M. Walker — District 55</p>
         </div>
 
         <div class="resource-block">
-            <h3>NYC — Mayor, Comptroller &amp; Public Advocate</h3>
-            <p><strong>Mayor's Office</strong> — Manages street fair and block party permits. Apply online at least 60 days in advance. Questions: (212) 788-0025<br>
-            <a href="https://www1.nyc.gov/office-of-the-mayor/" target="_blank" style="color:#FF3B30;">nyc.gov/office-of-the-mayor</a></p>
-            <p style="margin-top:0.75rem;"><strong>Comptroller Brad Lander</strong><br>
-            1 Centre Street, Room 517, New York, NY 10007 · 212-669-3916<br>
-            <a href="https://www.comptroller.nyc.gov" target="_blank" style="color:#FF3B30;">comptroller.nyc.gov</a></p>
-            <p style="margin-top:0.75rem;"><strong>Public Advocate Jumaane D. Williams</strong><br>
-            1 Centre Street, 15th Floor, New York, NY 10007 · (212) 669-7200<br>
-            <a href="https://www.pubadvocate.nyc.gov" target="_blank" style="color:#FF3B30;">pubadvocate.nyc.gov</a></p>
+            <h3>Local</h3>
+            <p>Councilman Chi Ossé — Council District 36<br>
+            Councilwoman Crystal Hudson — Council District 35<br>
+            Councilman Lincoln Restler — Council District 33<br>
+            Councilwoman Darlene Mealy — Council District 41</p>
         </div>
 
-        <div class="resource-block">
-            <h3>City Council</h3>
-            <p><strong>36th District — Chi Ossé</strong><br>
-            1360 Fulton Street, Suite 500, Brooklyn, NY 11216<br>
-            Phone: 718-919-0740 · <a href="mailto:District36@council.nyc.gov" style="color:#FF3B30;">District36@council.nyc.gov</a></p>
-            <p><strong>41st District — Darlene Mealy</strong><br>
-            400 Rockaway Avenue, Brooklyn, NY 11212<br>
-            Phone: 718-953-3097 · <a href="mailto:District41@council.nyc.gov" style="color:#FF3B30;">District41@council.nyc.gov</a></p>
-            <p><strong>35th District — Crystal Hudson</strong><br>
-            55 Hanson Place, Suite 778, Brooklyn, NY 11217<br>
-            Phone: 718-260-9191 · <a href="mailto:District35@council.nyc.gov" style="color:#FF3B30;">District35@council.nyc.gov</a></p>
-        </div>
-
-        <div class="resource-block">
-            <h3>Brooklyn Borough President — Antonio Reynoso</h3>
-            <address>
-                209 Joralemon Street, Brooklyn, NY 11201<br>
-                Phone: 718-802-3700 · <a href="https://www.brooklyn-usa.org" target="_blank" style="color:#FF3B30;">brooklyn-usa.org</a>
-            </address>
-        </div>
-
-        <h3>Housing &amp; Tenant Resources</h3>
+        <h3 id="sec-housing">Housing &amp; Tenant Resources</h3>
 
         <div class="resource-block">
             <h3>Fair Housing Counselors</h3>
@@ -670,7 +677,7 @@
             <p>Call <strong>311</strong> to report problems with city services 24 hours a day, 7 days a week. Navigate all city agencies at <a href="https://www.nyc.gov" target="_blank" style="color:#FF3B30;">nyc.gov</a>.</p>
         </div>
 
-        <h3>Single Stop Centers</h3>
+        <h3 id="sec-singlestop">Single Stop Centers</h3>
         <p>Single Stop provides free benefits screening, tax preparation (including EITC), legal counseling, and financial coaching at locations throughout Brooklyn. All sites offer family support and benefits counseling. More info: <a href="https://www.singlestopusa.org" target="_blank" style="color:#FF3B30;">singlestopusa.org</a> · Questions: 718-453-9490</p>
         <div class="resource-block">
             <h3>Bed-Stuy Restoration Corp — Single Stop</h3>
@@ -700,7 +707,7 @@
             718-418-7690 · Mon–Fri 9:30am–7:30pm</address>
         </div>
 
-        <h3>Employment Resources</h3>
+        <h3 id="sec-employment">Employment Resources</h3>
         <p>For the full NYC top 100 workforce providers list: <a href="https://www.nycetc.org" target="_blank" style="color:#FF3B30;">nycetc.org</a> · Call 311 for referrals.</p>
         <div class="resource-block">
             <h3>Key Brooklyn Workforce Agencies</h3>
@@ -715,7 +722,7 @@
             <strong>The Fortune Society</strong> — 29-76 Northern Blvd, Queens · 212-691-7554 (reentry services)</p>
         </div>
 
-        <h3>Child Care Resources</h3>
+        <h3 id="sec-childcare">Child Care Resources</h3>
         <p>Child Care Resource &amp; Referral Agencies (CCRRs) help parents find providers matching their location, hours, and children's needs. Call 311 or visit <a href="https://www.ocfs.state.ny.us/main/childcare" target="_blank" style="color:#FF3B30;">ocfs.state.ny.us</a>.</p>
         <div class="resource-block">
             <h3>Child Development Support Corporation (CDSC)</h3>
@@ -730,7 +737,7 @@
             <a href="https://www.dccnyinc.org" target="_blank" style="color:#FF3B30;">dccnyinc.org</a></address>
         </div>
 
-        <h3>Homeless Prevention Services</h3>
+        <h3 id="sec-homeless">Homeless Prevention Services</h3>
         <p>For emergency shelter, call <strong>311</strong>. For eviction prevention resources: <a href="https://www.nyc.gov/dhs" target="_blank" style="color:#FF3B30;">nyc.gov/dhs</a></p>
         <div class="resource-block">
             <h3>Homebase — NYC DHS Eviction Prevention</h3>
@@ -747,7 +754,7 @@
             <p><strong>Community Service Society</strong> — 105 East 22nd Street, NY · 212-614-5375</p>
         </div>
 
-        <h3>Senior Centers</h3>
+        <h3 id="sec-seniors">Senior Centers</h3>
         <p>Call <strong>311</strong>, visit <a href="https://cscs-ny.org/about-us/member_list_brooklyn.php" target="_blank" style="color:#FF3B30;">cscs-ny.org</a>, or the <a href="https://www.nyc.gov/dfta" target="_blank" style="color:#FF3B30;">NYC Dept for the Aging</a> for a full list.</p>
         <div class="resource-block">
             <h3>Senior Centers — Zip 11216</h3>
@@ -774,7 +781,7 @@
             <strong>Grace Agard Harewood Senior Center</strong> — 966 Fulton Street, 11238 · 718-638-6910</p>
         </div>
 
-        <h3>Community Gardens &amp; Greenmarkets</h3>
+        <h3 id="sec-gardens">Community Gardens &amp; Greenmarkets</h3>
         <p>For garden info and maps: <a href="https://www.nycgovparks.org" target="_blank" style="color:#FF3B30;">nycgovparks.org</a> · <a href="https://www.greenthumbnyc.org" target="_blank" style="color:#FF3B30;">greenthumbnyc.org</a> · <a href="https://www.grownyc.org" target="_blank" style="color:#FF3B30;">grownyc.org</a> · GrowNYC Open Space: 212-788-7900</p>
         <div class="resource-block">
             <h3>Community Gardens</h3>
@@ -795,7 +802,7 @@
             <strong>Myrtle Ave Community Farm Stand</strong> — Myrtle Ave &amp; North Portland Ave · July–Nov, Wed 4–7pm</p>
         </div>
 
-        <h3>Parks &amp; Recreation</h3>
+        <h3 id="sec-parks">Parks &amp; Recreation</h3>
         <p>For full listings of parks, playgrounds, and recreation programs: <a href="https://www.nycgovparks.org" target="_blank" style="color:#FF3B30;">nycgovparks.org</a></p>
         <div class="resource-block">
             <h3>Swimming Pools</h3>
@@ -804,7 +811,7 @@
             <strong>Bushwick Outdoor Intermediate Pool</strong> — Humboldt Street at Flushing &amp; Bushwick Avenues</p>
         </div>
 
-        <h3>Community Development Corporations</h3>
+        <h3 id="sec-cdcs">Community Development Corporations</h3>
         <p>For the full Brooklyn CDC directory: <a href="https://www.anhd.org" target="_blank" style="color:#FF3B30;">anhd.org</a></p>
         <div class="resource-block">
             <h3>Bed-Stuy &amp; Brooklyn CDCs</h3>
@@ -818,63 +825,6 @@
             <strong>Fifth Avenue Committee</strong> — 621 DeGraw Street, 11217 · 718-237-2017 · <a href="https://www.fifthave.org" target="_blank" style="color:#FF3B30;">fifthave.org</a><br>
             <strong>Brooklyn Congregations United</strong> — 890 Flatbush Avenue, 11226 · 718-287-4334<br>
             <strong>Brooklyn Neighborhood Improvement Association</strong> — 1482 St. Johns Place, 11213 · 718-773-4116 · <a href="https://www.thebnia.org" target="_blank" style="color:#FF3B30;">thebnia.org</a></p>
-        </div>
-
-        <h3>Online Resources</h3>
-        <div class="resource-block">
-            <address>
-            <a href="http://cb3bedstuy.org" target="_blank" style="color:#FF3B30;">Community Board 3</a><br>
-            <a href="https://www.brooklynpubliclibrary.org/locations" target="_blank" style="color:#FF3B30;">Brooklyn Public Library Locations</a><br>
-            <a href="https://www.foodbanknyc.org" target="_blank" style="color:#FF3B30;">Food Bank NYC — Emergency Food Locator</a><br>
-            <a href="https://www.schools.nyc.gov" target="_blank" style="color:#FF3B30;">NYC Schools</a><br>
-            <a href="https://www.nycgovparks.org" target="_blank" style="color:#FF3B30;">NYC Parks &amp; Recreation</a><br>
-            <a href="https://oasisnyc.net/garden/gardensearch.aspx" target="_blank" style="color:#FF3B30;">Community Gardens Search (OASIS)</a><br>
-            <a href="https://www.grownyc.org" target="_blank" style="color:#FF3B30;">GrowNYC — Greenmarkets &amp; Gardens</a><br>
-            <a href="https://cscs-ny.org/about-us/member_list_brooklyn.php" target="_blank" style="color:#FF3B30;">Senior Centers (Brooklyn)</a><br>
-            <a href="https://www.singlestopusa.org" target="_blank" style="color:#FF3B30;">Single Stop USA</a><br>
-            <a href="https://www.nycetc.org" target="_blank" style="color:#FF3B30;">NYC Employment &amp; Training Coalition</a>
-            </address>
-        </div>
-
-        <h3>CB3 Elected Officials</h3>
-        <p>For the full list of elected officials serving Community Board 3: <a href="https://www.nyc.gov/site/brooklyncb3/resources/elected-officials.page" target="_blank" style="color:#FF3B30;">nyc.gov/brooklyncb3 — Elected Officials ↗</a></p>
-
-        <div class="resource-block">
-            <h3>Citywide Elected Officials</h3>
-            <p>Mayor Eric Adams<br>
-            Public Advocate Jumaane Williams<br>
-            Comptroller Brad Lander</p>
-        </div>
-
-        <div class="resource-block">
-            <h3>Boroughwide Elected Officials</h3>
-            <p>Brooklyn Borough President Antonio Reynoso<br>
-            Brooklyn District Attorney Eric Gonzalez</p>
-        </div>
-
-        <div class="resource-block">
-            <h3>Federal Elected Officials</h3>
-            <p>U.S. Senator Charles E. Schumer<br>
-            U.S. Senator Kirsten E. Gillibrand<br>
-            Congresswoman Nydia Velasquez — 7th District of NY<br>
-            Congressman Hakeem S. Jeffries — 8th District of NY</p>
-        </div>
-
-        <div class="resource-block">
-            <h3>State Elected Officials</h3>
-            <p>NY State Senator Jabari Brisport — 25th Senate District<br>
-            NY State Senator Julia Salazar — 18th Senate District<br>
-            NY State Assemblywoman Stefani Zinerman — Assembly District 56<br>
-            NY State Assemblywoman Phara Souffrant Forrest — Assembly District 57<br>
-            NY State Assemblywoman Latrice M. Walker — Assembly District 55</p>
-        </div>
-
-        <div class="resource-block">
-            <h3>Local Elected Officials</h3>
-            <p>Councilman Che Ossé — Council District 36<br>
-            Councilwoman Crystal Hudson — Council District 35<br>
-            Councilman Lincoln Restler — Council District 33<br>
-            Councilwoman Darlene Mealy — Council District 41</p>
         </div>
 
         <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
