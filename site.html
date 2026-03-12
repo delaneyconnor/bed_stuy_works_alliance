@@ -147,35 +147,41 @@
         }
 
         .resource-block {
-            max-width: 680px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             padding: 1.25rem 1.5rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
+            break-inside: avoid;
         }
 
         .resource-block h3 {
             margin-top: 0;
             font-size: 1rem;
-            font-weight: 400;
+            font-weight: 500;
             color: #fff;
-        }
-
-        .resource-block p {
-            font-weight: 300;
             margin-bottom: 0.4rem;
         }
 
+        .resource-block p {
+            font-size: 0.875rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 0.35rem;
+            line-height: 1.6;
+        }
+
         .resource-block strong {
-            font-weight: 600;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
         }
 
         .resource-block address {
             font-style: normal;
-            color: #fff;
-            font-size: 0.9rem;
-            line-height: 1.7;
+            font-size: 0.875rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
         }
 
         /* ── Map UI (carried over from bedstuy.html) ── */
@@ -300,6 +306,28 @@
         .resources-content {
             flex: 1;
             min-width: 0;
+            columns: 2 300px;
+            column-gap: 2rem;
+        }
+        /* Section labels span both columns as dividers */
+        .resources-content > h3 {
+            column-span: all;
+            font-size: 0.68rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.14em !important;
+            text-transform: uppercase !important;
+            color: rgba(255,255,255,0.38) !important;
+            margin-top: 2.5rem !important;
+            margin-bottom: 0.75rem !important;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        /* Intro paragraphs under section labels span full width */
+        .resources-content > p {
+            column-span: all;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 0.75rem;
         }
 
         /* ── Section jump nav ── */
