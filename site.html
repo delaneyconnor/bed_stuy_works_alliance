@@ -38,6 +38,7 @@
         nav {
             display: flex;
             gap: 0.5rem;
+            align-items: stretch;
         }
 
         nav button {
@@ -63,6 +64,34 @@
         nav button.active {
             background: #fff;
             color: #000;
+        }
+
+        /* ── Dropdown ── */
+        .nav-dropdown {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .nav-dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #111;
+            flex-direction: column;
+            min-width: 100%;
+            z-index: 100;
+        }
+
+        .nav-dropdown:hover .dropdown-menu {
+            display: flex;
+        }
+
+        .nav-dropdown .dropdown-menu button {
+            text-align: left;
+            width: 100%;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.85rem;
         }
 
         /* ── Content area ── */
@@ -419,7 +448,13 @@
         <button data-tab="events">Events</button>
         <button data-tab="map">Block Association Map</button>
         <button data-tab="assoc-resources">Block Association Resources</button>
-        <button data-tab="resources">Community Resources</button>
+        <div class="nav-dropdown">
+            <button id="resources-trigger">Community Resources ▾</button>
+            <div class="dropdown-menu">
+                <button data-tab="resources">Map</button>
+                <button data-tab="resources-info">Info</button>
+            </div>
+        </div>
     </nav>
 </header>
 
@@ -539,7 +574,7 @@
         </iframe>
     </div>
 
-    <div style="display:none"><!-- removed resources-layout --><div class="resources-layout">
+    <div class="tab-panel" id="tab-resources-info"><div class="resources-layout">
 
         <div class="resources-sidebar">
             <nav class="section-nav" aria-label="Jump to section">
@@ -829,24 +864,27 @@
 
         </div><!-- /resources-content -->
         </div><!-- /resources-layout -->
-    </div><!-- /removed resources-layout wrapper -->
+    </div><!-- /tab-resources-info -->
 
 </main>
 
 <script>
 // ── Tab switching ──
-const buttons = document.querySelectorAll('nav button');
+const buttons = document.querySelectorAll('nav button[data-tab]');
+const resourcesTrigger = document.getElementById('resources-trigger');
 
 buttons.forEach(btn => {
     btn.addEventListener('click', () => {
         buttons.forEach(b => b.classList.remove('active'));
+        resourcesTrigger.classList.remove('active');
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.closest('.nav-dropdown')) {
+            resourcesTrigger.classList.add('active');
+        }
     });
 });
-
-
 </script>
 
 
