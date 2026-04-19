@@ -325,38 +325,8 @@
         .year-chip.active { background: #e0f4f4; color: #2a8a8a; }
         .year-chip.inactive { background: #f0f0f0; color: #bbb; }
 
-        /* ── Resources two-column layout ── */
-        .resources-layout {
-            display: flex;
-            gap: 2.5rem;
-            align-items: flex-start;
-        }
-        .resources-sidebar {
-            flex-shrink: 0;
-            width: 160px;
-            position: sticky;
-            top: 0;
-        }
-        .resources-content {
-            flex: 1;
-            min-width: 0;
-            columns: 2 300px;
-            column-gap: 2rem;
-        }
-        /* Section labels span both columns as dividers */
-        .resources-content > h3 {
-            column-span: all;
-            font-size: 0.7rem !important;
-            font-weight: 700 !important;
-            letter-spacing: 0.12em !important;
-            text-transform: uppercase !important;
-            color: #000 !important;
-            margin-top: 2.75rem !important;
-            margin-bottom: 0.75rem !important;
-        }
-        /* Intro paragraphs under section labels span full width */
+        /* ── Resources intro paragraphs ── */
         .resources-content > p {
-            column-span: all;
             font-size: 0.875rem;
             color: rgba(0,0,0,0.55);
             margin-bottom: 0.75rem;
@@ -553,25 +523,7 @@
         </iframe>
     </div>
 
-    <div class="tab-panel" id="tab-resources-info"><div class="resources-layout">
-
-        <div class="resources-sidebar">
-            <nav class="section-nav" aria-label="Jump to section">
-                <a href="#sec-orgs">Community Orgs</a>
-                <a href="#sec-officials">Elected Officials</a>
-                <a href="#sec-housing">Housing</a>
-                <a href="#sec-singlestop">Single Stop</a>
-                <a href="#sec-employment">Employment</a>
-                <a href="#sec-childcare">Child Care</a>
-                <a href="#sec-homeless">Homeless Prevention</a>
-                <a href="#sec-seniors">Senior Centers</a>
-                <a href="#sec-gardens">Gardens &amp; Markets</a>
-                <a href="#sec-parks">Parks</a>
-                <a href="#sec-cdcs">CDCs</a>
-            </nav>
-        </div>
-
-        <div class="resources-content">
+    <div class="tab-panel" id="tab-resources-info">
 
         <h3 id="sec-orgs">Community Organizations</h3>
 
@@ -841,8 +793,6 @@
 
         <footer class="site-footer"><a href="https://www.facebook.com/thebedstuyworksalliance/" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i> Follow us on Facebook</a></footer>
 
-        </div><!-- /resources-content -->
-        </div><!-- /resources-layout -->
     </div><!-- /tab-resources-info -->
 
 </main>
