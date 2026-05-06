@@ -24,7 +24,8 @@
         /* Dark outline on white label text — drop-shadow traces the alpha channel,
            so the shadow wraps each letter rather than the tile box */
         .leaflet-overlay-pane .leaflet-tile {
-            filter: drop-shadow(0 0 3px #000)
+            filter: brightness(2) contrast(2)
+                    drop-shadow(0 0 3px #000)
                     drop-shadow(0 0 2px #000)
                     drop-shadow(0 0 1px #000);
         }
