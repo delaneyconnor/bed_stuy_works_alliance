@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BA History — Bed-Stuy Works Alliance</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,17 +18,9 @@
         }
         #map { width: 100%; height: 100%; }
 
-        /* Grayscale basemap tiles; colored SVG markers are in a separate pane, unaffected */
-        .leaflet-tile-pane { filter: grayscale(1) contrast(1.1); }
-
-        /* Dark outline on white label text — drop-shadow traces the alpha channel,
-           so the shadow wraps each letter rather than the tile box */
-        .leaflet-overlay-pane .leaflet-tile {
-            filter: brightness(2) contrast(2)
-                    drop-shadow(0 0 3px #000)
-                    drop-shadow(0 0 2px #000)
-                    drop-shadow(0 0 1px #000);
-        }
+        .mapboxgl-ctrl-top-right { top: 4px !important; }
+        .mapboxgl-ctrl-bottom-right { bottom: 202px !important; }
+        .mapboxgl-ctrl-bottom-left { bottom: 202px !important; }
 
         /* ── 2D Timeline Chart ── */
         #chart {
@@ -148,9 +140,6 @@
             line-height: 1.4;
         }
 
-        /* Leaflet overrides */
-        .leaflet-tooltip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; background: rgba(0,0,0,0.82); color: #fff; border: none; border-radius: 0; padding: 4px 8px; box-shadow: none; max-width: 180px; white-space: normal; line-height: 1.4; }
-        .leaflet-tooltip::before { display: none; }
     </style>
 </head>
 <body>
@@ -192,7 +181,7 @@
 <!-- Dot tooltip -->
 <div id="chart-tip"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
 <script>
 
 /* ── Types ── */
@@ -227,7 +216,7 @@ function isSpatial(ev) {
 
 /* ── Basemaps — each entry shows from its implied start year until the next entry's before year ── */
 const BASEMAPS = [
-    { before:1800, urls:['https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'],
+    { before:1800, urls:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
       label:'Pre-map era', attr:'© CartoDB' },
     { before:1807, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png'],
       label:'Brooklyn 1800', attr:'Mapwarper' },
@@ -313,40 +302,110 @@ const BASEMAPS = [
       label:'2016 aerial', attr:'NYC DoITT' },
     { before:2019, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2018/{z}/{x}/{y}.png8'],
       label:'2018 aerial', attr:'NYC DoITT' },
-    { before:9999, urls:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      label:'Current satellite', attr:'© Esri, Maxar' },
+    { before:9999, urls:['mapbox://mapbox.satellite'],
+      label:'Current satellite', attr:'© Mapbox' },
 ];
 
 /* ── Map ── */
-const map = L.map('map', { center:[40.686, -73.945], zoom:13, zoomControl:true });
-/* Permanent Mapbox base — lives in its own pane below tilePane so grayscale filter doesn't apply */
-map.createPane('basemapPane');
-map.getPane('basemapPane').style.zIndex = 150;
-L.tileLayer(
-    'https://api.mapbox.com/styles/v1/delaneyconnor/cmie08kl4000901s32neo2nsz/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVsYW5leWNvbm5vciIsImEiOiJjbTRnM2Q1ZGkxZzhuMmpvbXByY2wwaDgwIn0.HSEo0pqv9ZN6DorMNmTB8A',
-    { maxZoom:22, tileSize:256, attribution:'© Mapbox', pane:'basemapPane' }
-).addTo(map);
-const streetLabels = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
-    { maxZoom:19, zIndex:500, opacity:1, pane:'overlayPane' }
-);
-let activeBases = [];
-let activeSpecBefore = null;
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGVsYW5leWNvbm5vciIsImEiOiJjbTRnM2Q1ZGkxZzhuMmpvbXByY2wwaDgwIn0.HSEo0pqv9ZN6DorMNmTB8A';
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/delaneyconnor/cmie08kl4000901s32neo2nsz',
+    center: [-73.945, 40.686],
+    zoom: 13
+});
+map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+let activeLayerIds = [], activeSourceIds = [], activeSpecBefore = null, layerCounter = 0, mapLoaded = false;
+
+map.on('load', () => {
+    mapLoaded = true;
+
+    map.addSource('events', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+    map.addLayer({
+        id: 'events-layer',
+        type: 'circle',
+        source: 'events',
+        paint: {
+            'circle-radius': 8,
+            'circle-color': ['get','color'],
+            'circle-opacity': 0.13,
+            'circle-stroke-width': 0
+        }
+    });
+
+    map.on('mouseenter', 'events-layer', e => {
+        map.getCanvas().style.cursor = 'pointer';
+        const p = e.features[0].properties;
+        tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${p.date} &nbsp;·&nbsp; ${p.scope}</div><div style="font-weight:600;line-height:1.35;color:#000">${p.title}</div>`;
+        tip.style.display = 'block';
+        positionTip(e.originalEvent);
+    });
+    map.on('mousemove', 'events-layer', e => positionTip(e.originalEvent));
+    map.on('mouseleave', 'events-layer', () => { map.getCanvas().style.cursor = ''; tip.style.display = 'none'; });
+    map.on('click', 'events-layer', e => {
+        const id = e.features[0].properties.id;
+        const ev = allEvents.find(x => x.id === id);
+        if (!ev) return;
+        showDetail(ev, TYPE_COLORS[resolveType(ev)] || '#888');
+        map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
+    });
+
+    if (allEvents.length) {
+        loadEventsToMap(allEvents);
+        setBasemap(MIN_YEAR);
+        updateMapMarkers(MIN_YEAR, allEvents);
+    }
+});
+
+function positionTip(e) {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 32) + 'px';
+}
+
+function buildEventsGeoJSON(events) {
+    return {
+        type: 'FeatureCollection',
+        features: events.filter(isSpatial).map(ev => ({
+            type: 'Feature',
+            geometry: { type:'Point', coordinates:[ev._lng, ev._lat] },
+            properties: {
+                id:    ev.id,
+                year:  parseInt(ev.year, 10),
+                color: TYPE_COLORS[resolveType(ev)] || '#888',
+                title: ev.title,
+                scope: ev.scope || '',
+                date:  String(ev.date || ev.year)
+            }
+        }))
+    };
+}
+
+function loadEventsToMap(events) {
+    if (!mapLoaded || !map.getSource('events')) return;
+    map.getSource('events').setData(buildEventsGeoJSON(events));
+}
+
 function setBasemap(year) {
+    if (!mapLoaded) return;
     const spec = BASEMAPS.find(b => year < b.before);
     if (activeSpecBefore === spec.before) return;
     activeSpecBefore = spec.before;
-    activeBases.forEach(l => map.removeLayer(l));
-    activeBases = spec.urls.map(url => {
-        const l = L.tileLayer(url, { maxZoom:19, attribution:spec.attr });
-        l.addTo(map);
-        return l;
+    activeLayerIds.forEach(id => { try { map.removeLayer(id); } catch(e) {} });
+    activeSourceIds.forEach(id => { try { map.removeSource(id); } catch(e) {} });
+    activeLayerIds = []; activeSourceIds = [];
+    const n = layerCounter++;
+    spec.urls.forEach((url, i) => {
+        const sid = `h-s-${n}-${i}`, lid = `h-l-${n}-${i}`;
+        const src = url === 'mapbox://mapbox.satellite'
+            ? { type:'raster', url:'mapbox://mapbox.satellite', tileSize:256 }
+            : { type:'raster', tiles:[url], tileSize:256 };
+        map.addSource(sid, src);
+        map.addLayer({ id:lid, type:'raster', source:sid }, 'events-layer');
+        activeLayerIds.push(lid); activeSourceIds.push(sid);
     });
-    streetLabels.bringToFront();
     document.getElementById('basemap-badge').textContent = spec.label;
 }
-setBasemap(1600);
-streetLabels.addTo(map);
 
 /* ── Jitter (for map markers only) ── */
 function applyJitter(events) {
@@ -364,26 +423,12 @@ function applyJitter(events) {
     });
 }
 
-/* ── Map markers (spatial events only) ── */
-const mapMarkers = new Map();
+/* ── Map markers — update opacity via paint expression ── */
 function updateMapMarkers(year, events) {
-    events.filter(isSpatial).forEach(ev => {
-        const evYear = parseInt(ev.year, 10);
-        const has = mapMarkers.has(ev.id);
-        if (evYear <= year && !has) {
-            const color = TYPE_COLORS[resolveType(ev)] || '#888';
-            const m = L.circleMarker([ev._lat, ev._lng], {
-                radius:8, fillColor:color, color:'transparent', weight:0, fillOpacity:0.85
-            });
-            m.bindTooltip(ev.title, { direction:'top', offset:[0,-10] });
-            m.on('click', () => showDetail(ev, color));
-            m.addTo(map);
-            mapMarkers.set(ev.id, m);
-        } else if (evYear > year && has) {
-            map.removeLayer(mapMarkers.get(ev.id));
-            mapMarkers.delete(ev.id);
-        }
-    });
+    if (!mapLoaded || !map.getSource('events')) return;
+    map.setPaintProperty('events-layer', 'circle-opacity',
+        ['case', ['<=', ['get','year'], year], 0.85, 0.13]
+    );
 }
 
 /* ── Detail panel ── */
@@ -554,7 +599,7 @@ function buildChart(events) {
         function onClick(e) {
             e.stopPropagation();
             showDetail(ev, color);
-            if (isSpatial(ev)) map.flyTo([ev._lat, ev._lng], Math.max(map.getZoom(), 15), { duration: 0.7 });
+            if (isSpatial(ev)) map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
         }
 
         if (isBar) {
@@ -661,6 +706,10 @@ fetch('data/ba_timeline.json')
         applyJitter(allEvents);
         buildLegend();
         buildChart(allEvents);
+        if (mapLoaded) {
+            loadEventsToMap(allEvents);
+            setBasemap(MIN_YEAR);
+        }
         setYear(MIN_YEAR);
     })
     .catch(err => console.error('Timeline load failed:', err));
