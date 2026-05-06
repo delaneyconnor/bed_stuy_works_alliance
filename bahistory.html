@@ -43,7 +43,7 @@
 
         #chart-hud {
             position: absolute;
-            top: 8px; left: 108px;
+            top: 8px; left: 124px;
             display: flex;
             align-items: baseline;
             gap: 11px;
@@ -51,14 +51,14 @@
             z-index: 2;
         }
         #chart-year {
-            font-size: 19px;
+            font-size: 26px;
             font-weight: 600;
             color: #fff;
-            min-width: 44px;
+            min-width: 58px;
             line-height: 1;
         }
         #chart-era {
-            font-size: 8px;
+            font-size: 11px;
             color: #888;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -405,7 +405,7 @@ const MIN_YEAR   = 1600, MAX_YEAR = 2026;
 const BREAK_YEAR = 1890;
 const BREAK_FRAC = 0.18;  // 1600–1890 gets 18% of inner width (6 events)
 const CHART_H    = 190;
-const PAD        = { top: 34, bottom: 29, left: 100, right: 20 };
+const PAD        = { top: 38, bottom: 31, left: 116, right: 20 };
 
 let cIW = 0;  // computed inner width
 let playheadEl = null;
@@ -454,7 +454,7 @@ function buildChart(events) {
     SCOPE_ORDER.forEach(scope => {
         const y = scopeToY(scope);
         chartSvg.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + cIW, y2: y, stroke: '#2a2a2a', 'stroke-width': 1 }));
-        const lbl = mk('text', { x: PAD.left - 9, y: y + 4, 'text-anchor': 'end', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 10, fill: '#bbb', 'letter-spacing': '0.05em' });
+        const lbl = mk('text', { x: PAD.left - 9, y: y + 4.5, 'text-anchor': 'end', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 12, fill: '#bbb', 'letter-spacing': '0.05em' });
         lbl.textContent = scope.toUpperCase();
         chartSvg.appendChild(lbl);
     });
@@ -469,7 +469,7 @@ function buildChart(events) {
             'stroke-width': isBreak ? 1 : 0.75,
             'stroke-dasharray': isBreak ? '' : '2 5'
         }));
-        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 16, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 10, fill: isBreak ? '#ccc' : '#777' });
+        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 17, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 12, fill: isBreak ? '#ccc' : '#777' });
         lbl.textContent = year;
         chartSvg.appendChild(lbl);
     });
