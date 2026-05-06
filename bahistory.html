@@ -319,9 +319,13 @@ const BASEMAPS = [
 
 /* ── Map ── */
 const map = L.map('map', { center:[40.686, -73.945], zoom:13, zoomControl:true });
-/* Permanent land-outline base — always visible, shows through gaps in historical map tiles */
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-    { maxZoom:19, attribution:'© CartoDB', opacity:1 }).addTo(map);
+/* Permanent Mapbox base — lives in its own pane below tilePane so grayscale filter doesn't apply */
+map.createPane('basemapPane');
+map.getPane('basemapPane').style.zIndex = 150;
+L.tileLayer(
+    'https://api.mapbox.com/styles/v1/delaneyconnor/cmie08kl4000901s32neo2nsz/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVsYW5leWNvbm5vciIsImEiOiJjbTRnM2Q1ZGkxZzhuMmpvbXByY2wwaDgwIn0.HSEo0pqv9ZN6DorMNmTB8A',
+    { maxZoom:22, tileSize:256, attribution:'© Mapbox', pane:'basemapPane' }
+).addTo(map);
 const streetLabels = L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
     { maxZoom:19, zIndex:500, opacity:1, pane:'overlayPane' }
