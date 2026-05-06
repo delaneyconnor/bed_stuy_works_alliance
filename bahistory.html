@@ -326,10 +326,11 @@ function buildLegend() {
 }
 
 /* ── Chart constants ── */
-const MIN_YEAR = 1600, MAX_YEAR = 2026;
-const CHART_H  = 190;
-const PAD      = { top: 34, bottom: 27, left: 88, right: 20 };
-// inner height = 190 - 34 - 27 = 129px  → 5 rows, step = 129/4 = 32.25px
+const MIN_YEAR   = 1600, MAX_YEAR = 2026;
+const BREAK_YEAR = 1890;
+const BREAK_FRAC = 0.18;  // 1600–1890 gets 18% of inner width (6 events)
+const CHART_H    = 190;
+const PAD        = { top: 34, bottom: 27, left: 88, right: 20 };
 
 let cIW = 0;  // computed inner width
 let playheadEl = null;
@@ -339,10 +340,17 @@ const chartSvg = document.getElementById('chart-svg');
 const tip      = document.getElementById('chart-tip');
 
 function yearToX(year) {
-    return PAD.left + (year - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * cIW;
+    if (year <= BREAK_YEAR) {
+        return PAD.left + (year - MIN_YEAR) / (BREAK_YEAR - MIN_YEAR) * BREAK_FRAC * cIW;
+    }
+    return PAD.left + BREAK_FRAC * cIW + (year - BREAK_YEAR) / (MAX_YEAR - BREAK_YEAR) * (1 - BREAK_FRAC) * cIW;
 }
 function xToYear(px) {
-    return Math.round(MIN_YEAR + (px - PAD.left) / cIW * (MAX_YEAR - MIN_YEAR));
+    const t = (px - PAD.left) / cIW;
+    if (t <= BREAK_FRAC) {
+        return Math.round(MIN_YEAR + t / BREAK_FRAC * (BREAK_YEAR - MIN_YEAR));
+    }
+    return Math.round(BREAK_YEAR + (t - BREAK_FRAC) / (1 - BREAK_FRAC) * (MAX_YEAR - BREAK_YEAR));
 }
 function scopeToY(scope) {
     const i = SCOPE_ORDER.indexOf(scope);
@@ -379,11 +387,22 @@ function buildChart(events) {
     // X axis: era-boundary ticks + year labels
     [1600, 1890, 1930, 1960, 1980, 2000, 2026].forEach(year => {
         const x = yearToX(year);
-        chartSvg.appendChild(mk('line', { x1: x, y1: PAD.top, x2: x, y2: PAD.top + iH, stroke: '#131313', 'stroke-width': 0.75, 'stroke-dasharray': '2 5' }));
-        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 15, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 8, fill: '#2e2e2e' });
+        const isBreak = year === BREAK_YEAR;
+        chartSvg.appendChild(mk('line', {
+            x1: x, y1: PAD.top, x2: x, y2: PAD.top + iH,
+            stroke: isBreak ? '#2a2a2a' : '#131313',
+            'stroke-width': isBreak ? 1 : 0.75,
+            'stroke-dasharray': isBreak ? '' : '2 5'
+        }));
+        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 15, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 8, fill: isBreak ? '#3a3a3a' : '#2e2e2e' });
         lbl.textContent = year;
         chartSvg.appendChild(lbl);
     });
+
+    // Scale-break indicator: small zigzag at 1890 boundary
+    const bx = yearToX(BREAK_YEAR);
+    const zPath = `M${bx-2},${PAD.top} l4,-5 l-4,5 l4,-5`;
+    chartSvg.appendChild(mk('path', { d: zPath, stroke: '#333', 'stroke-width': 1, fill: 'none' }));
 
     // Event dots — all events, dimmed until playhead passes
     events.forEach(ev => {
