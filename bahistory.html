@@ -8,395 +8,240 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         html, body { height: 100%; overflow: hidden; font-family: 'IBM Plex Mono', monospace; background: #0a0a0a; }
 
-        /* ── Map ── */
-        #map { position: absolute; inset: 0; bottom: 96px; }
-
-        /* ── Legend ── */
-        #legend {
+        /* ── Map area ── */
+        #app {
             position: absolute;
-            top: 12px; left: 12px;
-            z-index: 999;
-            background: rgba(10,10,10,0.85);
-            padding: 10px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            pointer-events: none;
+            inset: 0;
+            bottom: 190px;
         }
-        .leg-row { display: flex; align-items: center; gap: 8px; }
-        .leg-dot {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(255,255,255,0.25);
-            flex-shrink: 0;
-        }
-        .leg-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: #ccc; }
+        #map { width: 100%; height: 100%; }
 
-        /* ── Basemap badge ── */
-        #basemap-label {
-            position: absolute;
-            bottom: 108px; right: 12px;
-            z-index: 999;
-            font-size: 9px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #aaa;
-            background: rgba(10,10,10,0.8);
-            padding: 4px 8px;
-            pointer-events: none;
-        }
-
-        /* ── Detail panel ── */
-        #detail {
-            position: absolute;
-            top: 12px; right: -400px;
-            width: 360px;
-            max-height: calc(100% - 120px);
-            background: #fff;
-            color: #000;
-            z-index: 1000;
-            overflow-y: auto;
-            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            scrollbar-width: thin;
-        }
-        #detail.open { right: 12px; }
-
-        .d-accent { height: 4px; width: 100%; }
-
-        .d-body-wrap { padding: 18px 20px 24px; }
-
-        .d-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .d-badge {
-            font-size: 8px;
-            font-weight: 600;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #fff;
-            padding: 4px 8px;
-            flex-shrink: 0;
-        }
-
-        .d-close {
-            background: none; border: none;
-            font-size: 18px; cursor: pointer;
-            color: #ccc; font-family: inherit;
-            line-height: 1; padding: 2px;
-        }
-        .d-close:hover { color: #000; }
-
-        .d-year   { font-size: 10px; color: #aaa; letter-spacing: 0.06em; margin-bottom: 4px; }
-        .d-title  { font-size: 16px; font-weight: 600; line-height: 1.3; margin-bottom: 5px; }
-        .d-sub    { font-size: 11px; color: #777; line-height: 1.5; font-style: italic; margin-bottom: 14px; }
-        .d-rule   { height: 1px; background: #f0f0f0; margin-bottom: 14px; }
-        .d-text   { font-size: 12px; line-height: 1.8; color: #333; font-weight: 300; margin-bottom: 16px; }
-        .d-cite   { font-size: 10px; color: #bbb; font-style: italic; margin-bottom: 14px; line-height: 1.5; }
-
-        .d-sources { display: flex; flex-direction: column; gap: 6px; }
-
-        .src-btn {
-            display: block;
-            font-family: inherit;
-            font-size: 9px; font-weight: 600;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            text-decoration: none;
-            color: #000; border: 1.5px solid #000;
-            padding: 7px 12px; text-align: center;
-            transition: background 0.15s, color 0.15s;
-        }
-        .src-btn:hover { background: #000; color: #fff; }
-
-        .preview-toggle {
-            font-family: inherit;
-            font-size: 9px; font-weight: 600;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            cursor: pointer; color: #aaa;
-            background: none; border: 1.5px solid #e0e0e0;
-            padding: 7px 12px; width: 100%;
-            transition: border-color 0.15s, color 0.15s;
-        }
-        .preview-toggle:hover { border-color: #000; color: #000; }
-
-        .preview-wrap { display: none; margin-top: 6px; }
-        .preview-wrap.open { display: block; }
-        .preview-wrap iframe { width: 100%; height: 260px; border: 1px solid #e0e0e0; display: block; }
-
-        /* ── Timebar ── */
-        #timebar {
+        /* ── 2D Timeline Chart ── */
+        #chart {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 96px;
-            background: #0a0a0a;
-            border-top: 1px solid #1e1e1e;
+            height: 190px;
+            background: #080808;
+            border-top: 1px solid #1a1a1a;
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 24px;
-            gap: 6px;
+            overflow: hidden;
         }
 
-        #tb-meta {
+        #chart-hud {
+            position: absolute;
+            top: 8px; left: 96px;
             display: flex;
             align-items: baseline;
-            gap: 14px;
+            gap: 11px;
+            pointer-events: none;
+            z-index: 2;
         }
-
-        #tb-year {
-            font-size: 24px;
+        #chart-year {
+            font-size: 19px;
             font-weight: 600;
             color: #fff;
-            letter-spacing: 0.02em;
-            min-width: 56px;
+            min-width: 44px;
             line-height: 1;
         }
-
-        #tb-era {
-            font-size: 9px;
-            color: #666;
+        #chart-era {
+            font-size: 8px;
+            color: #484848;
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
 
-        #tb-count {
-            font-size: 9px;
-            color: #444;
-            letter-spacing: 0.06em;
-            margin-left: auto;
-        }
-
-        /* Range slider */
-        #slider-wrap { position: relative; }
-
-        #slider {
-            -webkit-appearance: none;
-            appearance: none;
+        #chart-svg {
+            position: absolute;
+            inset: 0;
             width: 100%;
-            height: 3px;
-            outline: none;
-            cursor: pointer;
-            border-radius: 0;
-            /* era color bands — positions calculated as % of 1600→2026 (426yr span) */
-            background: linear-gradient(to right,
-                #7a4e9e 0%,      #7a4e9e 68.1%,   /* Pre-1890 */
-                #2857a4 68.1%,   #2857a4 77.5%,   /* 1890-1930 */
-                #b52222 77.5%,   #b52222 84.5%,   /* 1930-1960 */
-                #111111 84.5%,   #111111 89.2%,   /* 1960-1980 */
-                #c85000 89.2%,   #c85000 93.9%,   /* 1980-2000 */
-                #777777 93.9%,   #777777 100%     /* 2000-present */
-            );
-        }
-        #slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
-        }
-        #slider::-moz-range-thumb {
-            width: 16px; height: 16px;
-            border-radius: 50%;
-            background: #fff;
-            border: none;
-            cursor: pointer;
+            height: 100%;
         }
 
-        #tb-ticks {
-            position: relative;
-            height: 14px;
+        /* ── Map detail panel (slides in from left) ── */
+        #detail {
+            position: absolute;
+            top: 12px;
+            left: -380px;
+            width: 340px;
+            max-height: calc(100% - 214px);
+            background: #fff;
+            color: #000;
+            z-index: 2000;
+            overflow-y: auto;
+            transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            scrollbar-width: thin;
+        }
+        #detail.open { left: 12px; }
+
+        .d-accent   { height: 4px; }
+        .d-wrap     { padding: 16px 18px 22px; }
+        .d-top      { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 11px; }
+        .d-badge    { font-size: 8px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; padding: 4px 8px; }
+        .d-close    { background: none; border: none; font-size: 18px; cursor: pointer; color: #ccc; font-family: inherit; line-height: 1; padding: 2px; }
+        .d-close:hover { color: #000; }
+        .d-year     { font-size: 10px; color: #aaa; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .d-title    { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 5px; }
+        .d-sub      { font-size: 11px; color: #777; font-style: italic; line-height: 1.5; margin-bottom: 12px; }
+        .d-rule     { height: 1px; background: #f0f0f0; margin-bottom: 12px; }
+        .d-text     { font-size: 11px; line-height: 1.8; color: #333; font-weight: 300; margin-bottom: 14px; }
+        .d-cite     { font-size: 9px; color: #bbb; font-style: italic; margin-bottom: 12px; line-height: 1.5; }
+        .d-sources  { display: flex; flex-direction: column; gap: 6px; }
+        .src-btn    { display: block; font-family: inherit; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: #000; border: 1.5px solid #000; padding: 7px 12px; text-align: center; transition: background 0.15s, color 0.15s; }
+        .src-btn:hover { background: #000; color: #fff; }
+        .preview-toggle { font-family: inherit; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; color: #aaa; background: none; border: 1.5px solid #e0e0e0; padding: 7px 12px; width: 100%; transition: border-color 0.15s, color 0.15s; }
+        .preview-toggle:hover { border-color: #000; color: #000; }
+        .preview-wrap { display: none; margin-top: 6px; }
+        .preview-wrap.open { display: block; }
+        .preview-wrap iframe { width: 100%; height: 240px; border: 1px solid #e0e0e0; display: block; }
+
+        /* ── Legend ── */
+        #legend {
+            position: absolute;
+            top: 12px; right: 12px;
+            z-index: 999;
+            background: rgba(10,10,10,0.82);
+            padding: 9px 12px;
+            display: flex; flex-direction: column; gap: 5px;
             pointer-events: none;
         }
-        .t-label {
-            position: absolute;
-            font-size: 8px;
-            color: #444;
-            letter-spacing: 0.03em;
-            transform: translateX(-50%);
-            white-space: nowrap;
-        }
-        .t-label:first-child { transform: translateX(0); }
-        .t-label:last-child  { transform: translateX(-100%); }
+        .leg-row   { display: flex; align-items: center; gap: 7px; }
+        .leg-dot   { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+        .leg-label { font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: #bbb; }
 
-        /* Leaflet overrides */
-        .leaflet-tooltip {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(0,0,0,0.85);
+        #basemap-badge {
+            position: absolute;
+            bottom: 202px; right: 12px;
+            z-index: 999;
+            font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase;
+            color: #555; background: rgba(10,10,10,0.75); padding: 3px 8px;
+            pointer-events: none;
+        }
+
+        /* ── Chart tooltip ── */
+        #chart-tip {
+            position: fixed;
+            background: rgba(5,5,5,0.96);
             color: #fff;
-            border: none; border-radius: 0;
-            padding: 5px 10px;
-            box-shadow: none;
-            max-width: 200px;
-            white-space: normal;
+            padding: 8px 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            pointer-events: none;
+            display: none;
+            z-index: 9000;
+            border: 1px solid #252525;
+            max-width: 210px;
             line-height: 1.4;
         }
-        .leaflet-tooltip::before { display: none; }
 
-        .leaflet-control-attribution { font-family: 'IBM Plex Mono', monospace; font-size: 9px; }
+        /* Leaflet overrides */
+        .leaflet-tooltip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; background: rgba(0,0,0,0.82); color: #fff; border: none; border-radius: 0; padding: 4px 8px; box-shadow: none; max-width: 180px; white-space: normal; line-height: 1.4; }
+        .leaflet-tooltip::before { display: none; }
     </style>
 </head>
 <body>
 
-<div id="map"></div>
-<div id="legend"></div>
-<div id="basemap-label">Modern map</div>
+<div id="app">
+    <div id="map"></div>
+</div>
 
-<!-- Detail panel -->
+<div id="legend"></div>
+<div id="basemap-badge">Modern map</div>
+
+<!-- Map marker detail panel -->
 <div id="detail">
     <div class="d-accent" id="d-accent"></div>
-    <div class="d-body-wrap">
-        <div class="d-top-row">
+    <div class="d-wrap">
+        <div class="d-top">
             <div class="d-badge" id="d-badge"></div>
             <button class="d-close" id="d-close">×</button>
         </div>
-        <div class="d-year"    id="d-year"></div>
-        <div class="d-title"   id="d-title"></div>
-        <div class="d-sub"     id="d-sub"></div>
+        <div class="d-year"   id="d-year"></div>
+        <div class="d-title"  id="d-title"></div>
+        <div class="d-sub"    id="d-sub"></div>
         <div class="d-rule"></div>
-        <div class="d-text"    id="d-text"></div>
-        <div class="d-cite"    id="d-cite"></div>
+        <div class="d-text"   id="d-text"></div>
+        <div class="d-cite"   id="d-cite"></div>
         <div class="d-sources" id="d-sources"></div>
     </div>
 </div>
 
-<!-- Timebar -->
-<div id="timebar">
-    <div id="tb-meta">
-        <div id="tb-year">1600</div>
-        <div id="tb-era">Pre-1890 · Preconditions</div>
-        <div id="tb-count">0 events visible</div>
+<!-- 2D Timeline Chart -->
+<div id="chart">
+    <div id="chart-hud">
+        <span id="chart-year">1600</span>
+        <span id="chart-era">Pre-1890 · Preconditions</span>
     </div>
-    <div id="slider-wrap">
-        <input type="range" id="slider" min="1600" max="2026" value="1600" step="1">
-    </div>
-    <div id="tb-ticks">
-        <span class="t-label" style="left:0%">1600</span>
-        <span class="t-label" style="left:68.1%">1890</span>
-        <span class="t-label" style="left:77.5%">1930</span>
-        <span class="t-label" style="left:84.5%">1960</span>
-        <span class="t-label" style="left:89.2%">1980</span>
-        <span class="t-label" style="left:93.9%">2000</span>
-        <span class="t-label" style="left:100%">2026</span>
-    </div>
+    <svg id="chart-svg" style="cursor:crosshair;"></svg>
 </div>
+
+<!-- Dot tooltip -->
+<div id="chart-tip"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 
-/* ══════════════════════════════════════════════
-   TYPE SYSTEM
-   Original JSON types → simplified 5-category narrative types
-   ══════════════════════════════════════════════ */
-const TYPE_MAP = {
-    Organizing:     'Organizing',
-    Policy:         'Government',
-    Demographic:    'Migration',
-    Cultural:       'Organizing',
-    Infrastructure: 'Government',
-    Crisis:         'Crisis',
-    Displacement:   'Displacement'
-};
+/* ── Types ── */
+const TYPE_MAP = { Organizing:'Organizing', Policy:'Government', Demographic:'Migration', Cultural:'Organizing', Infrastructure:'Government', Crisis:'Crisis', Displacement:'Displacement' };
+const TYPE_OVERRIDES = { 34:'Organizing', 44:'Displacement' };
+const TYPE_COLORS = { Organizing:'#444', Government:'#2857a4', Migration:'#7a4e9e', Crisis:'#c42b2b', Displacement:'#c85000' };
+function resolveType(ev) { return TYPE_OVERRIDES[ev.id] || TYPE_MAP[ev.type] || ev.type; }
 
-// Event-specific overrides (id → new type)
-const TYPE_OVERRIDES = {
-    34: 'Organizing',   // 32,000 trained through Block Watchers → community capacity
-    44: 'Displacement', // CB3 District Needs Statement → documents displacement
-};
-
-function resolveType(ev) {
-    if (TYPE_OVERRIDES[ev.id]) return TYPE_OVERRIDES[ev.id];
-    return TYPE_MAP[ev.type] || ev.type;
-}
-
-const TYPE_COLORS = {
-    Organizing:   '#111111',
-    Government:   '#2857a4',
-    Migration:    '#7a4e9e',
-    Crisis:       '#c42b2b',
-    Displacement: '#c85000'
-};
-
-const TYPE_DESCS = {
-    Organizing:   'Community-led organizing',
-    Government:   'State & municipal action',
-    Migration:    'Demographic movement',
-    Crisis:       'Social or economic crisis',
-    Displacement: 'Forced removal & loss'
-};
-
-/* ══════════════════════════════════════════════
-   ERAS
-   ══════════════════════════════════════════════ */
+/* ── Eras ── */
 const ERAS = [
-    { name: 'Preconditions',       range: 'Pre-1890',    start: 0,    end: 1889, accent: '#7a4e9e' },
-    { name: 'Form Emerges',        range: '1890–1930',   start: 1890, end: 1929, accent: '#2857a4' },
-    { name: 'Racial Transition',   range: '1930–1960',   start: 1930, end: 1959, accent: '#c42b2b' },
-    { name: 'Self-Determination',  range: '1960–1980',   start: 1960, end: 1979, accent: '#111111' },
-    { name: 'Crisis & Retrenchment', range: '1980–2000', start: 1980, end: 1999, accent: '#c85000' },
-    { name: 'Gentrification Era',  range: '2000–present',start: 2000, end: 9999, accent: '#777777' }
+    { name:'Preconditions',         range:'Pre-1890',     end:1889 },
+    { name:'Form Emerges',          range:'1890–1930',    end:1929 },
+    { name:'Racial Transition',     range:'1930–1960',    end:1959 },
+    { name:'Self-Determination',    range:'1960–1980',    end:1979 },
+    { name:'Crisis & Retrenchment', range:'1980–2000',    end:1999 },
+    { name:'Gentrification Era',    range:'2000–present', end:9999 },
 ];
+function eraForYear(y) { return ERAS.find(e => y <= e.end) || ERAS[ERAS.length-1]; }
 
-function eraForYear(y) {
-    return ERAS.find(e => y >= e.start && y <= e.end) || ERAS[0];
+/* ── Scope axis (top = broadest, bottom = most local) ── */
+const SCOPE_ORDER = ['Federal', 'Regional', 'Citywide', 'Neighborhood', 'Block'];
+
+/* ── Spatial detection ── */
+const GENERIC = [
+    {lat:40.6872, lng:-73.9418},
+    {lat:40.6782, lng:-73.9442},
+    {lat:40.7128, lng:-74.006},
+];
+function isSpatial(ev) {
+    return !GENERIC.some(g => Math.abs(ev.lat - g.lat) < 0.0005 && Math.abs(ev.lng - g.lng) < 0.0005);
 }
 
-/* ══════════════════════════════════════════════
-   BASEMAPS  — NYC aerial photography + CartoDB
-   ══════════════════════════════════════════════ */
-const CARTO_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const NYC_1924    = 'https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8';
-const NYC_1951    = 'https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8';
-const NYC_1996    = 'https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8';
-
-const BASEMAP_SCHEDULE = [
-    { before: 1924, url: CARTO_LIGHT, label: 'Modern map',        attribution: '© CartoDB' },
-    { before: 1952, url: NYC_1924,    label: '1924 aerial photo',  attribution: '© NYC DoITT' },
-    { before: 1985, url: NYC_1951,    label: '1951 aerial photo',  attribution: '© NYC DoITT' },
-    { before: 2000, url: NYC_1996,    label: '1996 aerial photo',  attribution: '© NYC DoITT' },
-    { before: 9999, url: CARTO_LIGHT, label: 'Modern map',        attribution: '© CartoDB' }
+/* ── Basemaps ── */
+const BASEMAPS = [
+    { before:1924, url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', label:'Modern map',   attr:'© CartoDB' },
+    { before:1952, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8',           label:'1924 aerial', attr:'NYC DoITT' },
+    { before:1985, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8',           label:'1951 aerial', attr:'NYC DoITT' },
+    { before:2000, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8',           label:'1996 aerial', attr:'NYC DoITT' },
+    { before:9999, url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',  label:'Modern map',  attr:'© CartoDB' },
 ];
 
-function basemapForYear(y) {
-    return BASEMAP_SCHEDULE.find(b => y < b.before);
-}
-
-/* ══════════════════════════════════════════════
-   MAP INIT
-   ══════════════════════════════════════════════ */
-const map = L.map('map', {
-    center: [40.685, -73.942],
-    zoom: 13,
-    zoomControl: true,
-    attributionControl: true
-});
-
-let activeTileLayer = null;
-
+/* ── Map ── */
+const map = L.map('map', { center:[40.686, -73.945], zoom:13, zoomControl:true });
+const streetLabels = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+    { maxZoom:19, zIndex:500, opacity:0.75, pane:'overlayPane' }
+);
+let activeBase = null;
 function setBasemap(year) {
-    const spec = basemapForYear(year);
-    if (activeTileLayer && activeTileLayer._url === spec.url) return;
-    if (activeTileLayer) map.removeLayer(activeTileLayer);
-    activeTileLayer = L.tileLayer(spec.url, { maxZoom: 19, attribution: spec.attribution });
-    activeTileLayer.addTo(map);
-    activeTileLayer._url = spec.url;
-    document.getElementById('basemap-label').textContent = spec.label;
+    const spec = BASEMAPS.find(b => year < b.before);
+    if (activeBase && activeBase._specLabel === spec.label) return;
+    if (activeBase) map.removeLayer(activeBase);
+    activeBase = L.tileLayer(spec.url, { maxZoom:19, attribution:spec.attr });
+    activeBase._specLabel = spec.label;
+    activeBase.addTo(map);
+    streetLabels.bringToFront();
+    document.getElementById('basemap-badge').textContent = spec.label;
 }
+setBasemap(1600);
+streetLabels.addTo(map);
 
-setBasemap(1600); // initial
-
-/* ══════════════════════════════════════════════
-   JITTER — stable per-event offsets for shared coords
-   ══════════════════════════════════════════════ */
+/* ── Jitter (for map markers only) ── */
 function applyJitter(events) {
     const groups = {};
     events.forEach(ev => {
@@ -404,189 +249,251 @@ function applyJitter(events) {
         (groups[k] = groups[k] || []).push(ev);
     });
     events.forEach(ev => {
-        const k = `${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`;
-        const g = groups[k];
+        const g = groups[`${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`];
         if (g.length === 1) { ev._lat = ev.lat; ev._lng = ev.lng; return; }
-        const idx = g.indexOf(ev);
-        const angle = (2 * Math.PI * idx) / g.length;
-        const r = 0.0013;
-        ev._lat = ev.lat + r * Math.sin(angle);
-        ev._lng = ev.lng + r * Math.cos(angle);
+        const i = g.indexOf(ev), angle = 2*Math.PI*i/g.length, r = 0.0013;
+        ev._lat = ev.lat + r*Math.sin(angle);
+        ev._lng = ev.lng + r*Math.cos(angle);
     });
 }
 
-/* ══════════════════════════════════════════════
-   MARKER MANAGEMENT — accumulative display
-   ══════════════════════════════════════════════ */
-const activeMarkers = new Map(); // id → L.circleMarker
-
-function updateMarkers(currentYear, events) {
-    events.forEach(ev => {
+/* ── Map markers (spatial events only) ── */
+const mapMarkers = new Map();
+function updateMapMarkers(year, events) {
+    events.filter(isSpatial).forEach(ev => {
         const evYear = parseInt(ev.year, 10);
-        const already = activeMarkers.has(ev.id);
-
-        if (evYear <= currentYear && !already) {
-            const type  = resolveType(ev);
-            const color = TYPE_COLORS[type] || '#888';
+        const has = mapMarkers.has(ev.id);
+        if (evYear <= year && !has) {
+            const color = TYPE_COLORS[resolveType(ev)] || '#888';
             const m = L.circleMarker([ev._lat, ev._lng], {
-                radius: 8,
-                fillColor: color,
-                color: '#fff',
-                weight: 2,
-                fillOpacity: 0.9
+                radius:8, fillColor:color, color:'#fff', weight:2.5, fillOpacity:0.92
             });
-            m.bindTooltip(`<span>${ev.title}</span>`, {
-                direction: 'top', offset: [0, -10], sticky: false
-            });
+            m.bindTooltip(ev.title, { direction:'top', offset:[0,-10] });
             m.on('click', () => showDetail(ev, color));
             m.addTo(map);
-            activeMarkers.set(ev.id, m);
-
-        } else if (evYear > currentYear && already) {
-            map.removeLayer(activeMarkers.get(ev.id));
-            activeMarkers.delete(ev.id);
-            // close detail if it was for this event
-            if (parseInt(document.getElementById('d-year').textContent, 10) === evYear
-                && document.getElementById('d-title').textContent === ev.title) {
-                document.getElementById('detail').classList.remove('open');
-            }
+            mapMarkers.set(ev.id, m);
+        } else if (evYear > year && has) {
+            map.removeLayer(mapMarkers.get(ev.id));
+            mapMarkers.delete(ev.id);
         }
     });
 }
 
-/* ══════════════════════════════════════════════
-   DETAIL PANEL
-   ══════════════════════════════════════════════ */
-function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')
-                    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+/* ── Detail panel ── */
+function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function buildSources(raw) {
-    if (!raw) return '<div style="font-size:10px;color:#ccc;font-style:italic">No linked source</div>';
-    const urls = raw.split(/\s*\|\s*/).filter(Boolean);
-    return urls.map((url, i) => {
-        const label = urls.length > 1 ? `Read Source ${i+1} ↗` : 'Read Source ↗';
-        const isEmbeddable = url.includes('.pdf')
-            || url.includes('ourstuyheights')
-            || url.includes('nypl.org')
-            || url.includes('citizensnyc.org')
-            || url.includes('communityprofiles.planning');
-
-        let html = `<a href="${escHtml(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
-        if (isEmbeddable) {
-            const pid = `pv-${ev.id}-${i}`;
-            html += `<button class="preview-toggle" onclick="togglePreview('${pid}')">Preview in panel ▾</button>
-                <div class="preview-wrap" id="${pid}">
-                    <iframe src="${escHtml(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
-                </div>`;
-        }
-        return html;
-    }).join('');
-}
-
-// buildSources uses ev in closure — refactor to pass ev explicitly
-function buildSourcesFor(raw, evId) {
-    if (!raw) return '<div style="font-size:10px;color:#ccc;font-style:italic">No linked source</div>';
-    const urls = raw.split(/\s*\|\s*/).filter(Boolean);
-    return urls.map((url, i) => {
-        const label = urls.length > 1 ? `Read Source ${i+1} ↗` : 'Read Source ↗';
-        const isEmbeddable = url.includes('.pdf')
-            || url.includes('ourstuyheights')
-            || url.includes('nypl.org')
-            || url.includes('citizensnyc.org')
-            || url.includes('communityprofiles.planning');
-
+function buildSrcs(raw, evId) {
+    if (!raw) return '<div style="font-size:9px;color:#ccc;font-style:italic">No linked source</div>';
+    return raw.split(/\s*\|\s*/).filter(Boolean).map((url, i) => {
+        const label = `Read Source${raw.includes('|') ? ' '+(i+1) : ''} ↗`;
+        const canEmbed = url.includes('.pdf') || url.includes('ourstuyheights') || url.includes('nypl.org') || url.includes('citizensnyc.org');
         const pid = `pv-${evId}-${i}`;
-        let html = `<a href="${escHtml(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
-        if (isEmbeddable) {
-            html += `<button class="preview-toggle" onclick="togglePreview('${pid}')">Preview in panel ▾</button>
-                <div class="preview-wrap" id="${pid}">
-                    <iframe src="${escHtml(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
-                </div>`;
-        }
-        return html;
+        let h = `<a href="${escH(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
+        if (canEmbed) h += `<button class="preview-toggle" onclick="togglePrev('${pid}')">Preview ▾</button><div class="preview-wrap" id="${pid}"><iframe src="${escH(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe></div>`;
+        return h;
     }).join('');
 }
 
-function togglePreview(id) {
+function togglePrev(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    const btn = el.previousElementSibling;
-    const open = el.classList.toggle('open');
-    btn.textContent = open ? 'Preview in panel ▴' : 'Preview in panel ▾';
+    el.previousElementSibling.textContent = el.classList.toggle('open') ? 'Preview ▴' : 'Preview ▾';
 }
 
 function showDetail(ev, color) {
     document.getElementById('d-accent').style.background = color;
-    document.getElementById('d-badge').textContent  = resolveType(ev);
+    document.getElementById('d-badge').textContent = resolveType(ev);
     document.getElementById('d-badge').style.background = color;
-    document.getElementById('d-year').textContent   = ev.date;
-    document.getElementById('d-title').textContent  = ev.title;
-    document.getElementById('d-sub').textContent    = ev.subtitle || '';
-    document.getElementById('d-text').textContent   = ev.body;
-    document.getElementById('d-cite').textContent   = ev.citation ? 'Source: ' + ev.citation : '';
-    document.getElementById('d-sources').innerHTML  = buildSourcesFor(ev.source_url, ev.id);
+    document.getElementById('d-year').textContent  = ev.date;
+    document.getElementById('d-title').textContent = ev.title;
+    document.getElementById('d-sub').textContent   = ev.subtitle || '';
+    document.getElementById('d-text').textContent  = ev.body;
+    document.getElementById('d-cite').textContent  = ev.citation ? 'Source: '+ev.citation : '';
+    document.getElementById('d-sources').innerHTML = buildSrcs(ev.source_url, ev.id);
     document.getElementById('detail').classList.add('open');
-    map.flyTo([ev._lat, ev._lng], Math.max(map.getZoom(), 15), { duration: 0.7 });
 }
+document.getElementById('d-close').addEventListener('click', () => document.getElementById('detail').classList.remove('open'));
 
-document.getElementById('d-close').addEventListener('click', () => {
-    document.getElementById('detail').classList.remove('open');
-});
-
-/* ══════════════════════════════════════════════
-   LEGEND
-   ══════════════════════════════════════════════ */
+/* ── Legend ── */
 function buildLegend() {
     const el = document.getElementById('legend');
     Object.entries(TYPE_COLORS).forEach(([type, color]) => {
         const row = document.createElement('div');
         row.className = 'leg-row';
-        row.innerHTML = `<div class="leg-dot" style="background:${color}"></div>
-                         <span class="leg-label">${type}</span>`;
+        row.innerHTML = `<div class="leg-dot" style="background:${color}"></div><span class="leg-label">${type}</span>`;
         el.appendChild(row);
     });
 }
 
-/* ══════════════════════════════════════════════
-   SLIDER
-   ══════════════════════════════════════════════ */
-const slider   = document.getElementById('slider');
-const elYear   = document.getElementById('tb-year');
-const elEra    = document.getElementById('tb-era');
-const elCount  = document.getElementById('tb-count');
+/* ── Chart constants ── */
+const MIN_YEAR = 1600, MAX_YEAR = 2026;
+const CHART_H  = 190;
+const PAD      = { top: 34, bottom: 27, left: 88, right: 20 };
+// inner height = 190 - 34 - 27 = 129px  → 5 rows, step = 129/4 = 32.25px
 
-let allEvents = [];
+let cIW = 0;  // computed inner width
+let playheadEl = null;
+let allEvents  = [];
 
-function onSlide() {
-    const year = parseInt(slider.value, 10);
-    const era  = eraForYear(year);
-    elYear.textContent = year;
-    elEra.textContent  = `${era.range} · ${era.name}`;
+const chartSvg = document.getElementById('chart-svg');
+const tip      = document.getElementById('chart-tip');
 
-    updateMarkers(year, allEvents);
-    elCount.textContent = `${activeMarkers.size} event${activeMarkers.size !== 1 ? 's' : ''} visible`;
+function yearToX(year) {
+    return PAD.left + (year - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * cIW;
+}
+function xToYear(px) {
+    return Math.round(MIN_YEAR + (px - PAD.left) / cIW * (MAX_YEAR - MIN_YEAR));
+}
+function scopeToY(scope) {
+    const i = SCOPE_ORDER.indexOf(scope);
+    const idx = i < 0 ? 3 : i;
+    return PAD.top + idx * (CHART_H - PAD.top - PAD.bottom) / (SCOPE_ORDER.length - 1);
+}
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function mk(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+    return el;
+}
+
+function buildChart(events) {
+    cIW = chartSvg.clientWidth - PAD.left - PAD.right;
+    chartSvg.innerHTML = '';
+
+    const iH = CHART_H - PAD.top - PAD.bottom;
+
+    // Invisible drag surface
+    const bg = mk('rect', { x: PAD.left, y: PAD.top, width: cIW, height: iH, fill: 'transparent' });
+    chartSvg.appendChild(bg);
+
+    // Y axis: horizontal rules + labels
+    SCOPE_ORDER.forEach(scope => {
+        const y = scopeToY(scope);
+        chartSvg.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + cIW, y2: y, stroke: '#161616', 'stroke-width': 1 }));
+        const lbl = mk('text', { x: PAD.left - 9, y: y + 3.5, 'text-anchor': 'end', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 8, fill: '#2e2e2e', 'letter-spacing': '0.07em' });
+        lbl.textContent = scope.toUpperCase();
+        chartSvg.appendChild(lbl);
+    });
+
+    // X axis: era-boundary ticks + year labels
+    [1600, 1890, 1930, 1960, 1980, 2000, 2026].forEach(year => {
+        const x = yearToX(year);
+        chartSvg.appendChild(mk('line', { x1: x, y1: PAD.top, x2: x, y2: PAD.top + iH, stroke: '#131313', 'stroke-width': 0.75, 'stroke-dasharray': '2 5' }));
+        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 15, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 8, fill: '#2e2e2e' });
+        lbl.textContent = year;
+        chartSvg.appendChild(lbl);
+    });
+
+    // Event dots — all events, dimmed until playhead passes
+    events.forEach(ev => {
+        const type  = resolveType(ev);
+        const color = TYPE_COLORS[type] || '#555';
+        const x     = yearToX(parseInt(ev.year, 10));
+        const y     = scopeToY(ev.scope || 'Neighborhood');
+
+        const dot = mk('circle', { cx: x, cy: y, r: 5.5, fill: color, stroke: 'rgba(255,255,255,0.08)', 'stroke-width': 1.5, opacity: 0.13 });
+        dot.style.cursor = 'pointer';
+        dot.dataset.id = ev.id;
+
+        dot.addEventListener('mouseenter', e => {
+            tip.innerHTML = `<div style="font-size:8px;color:#666;margin-bottom:3px">${ev.year} &nbsp;·&nbsp; ${ev.scope || ''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
+            tip.style.display = 'block';
+            tip.style.left = (e.clientX + 14) + 'px';
+            tip.style.top  = (e.clientY - 32) + 'px';
+            dot.setAttribute('r', 7.5);
+            dot.setAttribute('stroke', 'rgba(255,255,255,0.45)');
+        });
+        dot.addEventListener('mousemove', e => {
+            tip.style.left = (e.clientX + 14) + 'px';
+            tip.style.top  = (e.clientY - 32) + 'px';
+        });
+        dot.addEventListener('mouseleave', () => {
+            tip.style.display = 'none';
+            dot.setAttribute('r', 5.5);
+            dot.setAttribute('stroke', 'rgba(255,255,255,0.08)');
+        });
+        dot.addEventListener('click', e => {
+            e.stopPropagation();
+            showDetail(ev, color);
+            if (isSpatial(ev)) map.flyTo([ev._lat, ev._lng], Math.max(map.getZoom(), 15), { duration: 0.7 });
+        });
+
+        chartSvg.appendChild(dot);
+    });
+
+    // Playhead line (drawn last so it sits above dots)
+    playheadEl = mk('line', {
+        x1: yearToX(MIN_YEAR), y1: PAD.top - 5,
+        x2: yearToX(MIN_YEAR), y2: CHART_H - PAD.bottom + 5,
+        stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.5
+    });
+    playheadEl.style.pointerEvents = 'none';
+    chartSvg.appendChild(playheadEl);
+
+    // Drag interaction: mousedown on non-dot → drag to scrub
+    let dragging = false;
+    chartSvg.addEventListener('mousedown', e => {
+        if (!e.target.dataset.id) { dragging = true; scrubTo(e); }
+    });
+    chartSvg.addEventListener('mousemove', e => {
+        if (dragging) scrubTo(e);
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+
+    // Touch support
+    chartSvg.addEventListener('touchstart', e => { dragging = true; scrubTo(e.touches[0]); }, { passive: true });
+    chartSvg.addEventListener('touchmove',  e => { if (dragging) scrubTo(e.touches[0]); }, { passive: true });
+    window.addEventListener('touchend', () => { dragging = false; });
+}
+
+function scrubTo(e) {
+    const rect = chartSvg.getBoundingClientRect();
+    const year = Math.max(MIN_YEAR, Math.min(MAX_YEAR, xToYear(e.clientX - rect.left)));
+    setYear(year);
+}
+
+function setYear(year) {
+    // Move playhead
+    const x = yearToX(year);
+    playheadEl.setAttribute('x1', x);
+    playheadEl.setAttribute('x2', x);
+
+    // Update dot visibility
+    chartSvg.querySelectorAll('circle[data-id]').forEach(dot => {
+        const ev = allEvents.find(e => e.id === parseInt(dot.dataset.id));
+        if (!ev) return;
+        dot.setAttribute('opacity', parseInt(ev.year, 10) <= year ? '1' : '0.13');
+    });
+
+    // HUD
+    const era = eraForYear(year);
+    document.getElementById('chart-year').textContent = year;
+    document.getElementById('chart-era').textContent  = `${era.range} · ${era.name}`;
+
+    // Map
+    updateMapMarkers(year, allEvents);
     setBasemap(year);
 }
 
-slider.addEventListener('input', onSlide);
-
-/* ══════════════════════════════════════════════
-   BOOT
-   ══════════════════════════════════════════════ */
+/* ── Boot ── */
 fetch('data/ba_timeline.json')
     .then(r => r.json())
     .then(data => {
         allEvents = data;
         applyJitter(allEvents);
         buildLegend();
-        // Start slider at first event year
-        slider.value = 1600;
-        onSlide();
+        buildChart(allEvents);
+        setYear(MIN_YEAR);
     })
-    .catch(err => console.error('Failed to load timeline:', err));
+    .catch(err => console.error('Timeline load failed:', err));
+
+// Rebuild on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (allEvents.length) buildChart(allEvents); }, 180);
+});
 
 </script>
 </body>
