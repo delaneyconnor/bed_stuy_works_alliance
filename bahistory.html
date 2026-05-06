@@ -185,7 +185,7 @@
 /* ── Types ── */
 const TYPE_MAP = { Organizing:'Organizing', Policy:'Government', Demographic:'Migration', Cultural:'Organizing', Infrastructure:'Government', Crisis:'Crisis', Displacement:'Displacement' };
 const TYPE_OVERRIDES = { 34:'Organizing', 44:'Displacement' };
-const TYPE_COLORS = { Organizing:'#444', Government:'#2857a4', Migration:'#7a4e9e', Crisis:'#c42b2b', Displacement:'#c85000' };
+const TYPE_COLORS = { Organizing:'#27AE60', Government:'#2980B9', Migration:'#8E44AD', Crisis:'#C0392B', Displacement:'#E67E22' };
 function resolveType(ev) { return TYPE_OVERRIDES[ev.id] || TYPE_MAP[ev.type] || ev.type; }
 
 /* ── Eras ── */
@@ -214,7 +214,7 @@ function isSpatial(ev) {
 
 /* ── Basemaps ── */
 const BASEMAPS = [
-    { before:1924, url:'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',                         label:'Modern map',   attr:'© CartoDB' },
+    { before:1924, url:'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',                          label:'Modern map',   attr:'© CartoDB' },
     { before:1952, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8',                                  label:'1924 aerial',  attr:'NYC DoITT' },
     { before:1985, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8',                                  label:'1951 aerial',  attr:'NYC DoITT' },
     { before:1996, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8',                                  label:'1996 aerial',  attr:'NYC DoITT' },
@@ -224,8 +224,8 @@ const BASEMAPS = [
 /* ── Map ── */
 const map = L.map('map', { center:[40.686, -73.945], zoom:13, zoomControl:true });
 const streetLabels = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
-    { maxZoom:19, zIndex:500, opacity:0.75, pane:'overlayPane' }
+    'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+    { maxZoom:19, zIndex:500, opacity:0.85, pane:'overlayPane' }
 );
 let activeBase = null;
 function setBasemap(year) {
@@ -266,7 +266,7 @@ function updateMapMarkers(year, events) {
         if (evYear <= year && !has) {
             const color = TYPE_COLORS[resolveType(ev)] || '#888';
             const m = L.circleMarker([ev._lat, ev._lng], {
-                radius:8, fillColor:color, color:'#fff', weight:2.5, fillOpacity:0.92
+                radius:8, fillColor:color, color:'transparent', weight:0, fillOpacity:0.85
             });
             m.bindTooltip(ev.title, { direction:'top', offset:[0,-10] });
             m.on('click', () => showDetail(ev, color));
@@ -404,24 +404,31 @@ function buildChart(events) {
     const zPath = `M${bx-2},${PAD.top} l4,-5 l-4,5 l4,-5`;
     chartSvg.appendChild(mk('path', { d: zPath, stroke: '#333', 'stroke-width': 1, fill: 'none' }));
 
-    // Event dots — all events, dimmed until playhead passes
+    // Event dots — halo + filled dot, community-resource-map style
     events.forEach(ev => {
         const type  = resolveType(ev);
-        const color = TYPE_COLORS[type] || '#555';
+        const color = TYPE_COLORS[type] || '#7F8C8D';
         const x     = yearToX(parseInt(ev.year, 10));
         const y     = scopeToY(ev.scope || 'Neighborhood');
 
-        const dot = mk('circle', { cx: x, cy: y, r: 5.5, fill: color, stroke: 'rgba(255,255,255,0.08)', 'stroke-width': 1.5, opacity: 0.13 });
+        // Halo (larger, very transparent)
+        const halo = mk('circle', { cx: x, cy: y, r: 11, fill: color, stroke: 'none', opacity: 0.05, 'data-halo': ev.id });
+        halo.style.pointerEvents = 'none';
+        chartSvg.appendChild(halo);
+
+        // Main dot
+        const dot = mk('circle', { cx: x, cy: y, r: 6, fill: color, stroke: 'none', 'stroke-width': 0, opacity: 0.13 });
         dot.style.cursor = 'pointer';
-        dot.dataset.id = ev.id;
+        dot.dataset.id   = ev.id;
 
         dot.addEventListener('mouseenter', e => {
             tip.innerHTML = `<div style="font-size:8px;color:#666;margin-bottom:3px">${ev.year} &nbsp;·&nbsp; ${ev.scope || ''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
             tip.style.display = 'block';
             tip.style.left = (e.clientX + 14) + 'px';
             tip.style.top  = (e.clientY - 32) + 'px';
-            dot.setAttribute('r', 7.5);
-            dot.setAttribute('stroke', 'rgba(255,255,255,0.45)');
+            dot.setAttribute('r', 9);
+            dot.setAttribute('stroke', '#ffffff');
+            dot.setAttribute('stroke-width', 2);
         });
         dot.addEventListener('mousemove', e => {
             tip.style.left = (e.clientX + 14) + 'px';
@@ -429,8 +436,9 @@ function buildChart(events) {
         });
         dot.addEventListener('mouseleave', () => {
             tip.style.display = 'none';
-            dot.setAttribute('r', 5.5);
-            dot.setAttribute('stroke', 'rgba(255,255,255,0.08)');
+            dot.setAttribute('r', 6);
+            dot.setAttribute('stroke', 'none');
+            dot.setAttribute('stroke-width', 0);
         });
         dot.addEventListener('click', e => {
             e.stopPropagation();
@@ -478,11 +486,14 @@ function setYear(year) {
     playheadEl.setAttribute('x1', x);
     playheadEl.setAttribute('x2', x);
 
-    // Update dot visibility
+    // Update dot and halo visibility
     chartSvg.querySelectorAll('circle[data-id]').forEach(dot => {
         const ev = allEvents.find(e => e.id === parseInt(dot.dataset.id));
         if (!ev) return;
-        dot.setAttribute('opacity', parseInt(ev.year, 10) <= year ? '1' : '0.13');
+        const past = parseInt(ev.year, 10) <= year;
+        dot.setAttribute('opacity', past ? '0.85' : '0.13');
+        const halo = chartSvg.querySelector(`circle[data-halo="${ev.id}"]`);
+        if (halo) halo.setAttribute('opacity', past ? '0.15' : '0.05');
     });
 
     // HUD
