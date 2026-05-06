@@ -214,7 +214,7 @@ function isSpatial(ev) {
 
 /* ── Basemaps ── */
 const BASEMAPS = [
-    { before:1924, url:'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',                          label:'Modern map',   attr:'© CartoDB' },
+    { before:1924, url:'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',                                         label:'Historical map (pre-1924)', attr:'Mapwarper' },
     { before:1952, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8',                                  label:'1924 aerial',  attr:'NYC DoITT' },
     { before:1985, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8',                                  label:'1951 aerial',  attr:'NYC DoITT' },
     { before:1996, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8',                                  label:'1996 aerial',  attr:'NYC DoITT' },
@@ -235,6 +235,8 @@ function setBasemap(year) {
     activeBase = L.tileLayer(spec.url, { maxZoom:19, attribution:spec.attr });
     activeBase._specLabel = spec.label;
     activeBase.addTo(map);
+    // Historical map has its own labels — reduce overlay opacity to avoid doubling
+    streetLabels.setOpacity(spec.label.includes('Historical') ? 0.3 : 0.85);
     streetLabels.bringToFront();
     document.getElementById('basemap-badge').textContent = spec.label;
 }
