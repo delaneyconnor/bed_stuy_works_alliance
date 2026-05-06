@@ -227,11 +227,14 @@ function isSpatial(ev) {
 
 /* ── Basemaps ── */
 const BASEMAPS = [
-    { before:1924, url:'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',                                         label:'Historical map (pre-1924)', attr:'Mapwarper' },
-    { before:1952, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8',                                  label:'1924 aerial',  attr:'NYC DoITT' },
-    { before:1985, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8',                                  label:'1951 aerial',  attr:'NYC DoITT' },
-    { before:1996, url:'https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8',                                  label:'1996 aerial',  attr:'NYC DoITT' },
-    { before:9999, url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', label:'Satellite',   attr:'© Esri, Maxar' },
+    { before:1924, urls:['https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'],  label:'Historical map (pre-1924)', attr:'Mapwarper' },
+    { before:1952, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'],                                label:'1924 aerial',  attr:'NYC DoITT' },
+    { before:1985, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'],                                label:'1951 aerial',  attr:'NYC DoITT' },
+    { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'],                                label:'1996 aerial',  attr:'NYC DoITT' },
+    { before:9999, urls:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], label:'Satellite', attr:'© Esri, Maxar' },
 ];
 
 /* ── Map ── */
@@ -240,14 +243,17 @@ const streetLabels = L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
     { maxZoom:19, zIndex:500, opacity:1, pane:'overlayPane' }
 );
-let activeBase = null;
+let activeBases = [];
 function setBasemap(year) {
     const spec = BASEMAPS.find(b => year < b.before);
-    if (activeBase && activeBase._specLabel === spec.label) return;
-    if (activeBase) map.removeLayer(activeBase);
-    activeBase = L.tileLayer(spec.url, { maxZoom:19, attribution:spec.attr });
-    activeBase._specLabel = spec.label;
-    activeBase.addTo(map);
+    if (activeBases.length && activeBases[0]._specLabel === spec.label) return;
+    activeBases.forEach(l => map.removeLayer(l));
+    activeBases = spec.urls.map(url => {
+        const l = L.tileLayer(url, { maxZoom:19, attribution:spec.attr });
+        l._specLabel = spec.label;
+        l.addTo(map);
+        return l;
+    });
     streetLabels.bringToFront();
     document.getElementById('basemap-badge').textContent = spec.label;
 }
