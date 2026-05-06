@@ -440,6 +440,25 @@ function mk(tag, attrs) {
     return el;
 }
 
+/* Parse date string → { start, end } year ints. En-dash ranges become bars. */
+function parseRange(ev) {
+    const year = parseInt(ev.year, 10);
+    const date = String(ev.date || '');
+    if (date.includes('–')) {
+        const [s, e] = date.split('–').map(p => p.trim());
+        const start = parseInt(s) || year;
+        let end;
+        if (e.toLowerCase() === 'present') {
+            end = MAX_YEAR;
+        } else {
+            end = parseInt(e) || year;
+            if (e.includes('s') && !/\s/.test(e)) end += 9; // "1900s" → 1909
+        }
+        return { start, end };
+    }
+    return { start: year, end: year };
+}
+
 function buildChart(events) {
     cIW = chartSvg.clientWidth - PAD.left - PAD.right;
     chartSvg.innerHTML = '';
@@ -479,49 +498,70 @@ function buildChart(events) {
     const zPath = `M${bx-2},${PAD.top} l4,-5 l-4,5 l4,-5`;
     chartSvg.appendChild(mk('path', { d: zPath, stroke: '#333', 'stroke-width': 1, fill: 'none' }));
 
-    // Event dots — halo + filled dot, community-resource-map style
+    // Events — bars for date ranges, dots for single years
     events.forEach(ev => {
-        const type  = resolveType(ev);
-        const color = TYPE_COLORS[type] || '#7F8C8D';
-        const x     = yearToX(parseInt(ev.year, 10));
-        const y     = scopeToY(ev.scope || 'Neighborhood');
+        const type   = resolveType(ev);
+        const color  = TYPE_COLORS[type] || '#7F8C8D';
+        const y      = scopeToY(ev.scope || 'Neighborhood');
+        const range  = parseRange(ev);
+        const isBar  = range.end > range.start + 1;
 
-        // Halo (larger, very transparent)
-        const halo = mk('circle', { cx: x, cy: y, r: 11, fill: color, stroke: 'none', opacity: 0.05, 'data-halo': ev.id });
-        halo.style.pointerEvents = 'none';
-        chartSvg.appendChild(halo);
-
-        // Main dot
-        const dot = mk('circle', { cx: x, cy: y, r: 6, fill: color, stroke: 'none', 'stroke-width': 0, opacity: 0.13 });
-        dot.style.cursor = 'pointer';
-        dot.dataset.id   = ev.id;
-
-        dot.addEventListener('mouseenter', e => {
-            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${ev.year} &nbsp;·&nbsp; ${ev.scope || ''}</div><div style="font-weight:600;line-height:1.35;color:#000">${ev.title}</div>`;
+        function makeTip(e) {
+            const label = isBar ? `${ev.date}` : ev.year;
+            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${label} &nbsp;·&nbsp; ${ev.scope || ''}</div><div style="font-weight:600;line-height:1.35;color:#000">${ev.title}</div>`;
             tip.style.display = 'block';
             tip.style.left = (e.clientX + 14) + 'px';
             tip.style.top  = (e.clientY - 32) + 'px';
-            dot.setAttribute('r', 9);
-            dot.setAttribute('stroke', '#ffffff');
-            dot.setAttribute('stroke-width', 2);
-        });
-        dot.addEventListener('mousemove', e => {
+        }
+        function moveTip(e) {
             tip.style.left = (e.clientX + 14) + 'px';
             tip.style.top  = (e.clientY - 32) + 'px';
-        });
-        dot.addEventListener('mouseleave', () => {
-            tip.style.display = 'none';
-            dot.setAttribute('r', 6);
-            dot.setAttribute('stroke', 'none');
-            dot.setAttribute('stroke-width', 0);
-        });
-        dot.addEventListener('click', e => {
+        }
+        function hideTip() { tip.style.display = 'none'; }
+
+        function onClick(e) {
             e.stopPropagation();
             showDetail(ev, color);
             if (isSpatial(ev)) map.flyTo([ev._lat, ev._lng], Math.max(map.getZoom(), 15), { duration: 0.7 });
-        });
+        }
 
-        chartSvg.appendChild(dot);
+        if (isBar) {
+            const x1 = yearToX(range.start);
+            const x2 = yearToX(range.end);
+
+            // Halo bar
+            const halo = mk('line', { x1, y1: y, x2, y2: y, stroke: color, 'stroke-width': 14, 'stroke-linecap': 'round', opacity: 0.05, 'data-halo': ev.id });
+            halo.style.pointerEvents = 'none';
+            chartSvg.appendChild(halo);
+
+            // Main bar
+            const bar = mk('line', { x1, y1: y, x2, y2: y, stroke: color, 'stroke-width': 5, 'stroke-linecap': 'round', opacity: 0.13 });
+            bar.style.cursor = 'pointer';
+            bar.dataset.id = ev.id;
+            bar.addEventListener('mouseenter', e => { makeTip(e); bar.setAttribute('stroke-width', 7); });
+            bar.addEventListener('mousemove', moveTip);
+            bar.addEventListener('mouseleave', () => { hideTip(); bar.setAttribute('stroke-width', 5); });
+            bar.addEventListener('click', onClick);
+            chartSvg.appendChild(bar);
+
+        } else {
+            const x = yearToX(parseInt(ev.year, 10));
+
+            // Halo circle
+            const halo = mk('circle', { cx: x, cy: y, r: 11, fill: color, stroke: 'none', opacity: 0.05, 'data-halo': ev.id });
+            halo.style.pointerEvents = 'none';
+            chartSvg.appendChild(halo);
+
+            // Main dot
+            const dot = mk('circle', { cx: x, cy: y, r: 6, fill: color, stroke: 'none', 'stroke-width': 0, opacity: 0.13 });
+            dot.style.cursor = 'pointer';
+            dot.dataset.id = ev.id;
+            dot.addEventListener('mouseenter', e => { makeTip(e); dot.setAttribute('r', 9); dot.setAttribute('stroke', '#fff'); dot.setAttribute('stroke-width', 2); });
+            dot.addEventListener('mousemove', moveTip);
+            dot.addEventListener('mouseleave', () => { hideTip(); dot.setAttribute('r', 6); dot.setAttribute('stroke', 'none'); dot.setAttribute('stroke-width', 0); });
+            dot.addEventListener('click', onClick);
+            chartSvg.appendChild(dot);
+        }
     });
 
     // Playhead line (drawn last so it sits above dots)
@@ -561,13 +601,13 @@ function setYear(year) {
     playheadEl.setAttribute('x1', x);
     playheadEl.setAttribute('x2', x);
 
-    // Update dot and halo visibility
-    chartSvg.querySelectorAll('circle[data-id]').forEach(dot => {
-        const ev = allEvents.find(e => e.id === parseInt(dot.dataset.id));
+    // Update dot/bar and halo visibility
+    chartSvg.querySelectorAll('[data-id]').forEach(el => {
+        const ev = allEvents.find(e => e.id === parseInt(el.dataset.id));
         if (!ev) return;
         const past = parseInt(ev.year, 10) <= year;
-        dot.setAttribute('opacity', past ? '0.85' : '0.13');
-        const halo = chartSvg.querySelector(`circle[data-halo="${ev.id}"]`);
+        el.setAttribute('opacity', past ? '0.85' : '0.13');
+        const halo = chartSvg.querySelector(`[data-halo="${ev.id}"]`);
         if (halo) halo.setAttribute('opacity', past ? '0.15' : '0.05');
     });
 
