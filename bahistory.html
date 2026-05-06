@@ -225,19 +225,56 @@ function isSpatial(ev) {
     return !GENERIC.some(g => Math.abs(ev.lat - g.lat) < 0.0005 && Math.abs(ev.lng - g.lng) < 0.0005);
 }
 
-/* ── Basemaps ── */
+/* ── Basemaps — each entry shows from its implied start year until the next entry's before year ── */
 const BASEMAPS = [
+    { before:1807, urls:['https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'],
+      label:'Pre-map era', attr:'© CartoDB' },
+    { before:1859, urls:['https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png'],
+      label:'Manhattan 1807', attr:'Mapwarper' },
+    { before:1874, urls:['https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png'],
+      label:'Historical · 1807 + 1859', attr:'Mapwarper' },
+    { before:1891, urls:['https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png'],
+      label:'Historical · 1807–1874', attr:'Mapwarper' },
+    { before:1905, urls:['https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
+                         'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png'],
+      label:'Historical · 1807–1891', attr:'Mapwarper' },
     { before:1924, urls:['https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'],  label:'Historical map (pre-1924)', attr:'Mapwarper' },
-    { before:1952, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'],                                label:'1924 aerial',  attr:'NYC DoITT' },
-    { before:1985, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'],                                label:'1951 aerial',  attr:'NYC DoITT' },
-    { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'],                                label:'1996 aerial',  attr:'NYC DoITT' },
-    { before:9999, urls:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], label:'Satellite', attr:'© Esri, Maxar' },
+                         'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'],
+      label:'Historical · 1807–1905', attr:'Mapwarper' },
+    { before:1951, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'],
+      label:'1924 aerial', attr:'NYC DoITT' },
+    { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'],
+      label:'1951 aerial', attr:'NYC DoITT' },
+    { before:2004, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'],
+      label:'1996 aerial', attr:'NYC DoITT' },
+    { before:2006, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2004/{z}/{x}/{y}.png8'],
+      label:'2004 aerial', attr:'NYC DoITT' },
+    { before:2008, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2006/{z}/{x}/{y}.png8'],
+      label:'2006 aerial', attr:'NYC DoITT' },
+    { before:2010, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2008/{z}/{x}/{y}.png8'],
+      label:'2008 aerial', attr:'NYC DoITT' },
+    { before:2012, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2010/{z}/{x}/{y}.png8'],
+      label:'2010 aerial', attr:'NYC DoITT' },
+    { before:2014, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2012/{z}/{x}/{y}.png8'],
+      label:'2012 aerial', attr:'NYC DoITT' },
+    { before:2016, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2014/{z}/{x}/{y}.png8'],
+      label:'2014 aerial', attr:'NYC DoITT' },
+    { before:2018, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2016/{z}/{x}/{y}.png8'],
+      label:'2016 aerial', attr:'NYC DoITT' },
+    { before:2019, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2018/{z}/{x}/{y}.png8'],
+      label:'2018 aerial', attr:'NYC DoITT' },
+    { before:9999, urls:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      label:'Current satellite', attr:'© Esri, Maxar' },
 ];
 
 /* ── Map ── */
@@ -247,13 +284,14 @@ const streetLabels = L.tileLayer(
     { maxZoom:19, zIndex:500, opacity:1, pane:'overlayPane' }
 );
 let activeBases = [];
+let activeSpecBefore = null;
 function setBasemap(year) {
     const spec = BASEMAPS.find(b => year < b.before);
-    if (activeBases.length && activeBases[0]._specLabel === spec.label) return;
+    if (activeSpecBefore === spec.before) return;
+    activeSpecBefore = spec.before;
     activeBases.forEach(l => map.removeLayer(l));
     activeBases = spec.urls.map(url => {
         const l = L.tileLayer(url, { maxZoom:19, attribution:spec.attr });
-        l._specLabel = spec.label;
         l.addTo(map);
         return l;
     });
