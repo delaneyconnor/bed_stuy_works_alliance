@@ -21,8 +21,13 @@
         /* Grayscale basemap tiles; colored SVG markers are in a separate pane, unaffected */
         .leaflet-tile-pane { filter: grayscale(1) contrast(1.1); }
 
-        /* Boost white label tiles so they cut through clearly */
-        .leaflet-overlay-pane .leaflet-tile { filter: brightness(1.4) contrast(1.3); }
+        /* Dark outline on white label text — drop-shadow traces the alpha channel,
+           so the shadow wraps each letter rather than the tile box */
+        .leaflet-overlay-pane .leaflet-tile {
+            filter: drop-shadow(0 0 3px #000)
+                    drop-shadow(0 0 2px #000)
+                    drop-shadow(0 0 1px #000);
+        }
 
         /* ── 2D Timeline Chart ── */
         #chart {
