@@ -410,13 +410,25 @@ function setBasemap(year) {
     activeSourceIds = [];
 
     const n = layerCounter++;
+    const isModern = spec.urls.length === 1 && spec.urls[0] === 'mapbox://mapbox.satellite';
+
+    // For historical eras, insert a solid neutral base first so that the irregular
+    // transparent edges of georeferenced historical scans show white rather than
+    // bleeding through to the satellite layer or other stacked tiles beneath.
+    if (!isModern) {
+        const msid = `h-s-${n}-matte`, mlid = `h-l-${n}-matte`;
+        map.addSource(msid, { type:'raster', tiles:['https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'], tileSize:256 });
+        map.addLayer({ id:mlid, type:'raster', source:msid, paint:{ 'raster-fade-duration':0 } }, 'events-layer');
+        activeLayerIds.push(mlid);
+        activeSourceIds.push(msid);
+    }
+
     spec.urls.forEach((url, i) => {
         const sid = `h-s-${n}-${i}`, lid = `h-l-${n}-${i}`;
         const src = url === 'mapbox://mapbox.satellite'
             ? { type:'raster', url:'mapbox://mapbox.satellite', tileSize:256 }
             : { type:'raster', tiles:[url], tileSize:256 };
         map.addSource(sid, src);
-        // raster-fade-duration: 0 prevents Mapbox from cross-blending old and new tiles
         map.addLayer({ id:lid, type:'raster', source:sid, paint:{ 'raster-fade-duration':0 } }, 'events-layer');
         activeLayerIds.push(lid);
         activeSourceIds.push(sid);
