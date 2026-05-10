@@ -475,7 +475,7 @@ function buildLegend() {
 
 /* ── SVG Timeline ── */
 const MIN_YEAR = 1600, MAX_YEAR = 2026;
-const BREAK_YEAR = 1890, BREAK_FRAC = 0.13;
+const BREAK_YEAR = 1890, BREAK_FRAC = 0.35;
 const TL_H = 3200;
 const YEAR_PAD = 44;
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -557,16 +557,15 @@ function buildTimelineSVG(events) {
 
     tickYears.forEach(year => {
         const py = yearToY(year);
-        const early = year < 1850;
         tlSvg.appendChild(mk('line', {
-            x1: YEAR_PAD - (early ? 6 : 9), y1: py,
-            x2: YEAR_PAD - 1,               y2: py,
-            stroke: early ? '#ccc' : '#aaa', 'stroke-width': early ? 0.75 : 1.25
+            x1: YEAR_PAD - 9, y1: py,
+            x2: YEAR_PAD - 1, y2: py,
+            stroke: '#aaa', 'stroke-width': 1.25
         }));
         const lbl = mk('text', {
             x: YEAR_PAD - 13, y: py + 4,
             'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
-            'font-size': early ? 9 : 11, fill: early ? '#bbb' : '#555'
+            'font-size': 11, fill: '#555'
         });
         lbl.textContent = year;
         lbl.style.pointerEvents = 'none';
