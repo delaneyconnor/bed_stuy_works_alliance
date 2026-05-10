@@ -383,9 +383,18 @@ function setBasemap(year) {
     const spec = BASEMAPS.find(b => year < b.before);
     if (activeSpecBefore === spec.before) return;
     activeSpecBefore = spec.before;
-    activeLayerIds.forEach(id => { try { map.removeLayer(id); } catch(e) {} });
-    activeSourceIds.forEach(id => { try { map.removeSource(id); } catch(e) {} });
-    activeLayerIds = []; activeSourceIds = [];
+
+    // Immediately hide old layers so they don't ghost under incoming tiles
+    activeLayerIds.forEach(id => {
+        try { map.setPaintProperty(id, 'raster-opacity', 0); } catch(e) {}
+    });
+
+    // Capture refs for deferred cleanup, then clear active lists
+    const staleLayerIds   = [...activeLayerIds];
+    const staleSourceIds  = [...activeSourceIds];
+    activeLayerIds  = [];
+    activeSourceIds = [];
+
     const n = layerCounter++;
     spec.urls.forEach((url, i) => {
         const sid = `h-s-${n}-${i}`, lid = `h-l-${n}-${i}`;
@@ -393,9 +402,18 @@ function setBasemap(year) {
             ? { type:'raster', url:'mapbox://mapbox.satellite', tileSize:256 }
             : { type:'raster', tiles:[url], tileSize:256 };
         map.addSource(sid, src);
-        map.addLayer({ id:lid, type:'raster', source:sid }, 'events-layer');
-        activeLayerIds.push(lid); activeSourceIds.push(sid);
+        // raster-fade-duration: 0 prevents Mapbox from cross-blending old and new tiles
+        map.addLayer({ id:lid, type:'raster', source:sid, paint:{ 'raster-fade-duration':0 } }, 'events-layer');
+        activeLayerIds.push(lid);
+        activeSourceIds.push(sid);
     });
+
+    // Remove stale layers/sources after one frame so Mapbox finishes its render cycle
+    requestAnimationFrame(() => {
+        staleLayerIds.forEach(id  => { try { map.removeLayer(id);  } catch(e) {} });
+        staleSourceIds.forEach(id => { try { map.removeSource(id); } catch(e) {} });
+    });
+
     document.getElementById('basemap-badge').textContent = spec.label;
 }
 function applyJitter(events) {
