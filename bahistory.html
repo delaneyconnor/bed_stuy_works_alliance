@@ -10,66 +10,165 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; font-family: 'IBM Plex Mono', monospace; background: #0a0a0a; }
 
-        /* ── Map area ── */
-        #app {
+        /* ── Root layout ── */
+        #layout {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: 100vw;
+            --split: 320px;
+        }
+
+        /* ── Timeline panel ── */
+        #timeline-panel {
+            width: var(--split);
+            height: 100%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            background: #080808;
+            flex-shrink: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #222 transparent;
+        }
+
+        /* Sticky year/era header */
+        #tl-hud {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #080808;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 14px 16px 11px;
+        }
+        #tl-year {
+            font-size: 30px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1;
+            display: block;
+        }
+        #tl-era {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Era section header */
+        .era-header {
+            padding: 22px 16px 7px;
+            border-bottom: 1px solid #111;
+        }
+        .era-name {
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #444;
+        }
+        .era-range {
+            font-size: 10px;
+            color: #2a2a2a;
+            margin-top: 2px;
+        }
+
+        /* Event row */
+        .tl-event {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: background 0.1s;
+            border-bottom: 1px solid #0e0e0e;
+        }
+        .tl-event:hover { background: #111; }
+
+        .tl-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+            opacity: 0.15;
+            transition: opacity 0.25s;
+        }
+        .tl-event.past .tl-dot  { opacity: 0.75; }
+        .tl-event.active .tl-dot { opacity: 1; }
+
+        .tl-meta { flex: 1; min-width: 0; }
+
+        .tl-event-year {
+            font-size: 8px;
+            color: #2a2a2a;
+            letter-spacing: 0.06em;
+            display: block;
+            transition: color 0.25s;
+        }
+        .tl-event.past   .tl-event-year  { color: #555; }
+        .tl-event.active .tl-event-year  { color: #999; }
+
+        .tl-event-title {
+            font-size: 11px;
+            color: #1e1e1e;
+            line-height: 1.4;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.25s;
+        }
+        .tl-event.past   .tl-event-title { color: #888; }
+        .tl-event.active .tl-event-title { color: #fff; font-weight: 600; white-space: normal; }
+
+        /* Padding so last events can scroll into view */
+        #tl-footer { height: 80vh; }
+
+        /* ── Draggable divider ── */
+        #divider {
+            width: 5px;
+            height: 100%;
+            background: #0f0f0f;
+            cursor: col-resize;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+            transition: background 0.15s;
+        }
+        #divider:hover, #divider.dragging { background: #222; }
+        #divider::after {
+            content: '';
             position: absolute;
-            inset: 0;
-            bottom: 190px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1px;
+            height: 36px;
+            background: #2a2a2a;
+        }
+
+        /* ── Map panel ── */
+        #map-panel {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            min-width: 300px;
         }
         #map { width: 100%; height: 100%; }
 
         .mapboxgl-ctrl-top-right { top: 4px !important; }
-        .mapboxgl-ctrl-bottom-right { bottom: 202px !important; }
-        .mapboxgl-ctrl-bottom-left { bottom: 202px !important; }
+        .mapboxgl-ctrl-bottom-right { bottom: 8px !important; }
+        .mapboxgl-ctrl-bottom-left  { bottom: 8px !important; }
 
-        /* ── 2D Timeline Chart ── */
-        #chart {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 190px;
-            background: #080808;
-            border-top: 1px solid #1a1a1a;
-            z-index: 1000;
-            overflow: hidden;
-        }
-
-        #chart-hud {
-            position: absolute;
-            top: 8px; left: 124px;
-            display: flex;
-            align-items: baseline;
-            gap: 11px;
-            pointer-events: none;
-            z-index: 2;
-        }
-        #chart-year {
-            font-size: 26px;
-            font-weight: 600;
-            color: #fff;
-            min-width: 58px;
-            line-height: 1;
-        }
-        #chart-era {
-            font-size: 11px;
-            color: #888;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        #chart-svg {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* ── Map detail panel (slides in from left) ── */
+        /* ── Detail panel (slides in from left of map panel) ── */
         #detail {
             position: absolute;
             top: 12px;
             left: -380px;
             width: 340px;
-            max-height: calc(100% - 214px);
+            max-height: calc(100% - 24px);
             background: #fff;
             color: #000;
             z-index: 2000;
@@ -116,15 +215,15 @@
 
         #basemap-badge {
             position: absolute;
-            bottom: 202px; left: 12px;
+            bottom: 12px; left: 12px;
             z-index: 999;
             font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase;
             color: #999; background: #0a0a0a; padding: 3px 8px;
             pointer-events: none;
         }
 
-        /* ── Chart tooltip ── */
-        #chart-tip {
+        /* ── Map tooltip ── */
+        #map-tip {
             position: fixed;
             background: #fff;
             color: #000;
@@ -139,47 +238,51 @@
             max-width: 210px;
             line-height: 1.4;
         }
-
     </style>
 </head>
 <body>
 
-<div id="app">
-    <div id="map"></div>
-</div>
+<div id="layout">
 
-<div id="legend"></div>
-<div id="basemap-badge">Modern map</div>
-
-<!-- Map marker detail panel -->
-<div id="detail">
-    <div class="d-accent" id="d-accent"></div>
-    <div class="d-wrap">
-        <div class="d-top">
-            <div class="d-badge" id="d-badge"></div>
-            <button class="d-close" id="d-close">×</button>
+    <!-- Left: vertical scrollable timeline -->
+    <div id="timeline-panel">
+        <div id="tl-hud">
+            <span id="tl-year">1600</span>
+            <span id="tl-era">Pre-1890 · Preconditions</span>
         </div>
-        <div class="d-year"   id="d-year"></div>
-        <div class="d-title"  id="d-title"></div>
-        <div class="d-sub"    id="d-sub"></div>
-        <div class="d-rule"></div>
-        <div class="d-text"   id="d-text"></div>
-        <div class="d-cite"   id="d-cite"></div>
-        <div class="d-sources" id="d-sources"></div>
+        <div id="tl-body"></div>
+        <div id="tl-footer"></div>
+    </div>
+
+    <!-- Draggable divider bar -->
+    <div id="divider"></div>
+
+    <!-- Right: map -->
+    <div id="map-panel">
+        <div id="map"></div>
+        <div id="legend"></div>
+        <div id="basemap-badge">Modern map</div>
+
+        <div id="detail">
+            <div class="d-accent" id="d-accent"></div>
+            <div class="d-wrap">
+                <div class="d-top">
+                    <div class="d-badge" id="d-badge"></div>
+                    <button class="d-close" id="d-close">×</button>
+                </div>
+                <div class="d-year"    id="d-year"></div>
+                <div class="d-title"   id="d-title"></div>
+                <div class="d-sub"     id="d-sub"></div>
+                <div class="d-rule"></div>
+                <div class="d-text"    id="d-text"></div>
+                <div class="d-cite"    id="d-cite"></div>
+                <div class="d-sources" id="d-sources"></div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- 2D Timeline Chart -->
-<div id="chart">
-    <div id="chart-hud">
-        <span id="chart-year">1600</span>
-        <span id="chart-era">Pre-1890 · Preconditions</span>
-    </div>
-    <svg id="chart-svg" style="cursor:crosshair;"></svg>
-</div>
-
-<!-- Dot tooltip -->
-<div id="chart-tip"></div>
+<div id="map-tip"></div>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
 <script>
@@ -199,54 +302,51 @@ const ERAS = [
     { name:'Crisis & Retrenchment', range:'1980–2000',    end:1999 },
     { name:'Gentrification Era',    range:'2000–present', end:9999 },
 ];
-function eraForYear(y) { return ERAS.find(e => y <= e.end) || ERAS[ERAS.length-1]; }
-
-/* ── Scope axis (top = broadest, bottom = most local) ── */
-const SCOPE_ORDER = ['Federal', 'Regional', 'Citywide', 'Neighborhood', 'Block'];
+function eraForYear(y) { return ERAS.find(e => y <= e.end) || ERAS[ERAS.length - 1]; }
 
 /* ── Spatial detection ── */
 const GENERIC = [
-    {lat:40.6872, lng:-73.9418},
-    {lat:40.6782, lng:-73.9442},
-    {lat:40.7128, lng:-74.006},
+    { lat:40.6872, lng:-73.9418 },
+    { lat:40.6782, lng:-73.9442 },
+    { lat:40.7128, lng:-74.006  },
 ];
 function isSpatial(ev) {
     return !GENERIC.some(g => Math.abs(ev.lat - g.lat) < 0.0005 && Math.abs(ev.lng - g.lng) < 0.0005);
 }
 
-/* ── Basemaps — each entry shows from its implied start year until the next entry's before year ── */
+/* ── Basemaps ── */
 const BASEMAPS = [
     { before:1800, urls:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
-      label:'Pre-map era', attr:'© CartoDB' },
+      label:'Pre-map era' },
     { before:1807, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png'],
-      label:'Brooklyn 1800', attr:'Mapwarper' },
+      label:'Brooklyn 1800' },
     { before:1855, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png'],
-      label:'Historical · 1800 + 1807', attr:'Mapwarper' },
+      label:'Historical · 1800 + 1807' },
     { before:1859, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png'],
-      label:'Historical · 1807 + 1855', attr:'Mapwarper' },
+      label:'Historical · 1807 + 1855' },
     { before:1869, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1868', attr:'Mapwarper' },
+      label:'Historical · 1800–1868' },
     { before:1874, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1869', attr:'Mapwarper' },
+      label:'Historical · 1800–1869' },
     { before:1891, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1874', attr:'Mapwarper' },
+      label:'Historical · 1800–1874' },
     { before:1905, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
@@ -254,7 +354,7 @@ const BASEMAPS = [
                          'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1891', attr:'Mapwarper' },
+      label:'Historical · 1800–1891' },
     { before:1917, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
@@ -265,7 +365,7 @@ const BASEMAPS = [
                          'https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1905', attr:'Mapwarper' },
+      label:'Historical · 1800–1905' },
     { before:1924, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
@@ -277,33 +377,33 @@ const BASEMAPS = [
                          'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png',
                          'https://mapwarper.net/maps/tile/96360/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1917', attr:'Mapwarper' },
+      label:'Historical · 1800–1917' },
     { before:1938, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'],
-      label:'1924 aerial', attr:'NYC DoITT' },
+      label:'1924 aerial' },
     { before:1951, urls:['https://mapwarper.net/maps/tile/82146/{z}/{x}/{y}.png'],
-      label:'Brooklyn 1938', attr:'Mapwarper' },
+      label:'Brooklyn 1938' },
     { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'],
-      label:'1951 aerial', attr:'NYC DoITT' },
+      label:'1951 aerial' },
     { before:2004, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'],
-      label:'1996 aerial', attr:'NYC DoITT' },
+      label:'1996 aerial' },
     { before:2006, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2004/{z}/{x}/{y}.png8'],
-      label:'2004 aerial', attr:'NYC DoITT' },
+      label:'2004 aerial' },
     { before:2008, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2006/{z}/{x}/{y}.png8'],
-      label:'2006 aerial', attr:'NYC DoITT' },
+      label:'2006 aerial' },
     { before:2010, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2008/{z}/{x}/{y}.png8'],
-      label:'2008 aerial', attr:'NYC DoITT' },
+      label:'2008 aerial' },
     { before:2012, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2010/{z}/{x}/{y}.png8'],
-      label:'2010 aerial', attr:'NYC DoITT' },
+      label:'2010 aerial' },
     { before:2014, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2012/{z}/{x}/{y}.png8'],
-      label:'2012 aerial', attr:'NYC DoITT' },
+      label:'2012 aerial' },
     { before:2016, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2014/{z}/{x}/{y}.png8'],
-      label:'2014 aerial', attr:'NYC DoITT' },
+      label:'2014 aerial' },
     { before:2018, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2016/{z}/{x}/{y}.png8'],
-      label:'2016 aerial', attr:'NYC DoITT' },
+      label:'2016 aerial' },
     { before:2019, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2018/{z}/{x}/{y}.png8'],
-      label:'2018 aerial', attr:'NYC DoITT' },
+      label:'2018 aerial' },
     { before:9999, urls:['mapbox://mapbox.satellite'],
-      label:'Current satellite', attr:'© Mapbox' },
+      label:'Current satellite' },
 ];
 
 /* ── Map ── */
@@ -317,51 +417,44 @@ const map = new mapboxgl.Map({
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
 let activeLayerIds = [], activeSourceIds = [], activeSpecBefore = null, layerCounter = 0, mapLoaded = false;
+const tip = document.getElementById('map-tip');
 
 map.on('load', () => {
     mapLoaded = true;
 
     map.addSource('events', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
     map.addLayer({
-        id: 'events-layer',
-        type: 'circle',
-        source: 'events',
-        paint: {
-            'circle-radius': 8,
-            'circle-color': ['get','color'],
-            'circle-opacity': 0.13,
-            'circle-stroke-width': 0
-        }
+        id: 'events-layer', type: 'circle', source: 'events',
+        paint: { 'circle-radius': 8, 'circle-color': ['get','color'], 'circle-opacity': 0.13, 'circle-stroke-width': 0 }
     });
 
     map.on('mouseenter', 'events-layer', e => {
         map.getCanvas().style.cursor = 'pointer';
         const p = e.features[0].properties;
-        tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${p.date} &nbsp;·&nbsp; ${p.scope}</div><div style="font-weight:600;line-height:1.35;color:#000">${p.title}</div>`;
+        tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${p.date} &nbsp;·&nbsp; ${p.scope}</div><div style="font-weight:600;line-height:1.35">${p.title}</div>`;
         tip.style.display = 'block';
-        positionTip(e.originalEvent);
+        posTip(e.originalEvent);
     });
-    map.on('mousemove', 'events-layer', e => positionTip(e.originalEvent));
+    map.on('mousemove',  'events-layer', e => posTip(e.originalEvent));
     map.on('mouseleave', 'events-layer', () => { map.getCanvas().style.cursor = ''; tip.style.display = 'none'; });
-    map.on('click', 'events-layer', e => {
+    map.on('click',      'events-layer', e => {
         const id = e.features[0].properties.id;
         const ev = allEvents.find(x => x.id === id);
         if (!ev) return;
-        showDetail(ev, TYPE_COLORS[resolveType(ev)] || '#888');
+        const color = TYPE_COLORS[resolveType(ev)] || '#888';
+        showDetail(ev, color);
+        setYear(parseInt(ev.year, 10), true);
         map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
     });
 
     if (allEvents.length) {
         loadEventsToMap(allEvents);
         setBasemap(MIN_YEAR);
-        updateMapMarkers(MIN_YEAR, allEvents);
+        updateMapMarkers(MIN_YEAR);
     }
 });
 
-function positionTip(e) {
-    tip.style.left = (e.clientX + 14) + 'px';
-    tip.style.top  = (e.clientY - 32) + 'px';
-}
+function posTip(e) { tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY - 32) + 'px'; }
 
 function buildEventsGeoJSON(events) {
     return {
@@ -370,12 +463,10 @@ function buildEventsGeoJSON(events) {
             type: 'Feature',
             geometry: { type:'Point', coordinates:[ev._lng, ev._lat] },
             properties: {
-                id:    ev.id,
-                year:  parseInt(ev.year, 10),
+                id: ev.id, year: parseInt(ev.year, 10),
                 color: TYPE_COLORS[resolveType(ev)] || '#888',
-                title: ev.title,
-                scope: ev.scope || '',
-                date:  String(ev.date || ev.year)
+                title: ev.title, scope: ev.scope || '',
+                date: String(ev.date || ev.year)
             }
         }))
     };
@@ -407,7 +498,7 @@ function setBasemap(year) {
     document.getElementById('basemap-badge').textContent = spec.label;
 }
 
-/* ── Jitter (for map markers only) ── */
+/* ── Jitter ── */
 function applyJitter(events) {
     const groups = {};
     events.forEach(ev => {
@@ -417,14 +508,14 @@ function applyJitter(events) {
     events.forEach(ev => {
         const g = groups[`${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`];
         if (g.length === 1) { ev._lat = ev.lat; ev._lng = ev.lng; return; }
-        const i = g.indexOf(ev), angle = 2*Math.PI*i/g.length, r = 0.0013;
-        ev._lat = ev.lat + r*Math.sin(angle);
-        ev._lng = ev.lng + r*Math.cos(angle);
+        const i = g.indexOf(ev), angle = 2 * Math.PI * i / g.length, r = 0.0013;
+        ev._lat = ev.lat + r * Math.sin(angle);
+        ev._lng = ev.lng + r * Math.cos(angle);
     });
 }
 
-/* ── Map markers — update opacity via paint expression ── */
-function updateMapMarkers(year, events) {
+/* ── Map markers ── */
+function updateMapMarkers(year) {
     if (!mapLoaded || !map.getSource('events')) return;
     map.setPaintProperty('events-layer', 'circle-opacity',
         ['case', ['<=', ['get','year'], year], 0.85, 0.13]
@@ -437,7 +528,7 @@ function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 function buildSrcs(raw, evId) {
     if (!raw) return '<div style="font-size:9px;color:#ccc;font-style:italic">No linked source</div>';
     return raw.split(/\s*\|\s*/).filter(Boolean).map((url, i) => {
-        const label = `Read Source${raw.includes('|') ? ' '+(i+1) : ''} ↗`;
+        const label = `Read Source${raw.includes('|') ? ' ' + (i + 1) : ''} ↗`;
         const canEmbed = url.includes('.pdf') || url.includes('ourstuyheights') || url.includes('nypl.org') || url.includes('citizensnyc.org');
         const pid = `pv-${evId}-${i}`;
         let h = `<a href="${escH(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
@@ -453,15 +544,15 @@ function togglePrev(id) {
 }
 
 function showDetail(ev, color) {
-    document.getElementById('d-accent').style.background = color;
-    document.getElementById('d-badge').textContent = resolveType(ev);
-    document.getElementById('d-badge').style.background = color;
-    document.getElementById('d-year').textContent  = ev.date;
-    document.getElementById('d-title').textContent = ev.title;
-    document.getElementById('d-sub').textContent   = ev.subtitle || '';
-    document.getElementById('d-text').textContent  = ev.body;
-    document.getElementById('d-cite').textContent  = ev.citation ? 'Source: '+ev.citation : '';
-    document.getElementById('d-sources').innerHTML = buildSrcs(ev.source_url, ev.id);
+    document.getElementById('d-accent').style.background  = color;
+    document.getElementById('d-badge').textContent        = resolveType(ev);
+    document.getElementById('d-badge').style.background   = color;
+    document.getElementById('d-year').textContent         = ev.date;
+    document.getElementById('d-title').textContent        = ev.title;
+    document.getElementById('d-sub').textContent          = ev.subtitle || '';
+    document.getElementById('d-text').textContent         = ev.body;
+    document.getElementById('d-cite').textContent         = ev.citation ? 'Source: ' + ev.citation : '';
+    document.getElementById('d-sources').innerHTML        = buildSrcs(ev.source_url, ev.id);
     document.getElementById('detail').classList.add('open');
 }
 document.getElementById('d-close').addEventListener('click', () => document.getElementById('detail').classList.remove('open'));
@@ -477,226 +568,134 @@ function buildLegend() {
     });
 }
 
-/* ── Chart constants ── */
-const MIN_YEAR   = 1600, MAX_YEAR = 2026;
-const BREAK_YEAR = 1890;
-const BREAK_FRAC = 0.18;  // 1600–1890 gets 18% of inner width (6 events)
-const CHART_H    = 190;
-const PAD        = { top: 38, bottom: 31, left: 116, right: 20 };
+/* ── Timeline ── */
+const MIN_YEAR = 1600, MAX_YEAR = 2026;
+let allEvents = [];
+let currentYear = MIN_YEAR;
+let suppressScroll = false;
 
-let cIW = 0;  // computed inner width
-let playheadEl = null;
-let allEvents  = [];
+function buildTimeline(events) {
+    const body = document.getElementById('tl-body');
+    body.innerHTML = '';
+    const sorted = [...events].sort((a, b) => parseInt(a.year) - parseInt(b.year));
 
-const chartSvg = document.getElementById('chart-svg');
-const tip      = document.getElementById('chart-tip');
-
-function yearToX(year) {
-    if (year <= BREAK_YEAR) {
-        return PAD.left + (year - MIN_YEAR) / (BREAK_YEAR - MIN_YEAR) * BREAK_FRAC * cIW;
-    }
-    return PAD.left + BREAK_FRAC * cIW + (year - BREAK_YEAR) / (MAX_YEAR - BREAK_YEAR) * (1 - BREAK_FRAC) * cIW;
-}
-function xToYear(px) {
-    const t = (px - PAD.left) / cIW;
-    if (t <= BREAK_FRAC) {
-        return Math.round(MIN_YEAR + t / BREAK_FRAC * (BREAK_YEAR - MIN_YEAR));
-    }
-    return Math.round(BREAK_YEAR + (t - BREAK_FRAC) / (1 - BREAK_FRAC) * (MAX_YEAR - BREAK_YEAR));
-}
-function scopeToY(scope) {
-    const i = SCOPE_ORDER.indexOf(scope);
-    const idx = i < 0 ? 3 : i;
-    return PAD.top + idx * (CHART_H - PAD.top - PAD.bottom) / (SCOPE_ORDER.length - 1);
-}
-
-const SVG_NS = 'http://www.w3.org/2000/svg';
-function mk(tag, attrs) {
-    const el = document.createElementNS(SVG_NS, tag);
-    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
-    return el;
-}
-
-/* Parse date string → { start, end } year ints. En-dash ranges become bars. */
-function parseRange(ev) {
-    const year = parseInt(ev.year, 10);
-    const date = String(ev.date || '');
-    if (date.includes('–')) {
-        const [s, e] = date.split('–').map(p => p.trim());
-        const start = parseInt(s) || year;
-        let end;
-        if (e.toLowerCase() === 'present') {
-            end = MAX_YEAR;
-        } else {
-            end = parseInt(e) || year;
-            if (e.includes('s') && !/\s/.test(e)) end += 9; // "1900s" → 1909
+    let lastEraEnd = -1;
+    sorted.forEach(ev => {
+        const era = eraForYear(parseInt(ev.year));
+        if (era.end !== lastEraEnd) {
+            lastEraEnd = era.end;
+            const hdr = document.createElement('div');
+            hdr.className = 'era-header';
+            hdr.innerHTML = `<div class="era-name">${era.name}</div><div class="era-range">${era.range}</div>`;
+            body.appendChild(hdr);
         }
-        return { start, end };
-    }
-    return { start: year, end: year };
-}
 
-function buildChart(events) {
-    cIW = chartSvg.clientWidth - PAD.left - PAD.right;
-    chartSvg.innerHTML = '';
+        const color = TYPE_COLORS[resolveType(ev)] || '#888';
+        const row   = document.createElement('div');
+        row.className    = 'tl-event';
+        row.dataset.year = ev.year;
+        row.dataset.id   = ev.id;
+        row.innerHTML = `
+            <div class="tl-dot" style="background:${color}"></div>
+            <div class="tl-meta">
+                <span class="tl-event-year">${ev.date || ev.year}</span>
+                <span class="tl-event-title">${ev.title}</span>
+            </div>`;
 
-    const iH = CHART_H - PAD.top - PAD.bottom;
-
-    // Invisible drag surface
-    const bg = mk('rect', { x: PAD.left, y: PAD.top, width: cIW, height: iH, fill: 'transparent' });
-    chartSvg.appendChild(bg);
-
-    // Y axis: horizontal rules + labels
-    SCOPE_ORDER.forEach(scope => {
-        const y = scopeToY(scope);
-        chartSvg.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + cIW, y2: y, stroke: '#2a2a2a', 'stroke-width': 1 }));
-        const lbl = mk('text', { x: PAD.left - 9, y: y + 4.5, 'text-anchor': 'end', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 12, fill: '#bbb', 'letter-spacing': '0.05em' });
-        lbl.textContent = scope.toUpperCase();
-        chartSvg.appendChild(lbl);
-    });
-
-    // X axis: era-boundary ticks + year labels
-    [1600, 1890, 1930, 1960, 1980, 2000, 2026].forEach(year => {
-        const x = yearToX(year);
-        const isBreak = year === BREAK_YEAR;
-        chartSvg.appendChild(mk('line', {
-            x1: x, y1: PAD.top, x2: x, y2: PAD.top + iH,
-            stroke: isBreak ? '#2a2a2a' : '#131313',
-            'stroke-width': isBreak ? 1 : 0.75,
-            'stroke-dasharray': isBreak ? '' : '2 5'
-        }));
-        const lbl = mk('text', { x, y: CHART_H - PAD.bottom + 17, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 12, fill: isBreak ? '#ccc' : '#777' });
-        lbl.textContent = year;
-        chartSvg.appendChild(lbl);
-    });
-
-    // Scale-break indicator: small zigzag at 1890 boundary
-    const bx = yearToX(BREAK_YEAR);
-    const zPath = `M${bx-2},${PAD.top} l4,-5 l-4,5 l4,-5`;
-    chartSvg.appendChild(mk('path', { d: zPath, stroke: '#333', 'stroke-width': 1, fill: 'none' }));
-
-    // Events — bars for date ranges, dots for single years
-    events.forEach(ev => {
-        const type   = resolveType(ev);
-        const color  = TYPE_COLORS[type] || '#7F8C8D';
-        const y      = scopeToY(ev.scope || 'Neighborhood');
-        const range  = parseRange(ev);
-        const isBar  = range.end > range.start + 1;
-
-        function makeTip(e) {
-            const label = isBar ? `${ev.date}` : ev.year;
-            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${label} &nbsp;·&nbsp; ${ev.scope || ''}</div><div style="font-weight:600;line-height:1.35;color:#000">${ev.title}</div>`;
-            tip.style.display = 'block';
-            tip.style.left = (e.clientX + 14) + 'px';
-            tip.style.top  = (e.clientY - 32) + 'px';
-        }
-        function moveTip(e) {
-            tip.style.left = (e.clientX + 14) + 'px';
-            tip.style.top  = (e.clientY - 32) + 'px';
-        }
-        function hideTip() { tip.style.display = 'none'; }
-
-        function onClick(e) {
-            e.stopPropagation();
+        row.addEventListener('click', () => {
+            setYear(parseInt(ev.year, 10), false);
             showDetail(ev, color);
             if (isSpatial(ev)) map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
-        }
-
-        if (isBar) {
-            const x1 = yearToX(range.start);
-            const x2 = yearToX(range.end);
-
-            // Halo bar
-            const halo = mk('line', { x1, y1: y, x2, y2: y, stroke: color, 'stroke-width': 14, 'stroke-linecap': 'round', opacity: 0.05, 'data-halo': ev.id });
-            halo.style.pointerEvents = 'none';
-            chartSvg.appendChild(halo);
-
-            // Main bar
-            const bar = mk('line', { x1, y1: y, x2, y2: y, stroke: color, 'stroke-width': 5, 'stroke-linecap': 'round', opacity: 0.13 });
-            bar.style.cursor = 'pointer';
-            bar.dataset.id = ev.id;
-            bar.addEventListener('mouseenter', e => { makeTip(e); bar.setAttribute('stroke-width', 7); });
-            bar.addEventListener('mousemove', moveTip);
-            bar.addEventListener('mouseleave', () => { hideTip(); bar.setAttribute('stroke-width', 5); });
-            bar.addEventListener('click', onClick);
-            chartSvg.appendChild(bar);
-
-        } else {
-            const x = yearToX(parseInt(ev.year, 10));
-
-            // Halo circle
-            const halo = mk('circle', { cx: x, cy: y, r: 11, fill: color, stroke: 'none', opacity: 0.05, 'data-halo': ev.id });
-            halo.style.pointerEvents = 'none';
-            chartSvg.appendChild(halo);
-
-            // Main dot
-            const dot = mk('circle', { cx: x, cy: y, r: 6, fill: color, stroke: 'none', 'stroke-width': 0, opacity: 0.13 });
-            dot.style.cursor = 'pointer';
-            dot.dataset.id = ev.id;
-            dot.addEventListener('mouseenter', e => { makeTip(e); dot.setAttribute('r', 9); dot.setAttribute('stroke', '#fff'); dot.setAttribute('stroke-width', 2); });
-            dot.addEventListener('mousemove', moveTip);
-            dot.addEventListener('mouseleave', () => { hideTip(); dot.setAttribute('r', 6); dot.setAttribute('stroke', 'none'); dot.setAttribute('stroke-width', 0); });
-            dot.addEventListener('click', onClick);
-            chartSvg.appendChild(dot);
-        }
+        });
+        body.appendChild(row);
     });
-
-    // Playhead line (drawn last so it sits above dots)
-    playheadEl = mk('line', {
-        x1: yearToX(MIN_YEAR), y1: PAD.top - 5,
-        x2: yearToX(MIN_YEAR), y2: CHART_H - PAD.bottom + 5,
-        stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.5
-    });
-    playheadEl.style.pointerEvents = 'none';
-    chartSvg.appendChild(playheadEl);
-
-    // Drag interaction: mousedown on non-dot → drag to scrub
-    let dragging = false;
-    chartSvg.addEventListener('mousedown', e => {
-        if (!e.target.dataset.id) { dragging = true; scrubTo(e); }
-    });
-    chartSvg.addEventListener('mousemove', e => {
-        if (dragging) scrubTo(e);
-    });
-    window.addEventListener('mouseup', () => { dragging = false; });
-
-    // Touch support
-    chartSvg.addEventListener('touchstart', e => { dragging = true; scrubTo(e.touches[0]); }, { passive: true });
-    chartSvg.addEventListener('touchmove',  e => { if (dragging) scrubTo(e.touches[0]); }, { passive: true });
-    window.addEventListener('touchend', () => { dragging = false; });
 }
 
-function scrubTo(e) {
-    const rect = chartSvg.getBoundingClientRect();
-    const year = Math.max(MIN_YEAR, Math.min(MAX_YEAR, xToYear(e.clientX - rect.left)));
-    setYear(year);
-}
-
-function setYear(year) {
-    // Move playhead
-    const x = yearToX(year);
-    playheadEl.setAttribute('x1', x);
-    playheadEl.setAttribute('x2', x);
-
-    // Update dot/bar and halo visibility
-    chartSvg.querySelectorAll('[data-id]').forEach(el => {
-        const ev = allEvents.find(e => e.id === parseInt(el.dataset.id));
-        if (!ev) return;
-        const past = parseInt(ev.year, 10) <= year;
-        el.setAttribute('opacity', past ? '0.85' : '0.13');
-        const halo = chartSvg.querySelector(`[data-halo="${ev.id}"]`);
-        if (halo) halo.setAttribute('opacity', past ? '0.15' : '0.05');
+function updateTimelineHighlight(year) {
+    const rows = [...document.querySelectorAll('.tl-event')];
+    let lastPast = null;
+    rows.forEach(r => { if (parseInt(r.dataset.year) <= year) lastPast = r; });
+    rows.forEach(r => {
+        const y = parseInt(r.dataset.year);
+        r.classList.toggle('past',   y <= year && r !== lastPast);
+        r.classList.toggle('active', r === lastPast);
     });
-
-    // HUD
     const era = eraForYear(year);
-    document.getElementById('chart-year').textContent = year;
-    document.getElementById('chart-era').textContent  = `${era.range} · ${era.name}`;
-
-    // Map
-    updateMapMarkers(year, allEvents);
-    setBasemap(year);
+    document.getElementById('tl-year').textContent = year;
+    document.getElementById('tl-era').textContent  = `${era.range} · ${era.name}`;
 }
+
+function scrollTimelineToYear(year) {
+    const rows = [...document.querySelectorAll('.tl-event')];
+    let target = null;
+    rows.forEach(r => { if (parseInt(r.dataset.year) <= year) target = r; });
+    if (!target && rows.length) target = rows[0];
+    if (!target) return;
+    suppressScroll = true;
+    target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    setTimeout(() => { suppressScroll = false; }, 700);
+}
+
+/* Scroll → year: topmost visible event row drives the year */
+const tlPanel = document.getElementById('timeline-panel');
+tlPanel.addEventListener('scroll', () => {
+    if (suppressScroll) return;
+    const hudBottom = document.getElementById('tl-hud').getBoundingClientRect().bottom;
+    const rows = document.querySelectorAll('.tl-event');
+    let topRow = null;
+    for (const row of rows) {
+        if (row.getBoundingClientRect().top >= hudBottom) { topRow = row; break; }
+    }
+    if (topRow) {
+        const y = parseInt(topRow.dataset.year);
+        if (y !== currentYear) setYear(y, false);
+    }
+});
+
+/* ── setYear: single source of truth ── */
+function setYear(year, scrollTL = true) {
+    currentYear = year;
+    updateTimelineHighlight(year);
+    updateMapMarkers(year);
+    setBasemap(year);
+    if (scrollTL) scrollTimelineToYear(year);
+}
+
+/* ── Draggable divider ── */
+const divider = document.getElementById('divider');
+const layout  = document.getElementById('layout');
+let dragging  = false;
+
+divider.addEventListener('mousedown', e => {
+    dragging = true;
+    divider.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const x = Math.max(180, Math.min(window.innerWidth - 300, e.clientX));
+    layout.style.setProperty('--split', x + 'px');
+    map.resize();
+});
+document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    divider.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    map.resize();
+});
+
+divider.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
+document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const x = Math.max(180, Math.min(window.innerWidth - 300, e.touches[0].clientX));
+    layout.style.setProperty('--split', x + 'px');
+    map.resize();
+}, { passive: true });
+document.addEventListener('touchend', () => { if (dragging) { dragging = false; map.resize(); } });
 
 /* ── Boot ── */
 fetch('data/ba_timeline.json')
@@ -705,21 +704,14 @@ fetch('data/ba_timeline.json')
         allEvents = data;
         applyJitter(allEvents);
         buildLegend();
-        buildChart(allEvents);
+        buildTimeline(allEvents);
         if (mapLoaded) {
             loadEventsToMap(allEvents);
             setBasemap(MIN_YEAR);
         }
-        setYear(MIN_YEAR);
+        setYear(MIN_YEAR, false);
     })
     .catch(err => console.error('Timeline load failed:', err));
-
-// Rebuild on resize
-let resizeTimer;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { if (allEvents.length) buildChart(allEvents); }, 180);
-});
 
 </script>
 </body>
