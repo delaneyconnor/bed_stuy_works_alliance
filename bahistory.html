@@ -44,24 +44,24 @@
             border-bottom: 1px solid #e8e8e8;
         }
         #tl-year {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 600;
             color: #000;
             line-height: 1;
             display: block;
         }
         #tl-era {
-            font-size: 8px;
+            font-size: 11px;
             color: #999;
-            letter-spacing: 0.13em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             display: block;
-            margin-top: 5px;
+            margin-top: 6px;
         }
         #tl-col-headers {
             display: flex;
             align-items: center;
-            height: 24px;
+            height: 32px;
             border-bottom: 1px solid #e8e8e8;
         }
         .tl-year-gutter {
@@ -73,8 +73,8 @@
         .tl-col-hdr {
             flex: 1;
             text-align: center;
-            font-size: 7px;
-            letter-spacing: 0.13em;
+            font-size: 9px;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
             color: #aaa;
         }
@@ -219,10 +219,10 @@
             </div>
             <div id="tl-col-headers">
                 <div class="tl-year-gutter"></div>
-                <div class="tl-col-hdr">Natl</div>
-                <div class="tl-col-hdr">Reg</div>
-                <div class="tl-col-hdr">City</div>
-                <div class="tl-col-hdr">Nbhd</div>
+                <div class="tl-col-hdr">Federal</div>
+                <div class="tl-col-hdr">Regional</div>
+                <div class="tl-col-hdr">Citywide</div>
+                <div class="tl-col-hdr">Neighborhood</div>
                 <div class="tl-col-hdr">Block</div>
             </div>
         </div>
@@ -513,9 +513,9 @@ function buildTimelineSVG(events) {
 
         // Era label inside the band
         const eLbl = mk('text', {
-            x: YEAR_PAD + 4, y: y0 + 13,
-            'font-family':'IBM Plex Mono,monospace', 'font-size':7,
-            fill:'#ccc', 'letter-spacing':'0.12em'
+            x: YEAR_PAD + 4, y: y0 + 16,
+            'font-family':'IBM Plex Mono,monospace', 'font-size':10,
+            fill:'#bbb', 'letter-spacing':'0.08em'
         });
         eLbl.textContent = era.name.toUpperCase();
         eLbl.style.pointerEvents = 'none';
@@ -546,9 +546,9 @@ function buildTimelineSVG(events) {
         }));
         if (showLabel) {
             const lbl = mk('text', {
-                x: YEAR_PAD - 13, y: py + 3.5,
+                x: YEAR_PAD - 13, y: py + 4,
                 'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
-                'font-size': major ? 8.5 : 7, fill: major ? '#555' : '#bbb'
+                'font-size': major ? 11 : 9, fill: major ? '#555' : '#bbb'
             });
             lbl.textContent = year;
             lbl.style.pointerEvents = 'none';
@@ -572,15 +572,6 @@ function buildTimelineSVG(events) {
         const stack = stackCount[k] || 0;
         stackCount[k] = stack + 1;
         const cy = baseY + stack * 13;
-
-        // Horizontal connector: year axis → dot
-        const connector = mk('line', {
-            x1: YEAR_PAD, y1: baseY,
-            x2: cx,       y2: cy,
-            stroke: color, 'stroke-width': 0.75, opacity: 0.2
-        });
-        connector.style.pointerEvents = 'none';
-        tlSvg.appendChild(connector);
 
         // Halo
         const halo = mk('circle', { cx, cy, r:10, fill:color, opacity:0.04 });
