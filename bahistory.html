@@ -16,7 +16,7 @@
             flex-direction: row;
             height: 100vh;
             width: 100vw;
-            --split: 320px;
+            --split: 340px;
         }
 
         /* ── Timeline panel ── */
@@ -27,104 +27,68 @@
             overflow-x: hidden;
             background: #080808;
             flex-shrink: 0;
-            scrollbar-width: thin;
-            scrollbar-color: #222 transparent;
+            scrollbar-width: none;
         }
+        #timeline-panel::-webkit-scrollbar { display: none; }
 
-        /* Sticky year/era header */
+        /* Sticky header: year display + column labels */
         #tl-hud {
             position: sticky;
             top: 0;
             z-index: 10;
             background: #080808;
-            border-bottom: 1px solid #1a1a1a;
-            padding: 14px 16px 11px;
+        }
+        #tl-year-display {
+            padding: 13px 14px 9px;
+            border-bottom: 1px solid #111;
         }
         #tl-year {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 600;
             color: #fff;
             line-height: 1;
             display: block;
         }
         #tl-era {
-            font-size: 9px;
-            color: #555;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            display: block;
-            margin-top: 5px;
-        }
-
-        /* Era section header */
-        .era-header {
-            padding: 22px 16px 7px;
-            border-bottom: 1px solid #111;
-        }
-        .era-name {
             font-size: 8px;
-            font-weight: 600;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
             color: #444;
-        }
-        .era-range {
-            font-size: 10px;
-            color: #2a2a2a;
-            margin-top: 2px;
-        }
-
-        /* Event row */
-        .tl-event {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 9px 16px;
-            cursor: pointer;
-            transition: background 0.1s;
-            border-bottom: 1px solid #0e0e0e;
-        }
-        .tl-event:hover { background: #111; }
-
-        .tl-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            display: block;
             margin-top: 5px;
-            opacity: 0.15;
-            transition: opacity 0.25s;
         }
-        .tl-event.past .tl-dot  { opacity: 0.75; }
-        .tl-event.active .tl-dot { opacity: 1; }
-
-        .tl-meta { flex: 1; min-width: 0; }
-
-        .tl-event-year {
-            font-size: 8px;
+        #tl-col-headers {
+            display: flex;
+            align-items: center;
+            height: 24px;
+            border-bottom: 1px solid #141414;
+        }
+        .tl-year-gutter {
+            width: 44px;
+            flex-shrink: 0;
+            height: 100%;
+            border-right: 1px solid #141414;
+        }
+        .tl-col-hdr {
+            flex: 1;
+            text-align: center;
+            font-size: 7px;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
             color: #2a2a2a;
-            letter-spacing: 0.06em;
-            display: block;
-            transition: color 0.25s;
         }
-        .tl-event.past   .tl-event-year  { color: #555; }
-        .tl-event.active .tl-event-year  { color: #999; }
 
-        .tl-event-title {
-            font-size: 11px;
-            color: #1e1e1e;
-            line-height: 1.4;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: color 0.25s;
+        /* Sticky "now" bar — sits right below hud, content scrolls past it */
+        #tl-now-bar {
+            position: sticky;
+            height: 1px;
+            background: rgba(255,255,255,0.18);
+            z-index: 9;
+            pointer-events: none;
         }
-        .tl-event.past   .tl-event-title { color: #888; }
-        .tl-event.active .tl-event-title { color: #fff; font-weight: 600; white-space: normal; }
 
-        /* Padding so last events can scroll into view */
-        #tl-footer { height: 80vh; }
+        /* SVG container */
+        #tl-body { display: block; line-height: 0; }
 
         /* ── Draggable divider ── */
         #divider {
@@ -162,7 +126,7 @@
         .mapboxgl-ctrl-bottom-right { bottom: 8px !important; }
         .mapboxgl-ctrl-bottom-left  { bottom: 8px !important; }
 
-        /* ── Detail panel (slides in from left of map panel) ── */
+        /* ── Detail panel ── */
         #detail {
             position: absolute;
             top: 12px;
@@ -222,7 +186,7 @@
             pointer-events: none;
         }
 
-        /* ── Map tooltip ── */
+        /* ── Tooltip ── */
         #map-tip {
             position: fixed;
             background: #fff;
@@ -244,17 +208,29 @@
 
 <div id="layout">
 
-    <!-- Left: vertical scrollable timeline -->
+    <!-- Left: SVG column timeline -->
     <div id="timeline-panel">
         <div id="tl-hud">
-            <span id="tl-year">1600</span>
-            <span id="tl-era">Pre-1890 · Preconditions</span>
+            <div id="tl-year-display">
+                <span id="tl-year">1600</span>
+                <span id="tl-era">Pre-1890 · Preconditions</span>
+            </div>
+            <div id="tl-col-headers">
+                <div class="tl-year-gutter"></div>
+                <div class="tl-col-hdr">Natl</div>
+                <div class="tl-col-hdr">Reg</div>
+                <div class="tl-col-hdr">City</div>
+                <div class="tl-col-hdr">Nbhd</div>
+                <div class="tl-col-hdr">Block</div>
+            </div>
         </div>
-        <div id="tl-body"></div>
-        <div id="tl-footer"></div>
+        <div id="tl-now-bar"></div>
+        <div id="tl-body">
+            <svg id="tl-svg"></svg>
+        </div>
     </div>
 
-    <!-- Draggable divider bar -->
+    <!-- Draggable divider -->
     <div id="divider"></div>
 
     <!-- Right: map -->
@@ -295,14 +271,17 @@ function resolveType(ev) { return TYPE_OVERRIDES[ev.id] || TYPE_MAP[ev.type] || 
 
 /* ── Eras ── */
 const ERAS = [
-    { name:'Preconditions',         range:'Pre-1890',     end:1889 },
-    { name:'Form Emerges',          range:'1890–1930',    end:1929 },
-    { name:'Racial Transition',     range:'1930–1960',    end:1959 },
-    { name:'Self-Determination',    range:'1960–1980',    end:1979 },
-    { name:'Crisis & Retrenchment', range:'1980–2000',    end:1999 },
-    { name:'Gentrification Era',    range:'2000–present', end:9999 },
+    { name:'Preconditions',         range:'Pre-1890',     start:1600, end:1889 },
+    { name:'Form Emerges',          range:'1890–1930',    start:1890, end:1929 },
+    { name:'Racial Transition',     range:'1930–1960',    start:1930, end:1959 },
+    { name:'Self-Determination',    range:'1960–1980',    start:1960, end:1979 },
+    { name:'Crisis & Retrenchment', range:'1980–2000',    start:1980, end:1999 },
+    { name:'Gentrification Era',    range:'2000–present', start:2000, end:2026 },
 ];
 function eraForYear(y) { return ERAS.find(e => y <= e.end) || ERAS[ERAS.length - 1]; }
+
+/* ── Scope columns ── */
+const SCOPE_ORDER = ['Federal', 'Regional', 'Citywide', 'Neighborhood', 'Block'];
 
 /* ── Spatial detection ── */
 const GENERIC = [
@@ -316,94 +295,29 @@ function isSpatial(ev) {
 
 /* ── Basemaps ── */
 const BASEMAPS = [
-    { before:1800, urls:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
-      label:'Pre-map era' },
-    { before:1807, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png'],
-      label:'Brooklyn 1800' },
-    { before:1855, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png'],
-      label:'Historical · 1800 + 1807' },
-    { before:1859, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png'],
-      label:'Historical · 1807 + 1855' },
-    { before:1869, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1868' },
-    { before:1874, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1869' },
-    { before:1891, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1874' },
-    { before:1905, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1891' },
-    { before:1917, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1905' },
-    { before:1924, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png',
-                         'https://mapwarper.net/maps/tile/96360/{z}/{x}/{y}.png'],
-      label:'Historical · 1800–1917' },
-    { before:1938, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'],
-      label:'1924 aerial' },
-    { before:1951, urls:['https://mapwarper.net/maps/tile/82146/{z}/{x}/{y}.png'],
-      label:'Brooklyn 1938' },
-    { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'],
-      label:'1951 aerial' },
-    { before:2004, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'],
-      label:'1996 aerial' },
-    { before:2006, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2004/{z}/{x}/{y}.png8'],
-      label:'2004 aerial' },
-    { before:2008, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2006/{z}/{x}/{y}.png8'],
-      label:'2006 aerial' },
-    { before:2010, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2008/{z}/{x}/{y}.png8'],
-      label:'2008 aerial' },
-    { before:2012, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2010/{z}/{x}/{y}.png8'],
-      label:'2010 aerial' },
-    { before:2014, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2012/{z}/{x}/{y}.png8'],
-      label:'2012 aerial' },
-    { before:2016, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2014/{z}/{x}/{y}.png8'],
-      label:'2014 aerial' },
-    { before:2018, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2016/{z}/{x}/{y}.png8'],
-      label:'2016 aerial' },
-    { before:2019, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2018/{z}/{x}/{y}.png8'],
-      label:'2018 aerial' },
-    { before:9999, urls:['mapbox://mapbox.satellite'],
-      label:'Current satellite' },
+    { before:1800, urls:['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'], label:'Pre-map era' },
+    { before:1807, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png'], label:'Brooklyn 1800' },
+    { before:1855, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png'], label:'Historical · 1800 + 1807' },
+    { before:1859, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png'], label:'Historical · 1807 + 1855' },
+    { before:1869, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png'], label:'Historical · 1800–1868' },
+    { before:1874, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/94912/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png'], label:'Historical · 1800–1869' },
+    { before:1891, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png'], label:'Historical · 1800–1874' },
+    { before:1905, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png'], label:'Historical · 1800–1891' },
+    { before:1917, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png'], label:'Historical · 1800–1905' },
+    { before:1924, urls:['https://mapwarper.net/maps/tile/47170/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/77083/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85191/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/11048/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/78380/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/104138/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/34125/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85456/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85457/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/85458/{z}/{x}/{y}.png','https://mapwarper.net/maps/tile/96360/{z}/{x}/{y}.png'], label:'Historical · 1800–1917' },
+    { before:1938, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1924/{z}/{x}/{y}.png8'], label:'1924 aerial' },
+    { before:1951, urls:['https://mapwarper.net/maps/tile/82146/{z}/{x}/{y}.png'], label:'Brooklyn 1938' },
+    { before:1996, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1951/{z}/{x}/{y}.png8'], label:'1951 aerial' },
+    { before:2004, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/1996/{z}/{x}/{y}.png8'], label:'1996 aerial' },
+    { before:2006, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2004/{z}/{x}/{y}.png8'], label:'2004 aerial' },
+    { before:2008, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2006/{z}/{x}/{y}.png8'], label:'2006 aerial' },
+    { before:2010, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2008/{z}/{x}/{y}.png8'], label:'2008 aerial' },
+    { before:2012, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2010/{z}/{x}/{y}.png8'], label:'2010 aerial' },
+    { before:2014, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2012/{z}/{x}/{y}.png8'], label:'2012 aerial' },
+    { before:2016, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2014/{z}/{x}/{y}.png8'], label:'2014 aerial' },
+    { before:2018, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2016/{z}/{x}/{y}.png8'], label:'2016 aerial' },
+    { before:2019, urls:['https://maps.nyc.gov/xyz/1.0.0/photo/2018/{z}/{x}/{y}.png8'], label:'2018 aerial' },
+    { before:9999, urls:['mapbox://mapbox.satellite'], label:'Current satellite' },
 ];
 
 /* ── Map ── */
@@ -421,13 +335,11 @@ const tip = document.getElementById('map-tip');
 
 map.on('load', () => {
     mapLoaded = true;
-
     map.addSource('events', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
     map.addLayer({
-        id: 'events-layer', type: 'circle', source: 'events',
-        paint: { 'circle-radius': 8, 'circle-color': ['get','color'], 'circle-opacity': 0.13, 'circle-stroke-width': 0 }
+        id:'events-layer', type:'circle', source:'events',
+        paint:{ 'circle-radius':8, 'circle-color':['get','color'], 'circle-opacity':0.13, 'circle-stroke-width':0 }
     });
-
     map.on('mouseenter', 'events-layer', e => {
         map.getCanvas().style.cursor = 'pointer';
         const p = e.features[0].properties;
@@ -437,46 +349,33 @@ map.on('load', () => {
     });
     map.on('mousemove',  'events-layer', e => posTip(e.originalEvent));
     map.on('mouseleave', 'events-layer', () => { map.getCanvas().style.cursor = ''; tip.style.display = 'none'; });
-    map.on('click',      'events-layer', e => {
-        const id = e.features[0].properties.id;
-        const ev = allEvents.find(x => x.id === id);
+    map.on('click', 'events-layer', e => {
+        const ev = allEvents.find(x => x.id === e.features[0].properties.id);
         if (!ev) return;
-        const color = TYPE_COLORS[resolveType(ev)] || '#888';
-        showDetail(ev, color);
+        showDetail(ev, TYPE_COLORS[resolveType(ev)] || '#888');
         setYear(parseInt(ev.year, 10), true);
         map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
     });
-
-    if (allEvents.length) {
-        loadEventsToMap(allEvents);
-        setBasemap(MIN_YEAR);
-        updateMapMarkers(MIN_YEAR);
-    }
+    if (allEvents.length) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); updateMapMarkers(MIN_YEAR); }
 });
 
-function posTip(e) { tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY - 32) + 'px'; }
-
-function buildEventsGeoJSON(events) {
-    return {
-        type: 'FeatureCollection',
-        features: events.filter(isSpatial).map(ev => ({
-            type: 'Feature',
-            geometry: { type:'Point', coordinates:[ev._lng, ev._lat] },
-            properties: {
-                id: ev.id, year: parseInt(ev.year, 10),
-                color: TYPE_COLORS[resolveType(ev)] || '#888',
-                title: ev.title, scope: ev.scope || '',
-                date: String(ev.date || ev.year)
-            }
-        }))
-    };
+function posTip(e) {
+    const ev = e.originalEvent || e;
+    tip.style.left = (ev.clientX + 14) + 'px';
+    tip.style.top  = (ev.clientY - 32) + 'px';
 }
 
+function buildEventsGeoJSON(events) {
+    return { type:'FeatureCollection', features: events.filter(isSpatial).map(ev => ({
+        type:'Feature',
+        geometry:{ type:'Point', coordinates:[ev._lng, ev._lat] },
+        properties:{ id:ev.id, year:parseInt(ev.year,10), color:TYPE_COLORS[resolveType(ev)]||'#888', title:ev.title, scope:ev.scope||'', date:String(ev.date||ev.year) }
+    }))};
+}
 function loadEventsToMap(events) {
     if (!mapLoaded || !map.getSource('events')) return;
     map.getSource('events').setData(buildEventsGeoJSON(events));
 }
-
 function setBasemap(year) {
     if (!mapLoaded) return;
     const spec = BASEMAPS.find(b => year < b.before);
@@ -497,70 +396,56 @@ function setBasemap(year) {
     });
     document.getElementById('basemap-badge').textContent = spec.label;
 }
-
-/* ── Jitter ── */
 function applyJitter(events) {
     const groups = {};
-    events.forEach(ev => {
-        const k = `${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`;
-        (groups[k] = groups[k] || []).push(ev);
-    });
+    events.forEach(ev => { const k = `${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`; (groups[k]=groups[k]||[]).push(ev); });
     events.forEach(ev => {
         const g = groups[`${ev.lat.toFixed(3)},${ev.lng.toFixed(3)}`];
-        if (g.length === 1) { ev._lat = ev.lat; ev._lng = ev.lng; return; }
-        const i = g.indexOf(ev), angle = 2 * Math.PI * i / g.length, r = 0.0013;
-        ev._lat = ev.lat + r * Math.sin(angle);
-        ev._lng = ev.lng + r * Math.cos(angle);
+        if (g.length===1) { ev._lat=ev.lat; ev._lng=ev.lng; return; }
+        const i=g.indexOf(ev), angle=2*Math.PI*i/g.length, r=0.0013;
+        ev._lat=ev.lat+r*Math.sin(angle); ev._lng=ev.lng+r*Math.cos(angle);
     });
 }
-
-/* ── Map markers ── */
 function updateMapMarkers(year) {
     if (!mapLoaded || !map.getSource('events')) return;
-    map.setPaintProperty('events-layer', 'circle-opacity',
-        ['case', ['<=', ['get','year'], year], 0.85, 0.13]
-    );
+    map.setPaintProperty('events-layer','circle-opacity',['case',['<=',['get','year'],year],0.85,0.13]);
 }
 
 /* ── Detail panel ── */
 function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 function buildSrcs(raw, evId) {
     if (!raw) return '<div style="font-size:9px;color:#ccc;font-style:italic">No linked source</div>';
-    return raw.split(/\s*\|\s*/).filter(Boolean).map((url, i) => {
-        const label = `Read Source${raw.includes('|') ? ' ' + (i + 1) : ''} ↗`;
-        const canEmbed = url.includes('.pdf') || url.includes('ourstuyheights') || url.includes('nypl.org') || url.includes('citizensnyc.org');
+    return raw.split(/\s*\|\s*/).filter(Boolean).map((url,i) => {
+        const label = `Read Source${raw.includes('|')?' '+(i+1):''} ↗`;
+        const canEmbed = url.includes('.pdf')||url.includes('ourstuyheights')||url.includes('nypl.org')||url.includes('citizensnyc.org');
         const pid = `pv-${evId}-${i}`;
         let h = `<a href="${escH(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
         if (canEmbed) h += `<button class="preview-toggle" onclick="togglePrev('${pid}')">Preview ▾</button><div class="preview-wrap" id="${pid}"><iframe src="${escH(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe></div>`;
         return h;
     }).join('');
 }
-
 function togglePrev(id) {
     const el = document.getElementById(id);
     if (!el) return;
     el.previousElementSibling.textContent = el.classList.toggle('open') ? 'Preview ▴' : 'Preview ▾';
 }
-
 function showDetail(ev, color) {
-    document.getElementById('d-accent').style.background  = color;
-    document.getElementById('d-badge').textContent        = resolveType(ev);
-    document.getElementById('d-badge').style.background   = color;
-    document.getElementById('d-year').textContent         = ev.date;
-    document.getElementById('d-title').textContent        = ev.title;
-    document.getElementById('d-sub').textContent          = ev.subtitle || '';
-    document.getElementById('d-text').textContent         = ev.body;
-    document.getElementById('d-cite').textContent         = ev.citation ? 'Source: ' + ev.citation : '';
-    document.getElementById('d-sources').innerHTML        = buildSrcs(ev.source_url, ev.id);
+    document.getElementById('d-accent').style.background = color;
+    document.getElementById('d-badge').textContent       = resolveType(ev);
+    document.getElementById('d-badge').style.background  = color;
+    document.getElementById('d-year').textContent        = ev.date;
+    document.getElementById('d-title').textContent       = ev.title;
+    document.getElementById('d-sub').textContent         = ev.subtitle || '';
+    document.getElementById('d-text').textContent        = ev.body;
+    document.getElementById('d-cite').textContent        = ev.citation ? 'Source: '+ev.citation : '';
+    document.getElementById('d-sources').innerHTML       = buildSrcs(ev.source_url, ev.id);
     document.getElementById('detail').classList.add('open');
 }
 document.getElementById('d-close').addEventListener('click', () => document.getElementById('detail').classList.remove('open'));
 
-/* ── Legend ── */
 function buildLegend() {
     const el = document.getElementById('legend');
-    Object.entries(TYPE_COLORS).forEach(([type, color]) => {
+    Object.entries(TYPE_COLORS).forEach(([type,color]) => {
         const row = document.createElement('div');
         row.className = 'leg-row';
         row.innerHTML = `<div class="leg-dot" style="background:${color}"></div><span class="leg-label">${type}</span>`;
@@ -568,57 +453,179 @@ function buildLegend() {
     });
 }
 
-/* ── Timeline ── */
+/* ── SVG Timeline ── */
 const MIN_YEAR = 1600, MAX_YEAR = 2026;
-let allEvents = [];
-let currentYear = MIN_YEAR;
-let suppressScroll = false;
+const BREAK_YEAR = 1890, BREAK_FRAC = 0.13;
+const TL_H = 3200;
+const YEAR_PAD = 44;
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
-function buildTimeline(events) {
-    const body = document.getElementById('tl-body');
-    body.innerHTML = '';
-    const sorted = [...events].sort((a, b) => parseInt(a.year) - parseInt(b.year));
-
-    let lastEraEnd = -1;
-    sorted.forEach(ev => {
-        const era = eraForYear(parseInt(ev.year));
-        if (era.end !== lastEraEnd) {
-            lastEraEnd = era.end;
-            const hdr = document.createElement('div');
-            hdr.className = 'era-header';
-            hdr.innerHTML = `<div class="era-name">${era.name}</div><div class="era-range">${era.range}</div>`;
-            body.appendChild(hdr);
-        }
-
-        const color = TYPE_COLORS[resolveType(ev)] || '#888';
-        const row   = document.createElement('div');
-        row.className    = 'tl-event';
-        row.dataset.year = ev.year;
-        row.dataset.id   = ev.id;
-        row.innerHTML = `
-            <div class="tl-dot" style="background:${color}"></div>
-            <div class="tl-meta">
-                <span class="tl-event-year">${ev.date || ev.year}</span>
-                <span class="tl-event-title">${ev.title}</span>
-            </div>`;
-
-        row.addEventListener('click', () => {
-            setYear(parseInt(ev.year, 10), false);
-            showDetail(ev, color);
-            if (isSpatial(ev)) map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
-        });
-        body.appendChild(row);
-    });
+function mk(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+    return el;
 }
 
-function updateTimelineHighlight(year) {
-    const rows = [...document.querySelectorAll('.tl-event')];
-    let lastPast = null;
-    rows.forEach(r => { if (parseInt(r.dataset.year) <= year) lastPast = r; });
-    rows.forEach(r => {
-        const y = parseInt(r.dataset.year);
-        r.classList.toggle('past',   y <= year && r !== lastPast);
-        r.classList.toggle('active', r === lastPast);
+function yearToY(year) {
+    year = Math.max(MIN_YEAR, Math.min(MAX_YEAR, year));
+    if (year <= BREAK_YEAR)
+        return (year - MIN_YEAR) / (BREAK_YEAR - MIN_YEAR) * BREAK_FRAC * TL_H;
+    return BREAK_FRAC * TL_H + (year - BREAK_YEAR) / (MAX_YEAR - BREAK_YEAR) * (1 - BREAK_FRAC) * TL_H;
+}
+function yToYear(py) {
+    const t = py / TL_H;
+    if (t <= BREAK_FRAC)
+        return Math.round(MIN_YEAR + t / BREAK_FRAC * (BREAK_YEAR - MIN_YEAR));
+    return Math.round(BREAK_YEAR + (t - BREAK_FRAC) / (1 - BREAK_FRAC) * (MAX_YEAR - BREAK_YEAR));
+}
+
+let allEvents = [], currentYear = MIN_YEAR, suppressScroll = false;
+let svgDotRefs = []; // { dot, halo, year }
+
+const tlPanel  = document.getElementById('timeline-panel');
+const tlSvg    = document.getElementById('tl-svg');
+const nowBar   = document.getElementById('tl-now-bar');
+
+function buildTimelineSVG(events) {
+    tlSvg.innerHTML = '';
+    svgDotRefs = [];
+
+    const W    = tlPanel.clientWidth;
+    const colW = (W - YEAR_PAD) / SCOPE_ORDER.length;
+
+    tlSvg.setAttribute('width',   W);
+    tlSvg.setAttribute('height',  TL_H);
+    tlSvg.setAttribute('viewBox', `0 0 ${W} ${TL_H}`);
+
+    // Era background bands
+    const eraBg = ['#0c0c0c','#090909','#0b0b0b','#090909','#0c0c0c','#090909'];
+    ERAS.forEach((era, i) => {
+        const y0 = yearToY(era.start);
+        const y1 = yearToY(era.end + (i < ERAS.length-1 ? 0 : 1));
+        tlSvg.appendChild(mk('rect', { x:0, y:y0, width:W, height:Math.max(1, y1-y0), fill:eraBg[i] }));
+
+        // Era boundary line
+        if (i > 0) {
+            tlSvg.appendChild(mk('line', { x1:0, y1:y0, x2:W, y2:y0, stroke:'#1a1a1a', 'stroke-width':1 }));
+        }
+
+        // Era label inside the band
+        const midY = (y0 + y1) / 2;
+        const eLbl = mk('text', {
+            x: YEAR_PAD + 4, y: y0 + 13,
+            'font-family':'IBM Plex Mono,monospace', 'font-size':7,
+            fill:'#252525', 'letter-spacing':'0.12em'
+        });
+        eLbl.textContent = era.name.toUpperCase();
+        eLbl.style.pointerEvents = 'none';
+        tlSvg.appendChild(eLbl);
+    });
+
+    // Year axis line
+    tlSvg.appendChild(mk('line', { x1:YEAR_PAD-1, y1:0, x2:YEAR_PAD-1, y2:TL_H, stroke:'#1e1e1e', 'stroke-width':1 }));
+
+    // Scope column lines
+    SCOPE_ORDER.forEach((_, i) => {
+        const x = YEAR_PAD + (i + 0.5) * colW;
+        tlSvg.appendChild(mk('line', { x1:x, y1:0, x2:x, y2:TL_H, stroke:'#131313', 'stroke-width':1 }));
+    });
+
+    // Year tick marks + labels
+    const tickYears = [];
+    for (let y = MIN_YEAR; y <= MAX_YEAR; y += 10) tickYears.push(y);
+    [1890,1930,1960,1980,2000].forEach(y => { if (!tickYears.includes(y)) tickYears.push(y); });
+    tickYears.sort((a,b)=>a-b).forEach(year => {
+        const py = yearToY(year);
+        const major = year % 50 === 0 || [1890,1930,1960,1980,2000].includes(year);
+        const showLabel = major || year % 20 === 0;
+        tlSvg.appendChild(mk('line', {
+            x1: YEAR_PAD - (major ? 10 : 5), y1: py,
+            x2: YEAR_PAD - 1,                y2: py,
+            stroke: major ? '#333' : '#1c1c1c', 'stroke-width': major ? 1.5 : 0.75
+        }));
+        if (showLabel) {
+            const lbl = mk('text', {
+                x: YEAR_PAD - 13, y: py + 3.5,
+                'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
+                'font-size': major ? 8.5 : 7, fill: major ? '#444' : '#252525'
+            });
+            lbl.textContent = year;
+            lbl.style.pointerEvents = 'none';
+            tlSvg.appendChild(lbl);
+        }
+    });
+
+    // Events — stack dots that share the same scope column and year
+    const sorted = [...events].sort((a,b) => parseInt(a.year)-parseInt(b.year));
+    const stackCount = {};
+
+    sorted.forEach(ev => {
+        const year  = parseInt(ev.year, 10);
+        const type  = resolveType(ev);
+        const color = TYPE_COLORS[type] || '#888';
+        const si    = Math.max(0, SCOPE_ORDER.indexOf(ev.scope || 'Neighborhood'));
+        const cx    = YEAR_PAD + (si + 0.5) * colW;
+        const baseY = yearToY(year);
+
+        const k = `${si}-${year}`;
+        const stack = stackCount[k] || 0;
+        stackCount[k] = stack + 1;
+        const cy = baseY + stack * 13;
+
+        // Horizontal connector: year axis → dot
+        const connector = mk('line', {
+            x1: YEAR_PAD, y1: baseY,
+            x2: cx,       y2: cy,
+            stroke: color, 'stroke-width': 0.75, opacity: 0.08
+        });
+        connector.style.pointerEvents = 'none';
+        tlSvg.appendChild(connector);
+
+        // Halo
+        const halo = mk('circle', { cx, cy, r:10, fill:color, opacity:0.04 });
+        halo.style.pointerEvents = 'none';
+        tlSvg.appendChild(halo);
+
+        // Dot
+        const dot = mk('circle', { cx, cy, r:4.5, fill:color, stroke:'none', 'stroke-width':0, opacity:0.15 });
+        dot.style.cursor = 'pointer';
+        dot.dataset.id   = ev.id;
+        dot.dataset.year = year;
+
+        dot.addEventListener('mouseenter', e => {
+            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${ev.date||year} &nbsp;·&nbsp; ${ev.scope||''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
+            tip.style.display = 'block';
+            posTip(e);
+            dot.setAttribute('r', 7);
+            dot.setAttribute('stroke', '#fff');
+            dot.setAttribute('stroke-width', 1.5);
+        });
+        dot.addEventListener('mousemove',  e => posTip(e));
+        dot.addEventListener('mouseleave', () => {
+            tip.style.display = 'none';
+            dot.setAttribute('r', 4.5);
+            dot.setAttribute('stroke', 'none');
+            dot.setAttribute('stroke-width', 0);
+        });
+        dot.addEventListener('click', e => {
+            e.stopPropagation();
+            showDetail(ev, color);
+            setYear(year, false);
+            if (isSpatial(ev)) map.flyTo({ center:[ev._lng,ev._lat], zoom:Math.max(map.getZoom(),15), duration:700 });
+        });
+
+        tlSvg.appendChild(dot);
+        svgDotRefs.push({ dot, halo, year });
+    });
+
+    // Set now-bar top to stick right below the hud
+    nowBar.style.top = document.getElementById('tl-hud').offsetHeight + 'px';
+}
+
+function updateSVGHighlight(year) {
+    svgDotRefs.forEach(({ dot, halo, year:y }) => {
+        dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.1');
+        halo.setAttribute('opacity', y <= year ? '0.12' : '0.03');
     });
     const era = eraForYear(year);
     document.getElementById('tl-year').textContent = year;
@@ -626,36 +633,22 @@ function updateTimelineHighlight(year) {
 }
 
 function scrollTimelineToYear(year) {
-    const rows = [...document.querySelectorAll('.tl-event')];
-    let target = null;
-    rows.forEach(r => { if (parseInt(r.dataset.year) <= year) target = r; });
-    if (!target && rows.length) target = rows[0];
-    if (!target) return;
     suppressScroll = true;
-    target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    setTimeout(() => { suppressScroll = false; }, 700);
+    tlPanel.scrollTop = yearToY(year);
+    setTimeout(() => { suppressScroll = false; }, 150);
 }
 
-/* Scroll → year: topmost visible event row drives the year */
-const tlPanel = document.getElementById('timeline-panel');
+// Scroll → year
 tlPanel.addEventListener('scroll', () => {
     if (suppressScroll) return;
-    const hudBottom = document.getElementById('tl-hud').getBoundingClientRect().bottom;
-    const rows = document.querySelectorAll('.tl-event');
-    let topRow = null;
-    for (const row of rows) {
-        if (row.getBoundingClientRect().top >= hudBottom) { topRow = row; break; }
-    }
-    if (topRow) {
-        const y = parseInt(topRow.dataset.year);
-        if (y !== currentYear) setYear(y, false);
-    }
+    const y = Math.max(MIN_YEAR, Math.min(MAX_YEAR, Math.round(yToYear(tlPanel.scrollTop))));
+    if (y !== currentYear) setYear(y, false);
 });
 
-/* ── setYear: single source of truth ── */
+/* ── setYear ── */
 function setYear(year, scrollTL = true) {
     currentYear = year;
-    updateTimelineHighlight(year);
+    updateSVGHighlight(year);
     updateMapMarkers(year);
     setBasemap(year);
     if (scrollTL) scrollTimelineToYear(year);
@@ -675,8 +668,9 @@ divider.addEventListener('mousedown', e => {
 });
 document.addEventListener('mousemove', e => {
     if (!dragging) return;
-    const x = Math.max(180, Math.min(window.innerWidth - 300, e.clientX));
+    const x = Math.max(200, Math.min(window.innerWidth - 300, e.clientX));
     layout.style.setProperty('--split', x + 'px');
+    buildTimelineSVG(allEvents);
     map.resize();
 });
 document.addEventListener('mouseup', () => {
@@ -687,15 +681,18 @@ document.addEventListener('mouseup', () => {
     document.body.style.userSelect = '';
     map.resize();
 });
-
-divider.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
+divider.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive:false });
 document.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const x = Math.max(180, Math.min(window.innerWidth - 300, e.touches[0].clientX));
+    const x = Math.max(200, Math.min(window.innerWidth - 300, e.touches[0].clientX));
     layout.style.setProperty('--split', x + 'px');
+    buildTimelineSVG(allEvents);
     map.resize();
-}, { passive: true });
-document.addEventListener('touchend', () => { if (dragging) { dragging = false; map.resize(); } });
+}, { passive:true });
+document.addEventListener('touchend', () => { if (dragging) { dragging=false; map.resize(); } });
+
+/* Rebuild SVG if panel width changes (e.g. window resize) */
+new ResizeObserver(() => { if (allEvents.length) buildTimelineSVG(allEvents); }).observe(tlPanel);
 
 /* ── Boot ── */
 fetch('data/ba_timeline.json')
@@ -704,11 +701,8 @@ fetch('data/ba_timeline.json')
         allEvents = data;
         applyJitter(allEvents);
         buildLegend();
-        buildTimeline(allEvents);
-        if (mapLoaded) {
-            loadEventsToMap(allEvents);
-            setBasemap(MIN_YEAR);
-        }
+        buildTimelineSVG(allEvents);
+        if (mapLoaded) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); }
         setYear(MIN_YEAR, false);
     })
     .catch(err => console.error('Timeline load failed:', err));
