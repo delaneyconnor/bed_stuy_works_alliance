@@ -25,7 +25,7 @@
             height: 100%;
             overflow-y: scroll;
             overflow-x: hidden;
-            background: #080808;
+            background: #fff;
             flex-shrink: 0;
             scrollbar-width: none;
         }
@@ -36,22 +36,23 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            background: #080808;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
         }
         #tl-year-display {
             padding: 13px 14px 9px;
-            border-bottom: 1px solid #111;
+            border-bottom: 1px solid #e8e8e8;
         }
         #tl-year {
             font-size: 28px;
             font-weight: 600;
-            color: #fff;
+            color: #000;
             line-height: 1;
             display: block;
         }
         #tl-era {
             font-size: 8px;
-            color: #444;
+            color: #999;
             letter-spacing: 0.13em;
             text-transform: uppercase;
             display: block;
@@ -61,13 +62,13 @@
             display: flex;
             align-items: center;
             height: 24px;
-            border-bottom: 1px solid #141414;
+            border-bottom: 1px solid #e8e8e8;
         }
         .tl-year-gutter {
             width: 44px;
             flex-shrink: 0;
             height: 100%;
-            border-right: 1px solid #141414;
+            border-right: 1px solid #e8e8e8;
         }
         .tl-col-hdr {
             flex: 1;
@@ -75,14 +76,14 @@
             font-size: 7px;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            color: #2a2a2a;
+            color: #aaa;
         }
 
         /* Sticky "now" bar — sits right below hud, content scrolls past it */
         #tl-now-bar {
             position: sticky;
             height: 1px;
-            background: rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.15);
             z-index: 9;
             pointer-events: none;
         }
@@ -499,7 +500,7 @@ function buildTimelineSVG(events) {
     tlSvg.setAttribute('viewBox', `0 0 ${W} ${TL_H}`);
 
     // Era background bands
-    const eraBg = ['#0c0c0c','#090909','#0b0b0b','#090909','#0c0c0c','#090909'];
+    const eraBg = ['#fafafa','#f5f5f5','#fafafa','#f5f5f5','#fafafa','#f5f5f5'];
     ERAS.forEach((era, i) => {
         const y0 = yearToY(era.start);
         const y1 = yearToY(era.end + (i < ERAS.length-1 ? 0 : 1));
@@ -507,15 +508,14 @@ function buildTimelineSVG(events) {
 
         // Era boundary line
         if (i > 0) {
-            tlSvg.appendChild(mk('line', { x1:0, y1:y0, x2:W, y2:y0, stroke:'#1a1a1a', 'stroke-width':1 }));
+            tlSvg.appendChild(mk('line', { x1:0, y1:y0, x2:W, y2:y0, stroke:'#ddd', 'stroke-width':1 }));
         }
 
         // Era label inside the band
-        const midY = (y0 + y1) / 2;
         const eLbl = mk('text', {
             x: YEAR_PAD + 4, y: y0 + 13,
             'font-family':'IBM Plex Mono,monospace', 'font-size':7,
-            fill:'#252525', 'letter-spacing':'0.12em'
+            fill:'#ccc', 'letter-spacing':'0.12em'
         });
         eLbl.textContent = era.name.toUpperCase();
         eLbl.style.pointerEvents = 'none';
@@ -523,12 +523,12 @@ function buildTimelineSVG(events) {
     });
 
     // Year axis line
-    tlSvg.appendChild(mk('line', { x1:YEAR_PAD-1, y1:0, x2:YEAR_PAD-1, y2:TL_H, stroke:'#1e1e1e', 'stroke-width':1 }));
+    tlSvg.appendChild(mk('line', { x1:YEAR_PAD-1, y1:0, x2:YEAR_PAD-1, y2:TL_H, stroke:'#ccc', 'stroke-width':1 }));
 
     // Scope column lines
     SCOPE_ORDER.forEach((_, i) => {
         const x = YEAR_PAD + (i + 0.5) * colW;
-        tlSvg.appendChild(mk('line', { x1:x, y1:0, x2:x, y2:TL_H, stroke:'#131313', 'stroke-width':1 }));
+        tlSvg.appendChild(mk('line', { x1:x, y1:0, x2:x, y2:TL_H, stroke:'#e8e8e8', 'stroke-width':1 }));
     });
 
     // Year tick marks + labels
@@ -542,13 +542,13 @@ function buildTimelineSVG(events) {
         tlSvg.appendChild(mk('line', {
             x1: YEAR_PAD - (major ? 10 : 5), y1: py,
             x2: YEAR_PAD - 1,                y2: py,
-            stroke: major ? '#333' : '#1c1c1c', 'stroke-width': major ? 1.5 : 0.75
+            stroke: major ? '#aaa' : '#ddd', 'stroke-width': major ? 1.5 : 0.75
         }));
         if (showLabel) {
             const lbl = mk('text', {
                 x: YEAR_PAD - 13, y: py + 3.5,
                 'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
-                'font-size': major ? 8.5 : 7, fill: major ? '#444' : '#252525'
+                'font-size': major ? 8.5 : 7, fill: major ? '#555' : '#bbb'
             });
             lbl.textContent = year;
             lbl.style.pointerEvents = 'none';
@@ -577,7 +577,7 @@ function buildTimelineSVG(events) {
         const connector = mk('line', {
             x1: YEAR_PAD, y1: baseY,
             x2: cx,       y2: cy,
-            stroke: color, 'stroke-width': 0.75, opacity: 0.08
+            stroke: color, 'stroke-width': 0.75, opacity: 0.2
         });
         connector.style.pointerEvents = 'none';
         tlSvg.appendChild(connector);
@@ -625,8 +625,8 @@ function buildTimelineSVG(events) {
 
 function updateSVGHighlight(year) {
     svgDotRefs.forEach(({ dot, halo, year:y }) => {
-        dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.1');
-        halo.setAttribute('opacity', y <= year ? '0.12' : '0.03');
+        dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.15');
+        halo.setAttribute('opacity', y <= year ? '0.18' : '0.05');
     });
     const era = eraForYear(year);
     document.getElementById('tl-year').textContent = year;
