@@ -550,28 +550,27 @@ function buildTimelineSVG(events) {
     });
 
     // Year tick marks + labels
+    // Pre-1850: every 50 years; 1850 onward: every 10 years
     const tickYears = [];
-    for (let y = MIN_YEAR; y <= MAX_YEAR; y += 10) tickYears.push(y);
-    [1890,1930,1960,1980,2000].forEach(y => { if (!tickYears.includes(y)) tickYears.push(y); });
-    tickYears.sort((a,b)=>a-b).forEach(year => {
+    for (let y = MIN_YEAR; y <= 1850; y += 50) tickYears.push(y);
+    for (let y = 1860; y <= MAX_YEAR; y += 10) tickYears.push(y);
+
+    tickYears.forEach(year => {
         const py = yearToY(year);
-        const major = year % 50 === 0 || [1890,1930,1960,1980,2000].includes(year);
-        const showLabel = major || year % 20 === 0;
+        const early = year < 1850;
         tlSvg.appendChild(mk('line', {
-            x1: YEAR_PAD - (major ? 10 : 5), y1: py,
-            x2: YEAR_PAD - 1,                y2: py,
-            stroke: major ? '#aaa' : '#ddd', 'stroke-width': major ? 1.5 : 0.75
+            x1: YEAR_PAD - (early ? 6 : 9), y1: py,
+            x2: YEAR_PAD - 1,               y2: py,
+            stroke: early ? '#ccc' : '#aaa', 'stroke-width': early ? 0.75 : 1.25
         }));
-        if (showLabel) {
-            const lbl = mk('text', {
-                x: YEAR_PAD - 13, y: py + 4,
-                'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
-                'font-size': major ? 11 : 9, fill: major ? '#555' : '#bbb'
-            });
-            lbl.textContent = year;
-            lbl.style.pointerEvents = 'none';
-            tlSvg.appendChild(lbl);
-        }
+        const lbl = mk('text', {
+            x: YEAR_PAD - 13, y: py + 4,
+            'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
+            'font-size': early ? 9 : 11, fill: early ? '#bbb' : '#555'
+        });
+        lbl.textContent = year;
+        lbl.style.pointerEvents = 'none';
+        tlSvg.appendChild(lbl);
     });
 
     // Events — stack dots that share the same scope column and year
