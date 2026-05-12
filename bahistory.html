@@ -740,17 +740,63 @@ document.addEventListener('touchend', () => { if (dragging) { dragging=false; ma
 new ResizeObserver(() => { if (allEvents.length) buildTimelineSVG(allEvents); }).observe(tlPanel);
 
 /* ── Boot ── */
-fetch('data/ba_timeline.json')
-    .then(r => r.json())
-    .then(data => {
-        allEvents = data;
-        applyJitter(allEvents);
-        buildLegend();
-        buildTimelineSVG(allEvents);
-        if (mapLoaded) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); }
-        setYear(MIN_YEAR, false);
-    })
-    .catch(err => console.error('Timeline load failed:', err));
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1R7OOAJJwg5XXsIommXGWeyMc-wAliBp9qznW9r3hSeU/export?format=csv';
+
+function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuote = false;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i], next = text[i + 1];
+        if (inQuote) {
+            if (ch === '"' && next === '"') { field += '"'; i++; }
+            else if (ch === '"') { inQuote = false; }
+            else { field += ch; }
+        } else {
+            if (ch === '"') { inQuote = true; }
+            else if (ch === ',') { row.push(field); field = ''; }
+            else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+                if (ch === '\r') i++;
+                row.push(field); field = '';
+                if (row.some(c => c !== '')) rows.push(row);
+                row = [];
+            } else { field += ch; }
+        }
+    }
+    if (row.length) { row.push(field); if (row.some(c => c !== '')) rows.push(row); }
+    return rows;
+}
+
+function csvToEvents(text) {
+    const rows = parseCSV(text);
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.trim());
+    return rows.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = (row[i] || '').trim(); });
+        obj.id  = parseInt(obj.id,  10) || 0;
+        obj.lat = parseFloat(obj.lat)   || 0;
+        obj.lng = parseFloat(obj.lng)   || 0;
+        if (!obj.source_url) obj.source_url = null;
+        return obj;
+    });
+}
+
+function loadAndInit(data) {
+    allEvents = data;
+    applyJitter(allEvents);
+    buildLegend();
+    buildTimelineSVG(allEvents);
+    if (mapLoaded) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); }
+    setYear(MIN_YEAR, false);
+}
+
+fetch(SHEET_CSV)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(text => loadAndInit(csvToEvents(text)))
+    .catch(() => {
+        console.warn('Google Sheet unavailable — loading local ba_timeline.json');
+        fetch('data/ba_timeline.json').then(r => r.json()).then(loadAndInit);
+    });
 
 </script>
 </body>
