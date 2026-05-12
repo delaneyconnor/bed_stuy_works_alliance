@@ -729,7 +729,7 @@ document.addEventListener('touchend', () => { if (dragging) { dragging=false; ma
 new ResizeObserver(() => { if (allEvents.length) buildTimelineSVG(allEvents); }).observe(tlPanel);
 
 /* ── Boot ── */
-const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1R7OOAJJwg5XXsIommXGWeyMc-wAliBp9qznW9r3hSeU/export?format=csv';
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQd8KcerA2lp382F4nToch2saEFb8hFpVSArLL_HAN2zimIh3fto7642ZuZugDSAhpokgtVKT6A9L8p/pub?gid=487315895&single=true&output=csv';
 
 function parseCSV(text) {
     const rows = [];
