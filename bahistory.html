@@ -169,7 +169,8 @@
         .d-sub      { font-size: 11px; color: #777; font-style: italic; line-height: 1.5; margin-bottom: 12px; }
         .d-rule     { height: 1px; background: #f0f0f0; margin-bottom: 12px; }
         .d-text     { font-size: 11px; line-height: 1.8; color: #333; font-weight: 300; margin-bottom: 14px; }
-        .d-cite     { font-size: 9px; color: #bbb; font-style: italic; margin-bottom: 12px; line-height: 1.5; }
+        .d-cite        { font-size: 9px; color: #bbb; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
+        .d-contributor { font-size: 9px; color: #bbb; letter-spacing: 0.05em; margin-bottom: 12px; }
         .d-sources  { display: flex; flex-direction: column; gap: 6px; }
         .src-btn    { display: block; font-family: inherit; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: #000; border: 1.5px solid #000; padding: 7px 12px; text-align: center; transition: background 0.15s, color 0.15s; }
         .src-btn:hover { background: #000; color: #fff; }
@@ -282,9 +283,10 @@
                 <div class="d-title"   id="d-title"></div>
                 <div class="d-sub"     id="d-sub"></div>
                 <div class="d-rule"></div>
-                <div class="d-text"    id="d-text"></div>
-                <div class="d-cite"    id="d-cite"></div>
-                <div class="d-sources" id="d-sources"></div>
+                <div class="d-text"        id="d-text"></div>
+                <div class="d-cite"        id="d-cite"></div>
+                <div class="d-contributor" id="d-contributor" style="display:none"></div>
+                <div class="d-sources"     id="d-sources"></div>
             </div>
         </div>
     </div>
@@ -522,11 +524,15 @@ function showDetail(ev, color) {
     document.getElementById('d-badge').textContent       = resolveType(ev);
     document.getElementById('d-badge').style.background  = color;
     const dateDisplay = ev.date_start + (ev.date_end ? ' – ' + ev.date_end : '');
-    document.getElementById('d-year').textContent        = dateDisplay;
+    const contentLabel = ev.content_type ? ' · ' + ev.content_type : '';
+    document.getElementById('d-year').textContent        = dateDisplay + contentLabel;
     document.getElementById('d-title').textContent       = ev.title;
     document.getElementById('d-sub').textContent         = ev.subtitle || '';
     document.getElementById('d-text').textContent        = ev.body;
     document.getElementById('d-cite').textContent        = ev.citation ? 'Source: '+ev.citation : '';
+    const contrib = (ev.contributor && ev.contributor !== 'Delaney Connor') ? 'Submitted by ' + ev.contributor : '';
+    const contribEl = document.getElementById('d-contributor');
+    if (contribEl) { contribEl.textContent = contrib; contribEl.style.display = contrib ? 'block' : 'none'; }
     document.getElementById('d-sources').innerHTML       = buildSrcs(ev.source_url, ev.id);
     document.getElementById('detail').classList.add('open');
 }
@@ -771,7 +777,7 @@ document.addEventListener('touchend', () => { if (dragging) { dragging=false; ma
 new ResizeObserver(() => { if (allEvents.length) buildTimelineSVG(allEvents); }).observe(tlPanel);
 
 /* ── Boot ── */
-const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQd8KcerA2lp382F4nToch2saEFb8hFpVSArLL_HAN2zimIh3fto7642ZuZugDSAhpokgtVKT6A9L8p/pub?gid=487315895&single=true&output=csv';
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQN-ypfkWmCiKmf618fHMDF6PSDn3j33te6csSoZyxjM2p5RpG1PvN53Q_7wL4Tju8WJMk_sKJEiaMN/pub?gid=612286300&single=true&output=csv';
 
 function parseCSV(text) {
     const rows = [];
