@@ -242,15 +242,108 @@
             background: #2a2a2a;
         }
 
+        /* ── Right panel (wraps toggle + map/timeline) ── */
+        #right-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        #view-toggle {
+            display: flex;
+            background: #fff;
+            border-bottom: 1.5px solid #111;
+            flex-shrink: 0;
+        }
+        .view-btn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1.5px;
+            background: none;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.12s, border-color 0.12s;
+        }
+        .view-btn.active { color: #111; border-bottom-color: #111; }
+        .view-btn:hover:not(.active) { color: #555; }
+
         /* ── Map panel ── */
         #map-panel {
             flex: 1;
-            height: 100%;
             position: relative;
-            min-width: 300px;
+            min-height: 0;
             overflow: hidden;
         }
         #map { width: 100%; height: 100%; }
+
+        /* ── Timeline card view ── */
+        #timeline-view {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            background: #fff;
+            scrollbar-width: thin;
+            scrollbar-color: #e0e0e0 transparent;
+        }
+        .tl-year-sep {
+            padding: 22px 24px 10px;
+            font-size: 30px;
+            font-weight: 600;
+            color: #ddd;
+            letter-spacing: 0.02em;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.97);
+            z-index: 5;
+        }
+        .tl-card {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .tl-card:hover { background: #fafafa; }
+        .tl-card-accent { width: 4px; flex-shrink: 0; }
+        .tl-card-inner { flex: 1; padding: 15px 20px 16px 14px; min-width: 0; }
+        .tl-card-meta {
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+        .tl-card-type-label { font-weight: 600; }
+        .tl-card-title { font-size: 13px; font-weight: 600; line-height: 1.35; margin-bottom: 3px; }
+        .tl-card-sub { font-size: 11px; color: #777; font-style: italic; line-height: 1.5; margin-bottom: 9px; }
+        .tl-card-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+            margin-bottom: 10px;
+            border: 1px solid #f0f0f0;
+        }
+        .tl-card-text { font-size: 11px; line-height: 1.8; color: #444; font-weight: 300; }
+        .tl-empty {
+            padding: 60px 24px;
+            font-size: 11px;
+            color: #bbb;
+            text-align: center;
+            font-style: italic;
+        }
 
         .mapboxgl-ctrl-top-right { top: 4px !important; }
         .mapboxgl-ctrl-top-left  { top: 4px !important; left: 4px !important; }
@@ -259,10 +352,10 @@
         /* ── Detail panel ── */
         #detail {
             position: absolute;
-            top: 12px;
+            top: 50px;
             left: -380px;
             width: 340px;
-            max-height: calc(100% - 24px);
+            max-height: calc(100% - 62px);
             background: #fff;
             color: #000;
             z-index: 2000;
@@ -404,20 +497,31 @@
     <!-- Draggable divider -->
     <div id="divider"></div>
 
-    <!-- Right: map -->
-    <div id="map-panel">
-        <div id="map"></div>
-        <div id="map-bl-panel">
-            <div id="map-cite">
-                <div id="map-cite-basemap">Current satellite</div>
-                <div id="map-cite-sources">Historical tiles: NYC Map Warper · NYPL · NYC DoITT · Mapbox</div>
+    <!-- Right panel: view toggle + map / timeline -->
+    <div id="right-panel">
+        <div id="view-toggle">
+            <button id="btn-map" class="view-btn active">Map</button>
+            <button id="btn-timeline" class="view-btn">Timeline</button>
+        </div>
+
+        <div id="map-panel">
+            <div id="map"></div>
+            <div id="map-bl-panel">
+                <div id="map-cite">
+                    <div id="map-cite-basemap">Current satellite</div>
+                    <div id="map-cite-sources">Historical tiles: NYC Map Warper · NYPL · NYC DoITT · Mapbox</div>
+                </div>
+                <div id="tiles-toggle-wrap">
+                    <label>
+                        <input type="checkbox" id="tiles-checkbox" checked>
+                        Historical maps
+                    </label>
+                </div>
             </div>
-            <div id="tiles-toggle-wrap">
-                <label>
-                    <input type="checkbox" id="tiles-checkbox" checked>
-                    Historical maps
-                </label>
-            </div>
+        </div>
+
+        <div id="timeline-view">
+            <div id="tl-cards"></div>
         </div>
 
         <div id="detail">
@@ -648,6 +752,22 @@ function applyJitter(events) {
         ev._lat=ev.lat+r*Math.sin(angle); ev._lng=ev.lng+r*Math.cos(angle);
     });
 }
+function getFilteredEvents() {
+    return allEvents.filter(ev => {
+        const y = parseInt(ev.date_start, 10);
+        if (y < yearMin || y > yearMax) return false;
+        if (!activeTypes.has(resolveType(ev))) return false;
+        if (ev.content_type && !activeContentTypes.has(ev.content_type)) return false;
+        if (ev.scope && !activeScopes.has(ev.scope)) return false;
+        return true;
+    }).sort((a, b) => parseInt(a.date_start) - parseInt(b.date_start));
+}
+function updateCount() {
+    const el = document.getElementById('fp-count');
+    if (!el) return;
+    const n = getFilteredEvents().length;
+    el.textContent = `${n} event${n !== 1 ? 's' : ''}`;
+}
 function updateMapFilter() {
     if (!mapLoaded || !map.getSource('events')) return;
     setBasemap(yearMax);
@@ -665,20 +785,62 @@ function updateMapFilter() {
         ]
     ]);
     updateCount();
+    if (activeView === 'timeline') buildTimelineCards();
 }
-function getFilteredCount() {
-    return allEvents.filter(ev => {
-        const y = parseInt(ev.date_start, 10);
-        if (y < yearMin || y > yearMax) return false;
-        if (!activeTypes.has(resolveType(ev))) return false;
-        if (ev.content_type && !activeContentTypes.has(ev.content_type)) return false;
-        if (ev.scope && !activeScopes.has(ev.scope)) return false;
-        return true;
-    }).length;
-}
-function updateCount() {
-    const el = document.getElementById('fp-count');
-    if (el) { const n = getFilteredCount(); el.textContent = `${n} event${n !== 1 ? 's' : ''}`; }
+function buildTimelineCards() {
+    const container = document.getElementById('tl-cards');
+    if (!container) return;
+    container.innerHTML = '';
+    const events = getFilteredEvents();
+    if (!events.length) {
+        container.innerHTML = '<div class="tl-empty">No events match the current filters.</div>';
+        return;
+    }
+    let lastYear = null;
+    events.forEach(ev => {
+        const year = parseInt(ev.date_start, 10);
+        if (year !== lastYear) {
+            const sep = document.createElement('div');
+            sep.className = 'tl-year-sep';
+            sep.textContent = year;
+            container.appendChild(sep);
+            lastYear = year;
+        }
+        const color = TYPE_COLORS[resolveType(ev)] || '#888';
+        const card  = document.createElement('div');
+        card.className = 'tl-card';
+        card.addEventListener('click', () => showDetail(ev, color));
+
+        const accent = document.createElement('div');
+        accent.className = 'tl-card-accent';
+        accent.style.background = color;
+
+        const inner = document.createElement('div');
+        inner.className = 'tl-card-inner';
+
+        const dateLabel = ev.date_start + (ev.date_end ? ' – ' + ev.date_end : '');
+        const type = resolveType(ev);
+        const isImg = ev.media_url && (
+            /\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(ev.media_url) ||
+            /image|photo/i.test(ev.media_type || '')
+        );
+
+        inner.innerHTML =
+            `<div class="tl-card-meta">` +
+                `<span>${escH(dateLabel)}</span>` +
+                `<span style="color:#ddd">·</span>` +
+                `<span class="tl-card-type-label" style="color:${color}">${escH(type)}</span>` +
+                (ev.scope ? `<span style="color:#ddd">·</span><span>${escH(ev.scope)}</span>` : '') +
+            `</div>` +
+            `<div class="tl-card-title">${escH(ev.title)}</div>` +
+            (ev.subtitle ? `<div class="tl-card-sub">${escH(ev.subtitle)}</div>` : '') +
+            (isImg ? `<img class="tl-card-img" src="${escH(ev.media_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : '') +
+            (ev.body    ? `<div class="tl-card-text">${escH(ev.body)}</div>` : '');
+
+        card.appendChild(accent);
+        card.appendChild(inner);
+        container.appendChild(card);
+    });
 }
 
 let tilesVisible = true;
@@ -809,6 +971,27 @@ document.getElementById('fp-yr-min').addEventListener('input', updateYearSlider)
 document.getElementById('fp-yr-max').addEventListener('input', updateYearSlider);
 updateYearSlider();
 
+/* ── View toggle ── */
+let activeView = 'map';
+document.getElementById('btn-map').addEventListener('click', () => {
+    if (activeView === 'map') return;
+    activeView = 'map';
+    document.getElementById('btn-map').classList.add('active');
+    document.getElementById('btn-timeline').classList.remove('active');
+    document.getElementById('map-panel').style.display = '';
+    document.getElementById('timeline-view').style.display = 'none';
+    map.resize();
+});
+document.getElementById('btn-timeline').addEventListener('click', () => {
+    if (activeView === 'timeline') return;
+    activeView = 'timeline';
+    document.getElementById('btn-timeline').classList.add('active');
+    document.getElementById('btn-map').classList.remove('active');
+    document.getElementById('map-panel').style.display = 'none';
+    document.getElementById('timeline-view').style.display = '';
+    buildTimelineCards();
+});
+
 /* ── Draggable divider ── */
 const divider = document.getElementById('divider');
 const layout  = document.getElementById('layout');
@@ -895,6 +1078,7 @@ function loadAndInit(data) {
     applyJitter(allEvents);
     buildFilterChips();
     updateCount();
+    if (activeView === 'timeline') buildTimelineCards();
     if (mapLoaded) { loadEventsToMap(allEvents); updateMapFilter(); }
 }
 
