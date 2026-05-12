@@ -370,6 +370,7 @@
             font-size: 8px;
             letter-spacing: 0.06em;
             font-weight: 600;
+            color: #111;
             margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
@@ -458,7 +459,7 @@
         .d-badge    { font-size: 8px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; padding: 4px 8px; }
         .d-close    { background: none; border: none; font-size: 18px; cursor: pointer; color: #ccc; font-family: inherit; line-height: 1; padding: 2px; }
         .d-close:hover { color: #000; }
-        .d-year     { font-size: 10px; color: #aaa; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .d-year     { font-size: 10px; color: #111; letter-spacing: 0.06em; margin-bottom: 4px; }
         .d-title    { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 5px; }
         .d-sub      { font-size: 11px; color: #777; font-style: italic; line-height: 1.5; margin-bottom: 12px; }
         .d-rule     { height: 1px; background: #f0f0f0; margin-bottom: 12px; }
@@ -989,7 +990,7 @@ function buildTimelineCards() {
         const inner = document.createElement('div');
         inner.className = 'tl-card-inner';
         inner.innerHTML =
-            `<div class="tl-card-date" style="color:${color}">${escH(dateLabel)}</div>` +
+            `<div class="tl-card-date">${escH(dateLabel)}</div>` +
             `<div class="tl-card-title">${escH(ev.title)}</div>`;
 
         const expand = document.createElement('div');
