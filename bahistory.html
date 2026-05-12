@@ -39,8 +39,27 @@
             background: #fff;
             border-bottom: 1px solid #e0e0e0;
         }
+        #tl-brand {
+            padding: 13px 14px 10px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        #tl-brand-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #000;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            display: block;
+        }
+        #tl-brand-sub {
+            font-size: 9px;
+            color: #aaa;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 3px;
+        }
         #tl-year-display {
-            padding: 13px 14px 9px;
+            padding: 9px 14px 9px;
             border-bottom: 1px solid #e8e8e8;
         }
         #tl-year {
@@ -49,14 +68,6 @@
             color: #000;
             line-height: 1;
             display: block;
-        }
-        #tl-era {
-            font-size: 11px;
-            color: #999;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            display: block;
-            margin-top: 6px;
         }
         #tl-col-headers {
             display: flex;
@@ -221,9 +232,12 @@
     <!-- Left: SVG column timeline -->
     <div id="timeline-panel">
         <div id="tl-hud">
+            <div id="tl-brand">
+                <span id="tl-brand-title">Block History Map</span>
+                <span id="tl-brand-sub">preserve, share, and learn about your block</span>
+            </div>
             <div id="tl-year-display">
                 <span id="tl-year">1600</span>
-                <span id="tl-era">Pre-1890 · Preconditions</span>
             </div>
             <div id="tl-col-headers">
                 <div class="tl-year-gutter"></div>
@@ -279,10 +293,16 @@
 <script>
 
 /* ── Types ── */
-const TYPE_MAP = { Organizing:'Organizing', Policy:'Government', Demographic:'Migration', Cultural:'Organizing', Infrastructure:'Government', Crisis:'Crisis', Displacement:'Displacement' };
-const TYPE_OVERRIDES = { 34:'Organizing', 44:'Displacement' };
-const TYPE_COLORS = { Organizing:'#27AE60', Government:'#2980B9', Migration:'#8E44AD', Crisis:'#C0392B', Displacement:'#E67E22' };
-function resolveType(ev) { return TYPE_OVERRIDES[ev.id] || TYPE_MAP[ev.type] || ev.type; }
+const TYPE_COLORS = {
+    Organizing:    '#27AE60',
+    Government:    '#2980B9',
+    Migration:     '#8E44AD',
+    Culture:       '#F39C12',
+    Crisis:        '#C0392B',
+    Displacement:  '#E67E22',
+    'Everyday Life': '#16A085',
+};
+function resolveType(ev) { return TYPE_COLORS[ev.type] ? ev.type : 'Organizing'; }
 
 /* ── Eras ── */
 const ERAS = [
@@ -369,7 +389,7 @@ map.on('load', () => {
         const ev = allEvents.find(x => x.id === e.features[0].properties.id);
         if (!ev) return;
         showDetail(ev, TYPE_COLORS[resolveType(ev)] || '#888');
-        setYear(parseInt(ev.year, 10), true);
+        setYear(parseInt(ev.date_start, 10), true);
         map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
     });
     if (allEvents.length) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); updateMapMarkers(MIN_YEAR); }
@@ -385,7 +405,15 @@ function buildEventsGeoJSON(events) {
     return { type:'FeatureCollection', features: events.filter(isSpatial).map(ev => ({
         type:'Feature',
         geometry:{ type:'Point', coordinates:[ev._lng, ev._lat] },
-        properties:{ id:ev.id, year:parseInt(ev.year,10), color:TYPE_COLORS[resolveType(ev)]||'#888', title:ev.title, scope:ev.scope||'', date:String(ev.date||ev.year) }
+        properties:{
+            id: ev.id,
+            year: parseInt(ev.date_start, 10),
+            color: TYPE_COLORS[resolveType(ev)] || '#888',
+            title: ev.title,
+            scope: ev.scope || '',
+            date: ev.date_start + (ev.date_end ? ' – ' + ev.date_end : ''),
+            media_type: ev.media_type || ''
+        }
     }))};
 }
 function loadEventsToMap(events) {
@@ -490,7 +518,8 @@ function showDetail(ev, color) {
     document.getElementById('d-accent').style.background = color;
     document.getElementById('d-badge').textContent       = resolveType(ev);
     document.getElementById('d-badge').style.background  = color;
-    document.getElementById('d-year').textContent        = ev.date;
+    const dateDisplay = ev.date_start + (ev.date_end ? ' – ' + ev.date_end : '');
+    document.getElementById('d-year').textContent        = dateDisplay;
     document.getElementById('d-title').textContent       = ev.title;
     document.getElementById('d-sub').textContent         = ev.subtitle || '';
     document.getElementById('d-text').textContent        = ev.body;
@@ -610,11 +639,11 @@ function buildTimelineSVG(events) {
     });
 
     // Events — stack dots that share the same scope column and year
-    const sorted = [...events].sort((a,b) => parseInt(a.year)-parseInt(b.year));
+    const sorted = [...events].sort((a,b) => parseInt(a.date_start)-parseInt(b.date_start));
     const stackCount = {};
 
     sorted.forEach(ev => {
-        const year  = parseInt(ev.year, 10);
+        const year  = parseInt(ev.date_start, 10);
         const type  = resolveType(ev);
         const color = TYPE_COLORS[type] || '#888';
         const si    = Math.max(0, SCOPE_ORDER.indexOf(ev.scope || 'Neighborhood'));
@@ -638,7 +667,8 @@ function buildTimelineSVG(events) {
         dot.dataset.year = year;
 
         dot.addEventListener('mouseenter', e => {
-            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${ev.date||year} &nbsp;·&nbsp; ${ev.scope||''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
+            const tipDate = ev.date_start + (ev.date_end ? ' – '+ev.date_end : '');
+            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${tipDate} &nbsp;·&nbsp; ${ev.scope||''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
             tip.style.display = 'block';
             posTip(e);
             dot.setAttribute('r', 7);
@@ -655,7 +685,7 @@ function buildTimelineSVG(events) {
         dot.addEventListener('click', e => {
             e.stopPropagation();
             showDetail(ev, color);
-            setYear(year, false);
+            setYear(parseInt(ev.date_start, 10), false);
             if (isSpatial(ev)) map.flyTo({ center:[ev._lng,ev._lat], zoom:Math.max(map.getZoom(),15), duration:700 });
         });
 
@@ -672,9 +702,7 @@ function updateSVGHighlight(year) {
         dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.15');
         halo.setAttribute('opacity', y <= year ? '0.18' : '0.05');
     });
-    const era = eraForYear(year);
     document.getElementById('tl-year').textContent = year;
-    document.getElementById('tl-era').textContent  = `${era.range} · ${era.name}`;
 }
 
 function scrollTimelineToYear(year) {
@@ -773,9 +801,15 @@ function csvToEvents(text) {
     return rows.slice(1).map(row => {
         const obj = {};
         headers.forEach((h, i) => { obj[h] = (row[i] || '').trim(); });
-        obj.id  = parseInt(obj.id,  10) || 0;
-        obj.lat = parseFloat(obj.lat)   || 0;
-        obj.lng = parseFloat(obj.lng)   || 0;
+        obj.id           = parseInt(obj.id, 10) || 0;
+        obj.lat          = parseFloat(obj.lat)  || 0;
+        obj.lng          = parseFloat(obj.lng)  || 0;
+        obj.date_start   = obj.date_start   || obj.year || '';
+        obj.date_end     = obj.date_end     || '';
+        obj.content_type = obj.content_type || '';
+        obj.media_type   = obj.media_type   || '';
+        obj.media_url    = obj.media_url    || '';
+        obj.contributor  = obj.contributor  || '';
         if (!obj.source_url) obj.source_url = null;
         return obj;
     });
