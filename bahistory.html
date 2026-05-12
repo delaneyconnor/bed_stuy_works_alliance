@@ -19,31 +19,25 @@
             --split: 340px;
         }
 
-        /* ── Timeline panel ── */
-        #timeline-panel {
+        /* ── Filter panel ── */
+        #filter-panel {
             width: var(--split);
             height: 100%;
-            overflow-y: scroll;
+            overflow-y: auto;
             overflow-x: hidden;
             background: #fff;
             flex-shrink: 0;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            scrollbar-color: #e0e0e0 transparent;
+            display: flex;
+            flex-direction: column;
         }
-        #timeline-panel::-webkit-scrollbar { display: none; }
-
-        /* Sticky header: year display + column labels */
-        #tl-hud {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #fff;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        #tl-brand {
-            padding: 14px 14px 12px;
+        #fp-header {
+            padding: 16px 16px 14px;
             border-bottom: 1px solid #e8e8e8;
+            flex-shrink: 0;
         }
-        #tl-brand-title {
+        #fp-title {
             font-size: 22px;
             font-weight: 600;
             color: #000;
@@ -52,7 +46,7 @@
             display: block;
             line-height: 1.1;
         }
-        #tl-brand-sub {
+        #fp-sub {
             font-size: 10px;
             color: #888;
             letter-spacing: 0.04em;
@@ -60,50 +54,170 @@
             margin-top: 5px;
             font-style: italic;
         }
-        #tl-year-display {
-            padding: 8px 14px 8px;
-            border-bottom: 1px solid #e8e8e8;
+        .fp-section {
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
         }
-        #tl-year {
-            font-size: 18px;
+        .fp-section-label {
+            font-size: 9px;
             font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
             color: #aaa;
-            line-height: 1;
-            display: block;
-            letter-spacing: 0.06em;
+            margin-bottom: 10px;
         }
-        #tl-col-headers {
+        .fp-chips {
             display: flex;
-            align-items: center;
-            height: 32px;
-            border-bottom: 1px solid #e8e8e8;
+            flex-wrap: wrap;
+            gap: 5px;
         }
-        .tl-year-gutter {
-            width: 44px;
-            flex-shrink: 0;
-            height: 100%;
-            border-right: 1px solid #e8e8e8;
-        }
-        .tl-col-hdr {
-            flex: 1;
-            text-align: center;
+        .fp-chip {
+            font-family: 'IBM Plex Mono', monospace;
             font-size: 9px;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: #aaa;
+            padding: 5px 9px;
+            border: 1.5px solid #ddd;
+            background: #fff;
+            color: #bbb;
+            cursor: pointer;
+            transition: border-color 0.12s, color 0.12s, background 0.12s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+        .fp-chip.active {
+            border-color: #111;
+            color: #111;
+        }
+        .fp-chip:hover { border-color: #555; color: #555; }
+        .chip-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            opacity: 0.4;
+        }
+        .fp-chip.active .chip-dot { opacity: 1; }
 
-        /* Sticky "now" bar — sits right below hud, content scrolls past it */
-        #tl-now-bar {
-            position: sticky;
-            height: 1px;
-            background: rgba(0,0,0,0.15);
-            z-index: 9;
+        /* Year range slider */
+        .year-range-wrap {
+            padding: 4px 0 2px;
+        }
+        .year-range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+        .dual-slider {
+            position: relative;
+            height: 20px;
+            margin: 0 6px;
+        }
+        .dual-slider-bg {
+            position: absolute;
+            top: 50%;
+            left: 0; right: 0;
+            transform: translateY(-50%);
+            height: 2px;
+            background: #e0e0e0;
+            border-radius: 2px;
             pointer-events: none;
         }
+        .dual-slider-fill {
+            position: absolute;
+            height: 100%;
+            background: #111;
+            border-radius: 2px;
+            top: 0;
+            pointer-events: none;
+        }
+        .dual-slider input[type=range] {
+            position: absolute;
+            width: calc(100% + 12px);
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 2px;
+            background: transparent;
+            -webkit-appearance: none;
+            appearance: none;
+            pointer-events: none;
+            margin: 0;
+        }
+        .dual-slider input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            pointer-events: all;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #111;
+            cursor: pointer;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 3px #ccc;
+        }
+        .dual-slider input[type=range]::-moz-range-thumb {
+            pointer-events: all;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #111;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #ccc;
+        }
+        .dual-slider input[type=range]::-webkit-slider-runnable-track { background: transparent; }
 
-        /* SVG container */
-        #tl-body { display: block; line-height: 0; }
+        /* Results count */
+        #fp-count-row {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        #fp-count {
+            font-size: 10px;
+            color: #999;
+            letter-spacing: 0.04em;
+        }
+
+        /* Contribute section */
+        #fp-contribute {
+            margin: 16px;
+            border: 1.5px solid #111;
+            padding: 16px;
+            flex-shrink: 0;
+        }
+        #fp-contribute-heading {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #111;
+            margin-bottom: 6px;
+        }
+        #fp-contribute p {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 14px;
+            font-style: italic;
+        }
+        .fp-contribute-btn {
+            display: block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: #fff;
+            background: #111;
+            padding: 10px 14px;
+            text-align: center;
+            transition: background 0.15s;
+        }
+        .fp-contribute-btn:hover { background: #333; }
 
         /* ── Draggable divider ── */
         #divider {
@@ -247,28 +361,50 @@
 
 <div id="layout">
 
-    <!-- Left: SVG column timeline -->
-    <div id="timeline-panel">
-        <div id="tl-hud">
-            <div id="tl-brand">
-                <span id="tl-brand-title">Block History Map</span>
-                <span id="tl-brand-sub">preserve, share, and learn about your block</span>
-            </div>
-            <div id="tl-year-display">
-                <span id="tl-year">1600</span>
-            </div>
-            <div id="tl-col-headers">
-                <div class="tl-year-gutter"></div>
-                <div class="tl-col-hdr">Federal</div>
-                <div class="tl-col-hdr">Regional</div>
-                <div class="tl-col-hdr">Citywide</div>
-                <div class="tl-col-hdr">Neighborhood</div>
-                <div class="tl-col-hdr">Block</div>
+    <!-- Left: Filter panel -->
+    <div id="filter-panel">
+        <div id="fp-header">
+            <span id="fp-title">Block History Map</span>
+            <span id="fp-sub">preserve, share, and learn about your block</span>
+        </div>
+
+        <div class="fp-section">
+            <div class="fp-section-label">Years</div>
+            <div class="year-range-wrap">
+                <div class="year-range-labels">
+                    <span id="fp-yr-min-lbl">1600</span>
+                    <span id="fp-yr-max-lbl">2026</span>
+                </div>
+                <div class="dual-slider">
+                    <div class="dual-slider-bg"></div>
+                    <div class="dual-slider-fill" id="fp-slider-fill"></div>
+                    <input type="range" id="fp-yr-min" min="1600" max="2026" step="1" value="1600">
+                    <input type="range" id="fp-yr-max" min="1600" max="2026" step="1" value="2026">
+                </div>
             </div>
         </div>
-        <div id="tl-now-bar"></div>
-        <div id="tl-body">
-            <svg id="tl-svg"></svg>
+
+        <div class="fp-section">
+            <div class="fp-section-label">Theme</div>
+            <div class="fp-chips" id="fp-type-chips"></div>
+        </div>
+
+        <div class="fp-section">
+            <div class="fp-section-label">Format</div>
+            <div class="fp-chips" id="fp-content-chips"></div>
+        </div>
+
+        <div class="fp-section">
+            <div class="fp-section-label">Scale</div>
+            <div class="fp-chips" id="fp-scope-chips"></div>
+        </div>
+
+        <div id="fp-count-row"><span id="fp-count">– events</span></div>
+
+        <div id="fp-contribute">
+            <div id="fp-contribute-heading">Share Your History</div>
+            <p>Add a memory, story, or event from your block to this map.</p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSca1IfeaozUZ2B0zURgmUg48TUkv1v-ih-5JaK8X9yvSfuL4g/viewform?usp=header" target="_blank" rel="noopener" class="fp-contribute-btn">Open Survey ↗</a>
         </div>
     </div>
 
@@ -399,7 +535,7 @@ map.on('load', () => {
     map.addSource('events', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
     map.addLayer({
         id:'events-layer', type:'circle', source:'events',
-        paint:{ 'circle-radius':8, 'circle-color':['get','color'], 'circle-opacity':0.13, 'circle-stroke-width':0 }
+        paint:{ 'circle-radius':8, 'circle-color':['get','color'], 'circle-opacity':0.85, 'circle-stroke-width':0 }
     });
     map.on('mouseenter', 'events-layer', e => {
         map.getCanvas().style.cursor = 'pointer';
@@ -414,11 +550,10 @@ map.on('load', () => {
         const ev = allEvents.find(x => x.id === e.features[0].properties.id);
         if (!ev) return;
         showDetail(ev, TYPE_COLORS[resolveType(ev)] || '#888');
-        setYear(parseInt(ev.date_start, 10), true);
         map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
     });
-    setBasemap(currentYear);
-    if (allEvents.length) { loadEventsToMap(allEvents); updateMapMarkers(currentYear); }
+    setBasemap(yearMax);
+    if (allEvents.length) { loadEventsToMap(allEvents); updateMapFilter(); }
 });
 
 function posTip(e) {
@@ -438,6 +573,8 @@ function buildEventsGeoJSON(events) {
             title: ev.title,
             scope: ev.scope || '',
             date: ev.date_start + (ev.date_end ? ' – ' + ev.date_end : ''),
+            ev_type: resolveType(ev),
+            content_type: ev.content_type || '',
             media_type: ev.media_type || ''
         }
     }))};
@@ -519,9 +656,37 @@ function applyJitter(events) {
         ev._lat=ev.lat+r*Math.sin(angle); ev._lng=ev.lng+r*Math.cos(angle);
     });
 }
-function updateMapMarkers(year) {
+function updateMapFilter() {
     if (!mapLoaded || !map.getSource('events')) return;
-    map.setPaintProperty('events-layer','circle-opacity',['case',['<=',['get','year'],year],0.85,0.13]);
+    setBasemap(yearMax);
+    map.setFilter('events-layer', ['all',
+        ['>=', ['get', 'year'], yearMin],
+        ['<=', ['get', 'year'], yearMax],
+        ['in', ['get', 'ev_type'], ['literal', [...activeTypes]]],
+        ['any',
+            ['==', ['get', 'content_type'], ''],
+            ['in', ['get', 'content_type'], ['literal', [...activeContentTypes]]]
+        ],
+        ['any',
+            ['==', ['get', 'scope'], ''],
+            ['in', ['get', 'scope'], ['literal', [...activeScopes]]]
+        ]
+    ]);
+    updateCount();
+}
+function getFilteredCount() {
+    return allEvents.filter(ev => {
+        const y = parseInt(ev.date_start, 10);
+        if (y < yearMin || y > yearMax) return false;
+        if (!activeTypes.has(resolveType(ev))) return false;
+        if (ev.content_type && !activeContentTypes.has(ev.content_type)) return false;
+        if (ev.scope && !activeScopes.has(ev.scope)) return false;
+        return true;
+    }).length;
+}
+function updateCount() {
+    const el = document.getElementById('fp-count');
+    if (el) { const n = getFilteredCount(); el.textContent = `${n} event${n !== 1 ? 's' : ''}`; }
 }
 
 let tilesVisible = true;
@@ -588,193 +753,69 @@ function buildLegend() {
     });
 }
 
-/* ── SVG Timeline ── */
+/* ── Filter state ── */
 const MIN_YEAR = 1600, MAX_YEAR = 2026;
-const BREAK_YEAR = 1850, BREAK_FRAC = 0.30;
-const TL_H = 3200;
-const YEAR_PAD = 44;
-const SVG_NS = 'http://www.w3.org/2000/svg';
+let allEvents = [], yearMin = MIN_YEAR, yearMax = MAX_YEAR;
+let activeTypes        = new Set(Object.keys(TYPE_COLORS));
+let activeContentTypes = new Set(['Person', 'Place', 'Event', 'Story']);
+let activeScopes       = new Set(SCOPE_ORDER);
 
-function mk(tag, attrs) {
-    const el = document.createElementNS(SVG_NS, tag);
-    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
-    return el;
+function updateYearSlider() {
+    let v1 = parseInt(document.getElementById('fp-yr-min').value);
+    let v2 = parseInt(document.getElementById('fp-yr-max').value);
+    if (v1 > v2) { const t = v1; v1 = v2; v2 = t; }
+    yearMin = v1; yearMax = v2;
+    document.getElementById('fp-yr-min-lbl').textContent = v1;
+    document.getElementById('fp-yr-max-lbl').textContent = v2;
+    const fill = document.getElementById('fp-slider-fill');
+    const pct1 = (v1 - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+    const pct2 = (v2 - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+    fill.style.left  = pct1 + '%';
+    fill.style.width = (pct2 - pct1) + '%';
+    updateMapFilter();
 }
 
-function yearToY(year) {
-    year = Math.max(MIN_YEAR, Math.min(MAX_YEAR, year));
-    if (year <= BREAK_YEAR)
-        return (year - MIN_YEAR) / (BREAK_YEAR - MIN_YEAR) * BREAK_FRAC * TL_H;
-    return BREAK_FRAC * TL_H + (year - BREAK_YEAR) / (MAX_YEAR - BREAK_YEAR) * (1 - BREAK_FRAC) * TL_H;
-}
-function yToYear(py) {
-    const t = py / TL_H;
-    if (t <= BREAK_FRAC)
-        return Math.round(MIN_YEAR + t / BREAK_FRAC * (BREAK_YEAR - MIN_YEAR));
-    return Math.round(BREAK_YEAR + (t - BREAK_FRAC) / (1 - BREAK_FRAC) * (MAX_YEAR - BREAK_YEAR));
+function toggleChip(btn, filterSet, value) {
+    if (filterSet.has(value)) { filterSet.delete(value); btn.classList.remove('active'); }
+    else                       { filterSet.add(value);    btn.classList.add('active'); }
+    updateMapFilter();
 }
 
-let allEvents = [], currentYear = MIN_YEAR, suppressScroll = false;
-let svgDotRefs = []; // { dot, halo, year }
-
-const tlPanel  = document.getElementById('timeline-panel');
-const tlSvg    = document.getElementById('tl-svg');
-const nowBar   = document.getElementById('tl-now-bar');
-
-function buildTimelineSVG(events) {
-    tlSvg.innerHTML = '';
-    svgDotRefs = [];
-
-    const W    = tlPanel.clientWidth;
-    const colW = (W - YEAR_PAD) / SCOPE_ORDER.length;
-
-    tlSvg.setAttribute('width',   W);
-    tlSvg.setAttribute('height',  TL_H);
-    tlSvg.setAttribute('viewBox', `0 0 ${W} ${TL_H}`);
-
-    // Era background bands
-    const eraBg = ['#fafafa','#f5f5f5','#fafafa','#f5f5f5','#fafafa','#f5f5f5'];
-    ERAS.forEach((era, i) => {
-        const y0 = yearToY(era.start);
-        const y1 = yearToY(era.end + (i < ERAS.length-1 ? 0 : 1));
-        tlSvg.appendChild(mk('rect', { x:0, y:y0, width:W, height:Math.max(1, y1-y0), fill:eraBg[i] }));
-
-        // Era boundary line
-        if (i > 0) {
-            tlSvg.appendChild(mk('line', { x1:0, y1:y0, x2:W, y2:y0, stroke:'#ddd', 'stroke-width':1 }));
-        }
-
-        // Era label inside the band
-        const eLbl = mk('text', {
-            x: YEAR_PAD + 4, y: y0 + 16,
-            'font-family':'IBM Plex Mono,monospace', 'font-size':10,
-            fill:'#bbb', 'letter-spacing':'0.08em'
-        });
-        eLbl.textContent = era.name.toUpperCase();
-        eLbl.style.pointerEvents = 'none';
-        tlSvg.appendChild(eLbl);
+function buildFilterChips() {
+    const typeEl = document.getElementById('fp-type-chips');
+    typeEl.innerHTML = '';
+    Object.entries(TYPE_COLORS).forEach(([type, color]) => {
+        const btn = document.createElement('button');
+        btn.className = 'fp-chip active';
+        btn.innerHTML = `<span class="chip-dot" style="background:${color}"></span>${type}`;
+        btn.addEventListener('click', () => toggleChip(btn, activeTypes, type));
+        typeEl.appendChild(btn);
     });
 
-    // Year axis line
-    tlSvg.appendChild(mk('line', { x1:YEAR_PAD-1, y1:0, x2:YEAR_PAD-1, y2:TL_H, stroke:'#ccc', 'stroke-width':1 }));
-
-    // Scope column lines
-    SCOPE_ORDER.forEach((_, i) => {
-        const x = YEAR_PAD + (i + 0.5) * colW;
-        tlSvg.appendChild(mk('line', { x1:x, y1:0, x2:x, y2:TL_H, stroke:'#e8e8e8', 'stroke-width':1 }));
+    const contentEl = document.getElementById('fp-content-chips');
+    contentEl.innerHTML = '';
+    ['Person', 'Place', 'Event', 'Story'].forEach(ct => {
+        const btn = document.createElement('button');
+        btn.className = 'fp-chip active';
+        btn.textContent = ct;
+        btn.addEventListener('click', () => toggleChip(btn, activeContentTypes, ct));
+        contentEl.appendChild(btn);
     });
 
-    // Year tick marks + labels
-    // Pre-1850: every 50 years; 1850 onward: every 10 years
-    const tickYears = [];
-    for (let y = MIN_YEAR; y <= 1850; y += 50) tickYears.push(y);
-    for (let y = 1860; y <= MAX_YEAR; y += 10) tickYears.push(y);
-
-    tickYears.forEach(year => {
-        const py = yearToY(year);
-        tlSvg.appendChild(mk('line', {
-            x1: YEAR_PAD - 9, y1: py,
-            x2: YEAR_PAD - 1, y2: py,
-            stroke: '#aaa', 'stroke-width': 1.25
-        }));
-        const lbl = mk('text', {
-            x: YEAR_PAD - 13, y: py + 4,
-            'text-anchor':'end', 'font-family':'IBM Plex Mono,monospace',
-            'font-size': 11, fill: '#555'
-        });
-        lbl.textContent = year;
-        lbl.style.pointerEvents = 'none';
-        tlSvg.appendChild(lbl);
+    const scopeEl = document.getElementById('fp-scope-chips');
+    scopeEl.innerHTML = '';
+    SCOPE_ORDER.forEach(scope => {
+        const btn = document.createElement('button');
+        btn.className = 'fp-chip active';
+        btn.textContent = scope;
+        btn.addEventListener('click', () => toggleChip(btn, activeScopes, scope));
+        scopeEl.appendChild(btn);
     });
-
-    // Events — stack dots that share the same scope column and year
-    const sorted = [...events].sort((a,b) => parseInt(a.date_start)-parseInt(b.date_start));
-    const stackCount = {};
-
-    sorted.forEach(ev => {
-        const year  = parseInt(ev.date_start, 10);
-        const type  = resolveType(ev);
-        const color = TYPE_COLORS[type] || '#888';
-        const si    = Math.max(0, SCOPE_ORDER.indexOf(ev.scope || 'Neighborhood'));
-        const cx    = YEAR_PAD + (si + 0.5) * colW;
-        const baseY = yearToY(year);
-
-        const k = `${si}-${year}`;
-        const stack = stackCount[k] || 0;
-        stackCount[k] = stack + 1;
-        const cy = baseY + stack * 13;
-
-        // Halo
-        const halo = mk('circle', { cx, cy, r:10, fill:color, opacity:0.04 });
-        halo.style.pointerEvents = 'none';
-        tlSvg.appendChild(halo);
-
-        // Dot
-        const dot = mk('circle', { cx, cy, r:4.5, fill:color, stroke:'none', 'stroke-width':0, opacity:0.15 });
-        dot.style.cursor = 'pointer';
-        dot.dataset.id   = ev.id;
-        dot.dataset.year = year;
-
-        dot.addEventListener('mouseenter', e => {
-            const tipDate = ev.date_start + (ev.date_end ? ' – '+ev.date_end : '');
-            tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${tipDate} &nbsp;·&nbsp; ${ev.scope||''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
-            tip.style.display = 'block';
-            posTip(e);
-            dot.setAttribute('r', 7);
-            dot.setAttribute('stroke', '#fff');
-            dot.setAttribute('stroke-width', 1.5);
-        });
-        dot.addEventListener('mousemove',  e => posTip(e));
-        dot.addEventListener('mouseleave', () => {
-            tip.style.display = 'none';
-            dot.setAttribute('r', 4.5);
-            dot.setAttribute('stroke', 'none');
-            dot.setAttribute('stroke-width', 0);
-        });
-        dot.addEventListener('click', e => {
-            e.stopPropagation();
-            showDetail(ev, color);
-            setYear(parseInt(ev.date_start, 10), false);
-            if (isSpatial(ev)) map.flyTo({ center:[ev._lng,ev._lat], zoom:Math.max(map.getZoom(),15), duration:700 });
-        });
-
-        tlSvg.appendChild(dot);
-        svgDotRefs.push({ dot, halo, year });
-    });
-
-    // Set now-bar top to stick right below the hud
-    nowBar.style.top = document.getElementById('tl-hud').offsetHeight + 'px';
 }
 
-function updateSVGHighlight(year) {
-    svgDotRefs.forEach(({ dot, halo, year:y }) => {
-        dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.15');
-        halo.setAttribute('opacity', y <= year ? '0.18' : '0.05');
-    });
-    document.getElementById('tl-year').textContent = year;
-}
-
-function scrollTimelineToYear(year) {
-    suppressScroll = true;
-    tlPanel.scrollTop = yearToY(year);
-    setTimeout(() => { suppressScroll = false; }, 150);
-}
-
-// Scroll → year
-tlPanel.addEventListener('scroll', () => {
-    if (suppressScroll) return;
-    const y = Math.max(MIN_YEAR, Math.min(MAX_YEAR, Math.round(yToYear(tlPanel.scrollTop))));
-    if (y !== currentYear) setYear(y, false);
-});
-
-/* ── setYear ── */
-function setYear(year, scrollTL = true) {
-    currentYear = year;
-    updateSVGHighlight(year);
-    updateMapMarkers(year);
-    setBasemap(year);
-    if (scrollTL) scrollTimelineToYear(year);
-}
+document.getElementById('fp-yr-min').addEventListener('input', updateYearSlider);
+document.getElementById('fp-yr-max').addEventListener('input', updateYearSlider);
+updateYearSlider();
 
 /* ── Draggable divider ── */
 const divider = document.getElementById('divider');
@@ -790,9 +831,7 @@ divider.addEventListener('mousedown', e => {
 });
 document.addEventListener('mousemove', e => {
     if (!dragging) return;
-    const x = Math.max(200, Math.min(window.innerWidth - 300, e.clientX));
-    layout.style.setProperty('--split', x + 'px');
-    buildTimelineSVG(allEvents);
+    layout.style.setProperty('--split', Math.max(260, Math.min(window.innerWidth - 300, e.clientX)) + 'px');
     map.resize();
 });
 document.addEventListener('mouseup', () => {
@@ -806,15 +845,10 @@ document.addEventListener('mouseup', () => {
 divider.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive:false });
 document.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const x = Math.max(200, Math.min(window.innerWidth - 300, e.touches[0].clientX));
-    layout.style.setProperty('--split', x + 'px');
-    buildTimelineSVG(allEvents);
+    layout.style.setProperty('--split', Math.max(260, Math.min(window.innerWidth - 300, e.touches[0].clientX)) + 'px');
     map.resize();
 }, { passive:true });
-document.addEventListener('touchend', () => { if (dragging) { dragging=false; map.resize(); } });
-
-/* Rebuild SVG if panel width changes (e.g. window resize) */
-new ResizeObserver(() => { if (allEvents.length) buildTimelineSVG(allEvents); }).observe(tlPanel);
+document.addEventListener('touchend', () => { if (dragging) { dragging = false; map.resize(); } });
 
 /* ── Boot ── */
 const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQN-ypfkWmCiKmf618fHMDF6PSDn3j33te6csSoZyxjM2p5RpG1PvN53Q_7wL4Tju8WJMk_sKJEiaMN/pub?gid=612286300&single=true&output=csv';
@@ -868,9 +902,9 @@ function loadAndInit(data) {
     allEvents = data;
     applyJitter(allEvents);
     buildLegend();
-    buildTimelineSVG(allEvents);
-    if (mapLoaded) { loadEventsToMap(allEvents); }
-    setYear(MIN_YEAR, false);
+    buildFilterChips();
+    updateCount();
+    if (mapLoaded) { loadEventsToMap(allEvents); updateMapFilter(); }
 }
 
 fetch(SHEET_CSV)
