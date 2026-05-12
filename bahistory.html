@@ -417,7 +417,8 @@ map.on('load', () => {
         setYear(parseInt(ev.date_start, 10), true);
         map.flyTo({ center:[ev._lng, ev._lat], zoom:Math.max(map.getZoom(), 15), duration:700 });
     });
-    if (allEvents.length) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); updateMapMarkers(MIN_YEAR); }
+    setBasemap(currentYear);
+    if (allEvents.length) { loadEventsToMap(allEvents); updateMapMarkers(currentYear); }
 });
 
 function posTip(e) {
@@ -475,7 +476,7 @@ function setBasemap(year) {
         map.addSource(wsid, {
             type: 'geojson',
             data: { type: 'Feature', geometry: { type: 'Polygon',
-                coordinates: [[[-180,-90],[-180,90],[180,90],[180,-90],[-180,-90]]] } }
+                coordinates: [[[-180,-90],[180,-90],[180,90],[-180,90],[-180,-90]]] } }
         });
         map.addLayer({ id: wlid, type: 'fill', source: wsid,
             paint: { 'fill-color': '#c8c8c8' } }, 'events-layer');
@@ -868,7 +869,7 @@ function loadAndInit(data) {
     applyJitter(allEvents);
     buildLegend();
     buildTimelineSVG(allEvents);
-    if (mapLoaded) { loadEventsToMap(allEvents); setBasemap(MIN_YEAR); }
+    if (mapLoaded) { loadEventsToMap(allEvents); }
     setYear(MIN_YEAR, false);
 }
 
