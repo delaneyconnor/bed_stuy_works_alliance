@@ -249,27 +249,12 @@
         }
         .fp-contribute-btn:hover { background: #333; }
 
-        /* ── Draggable divider ── */
+        /* ── Divider ── */
         #divider {
-            width: 5px;
+            width: 3px;
             height: 100%;
-            background: #0f0f0f;
-            cursor: col-resize;
+            background: #111;
             flex-shrink: 0;
-            position: relative;
-            z-index: 100;
-            transition: background 0.15s;
-        }
-        #divider:hover, #divider.dragging { background: #222; }
-        #divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 1px;
-            height: 36px;
-            background: #2a2a2a;
         }
 
         /* ── Right panel (wraps toggle + map/timeline) ── */
@@ -1269,38 +1254,6 @@ document.getElementById('btn-timeline').addEventListener('click', () => {
     buildTimelineCards();
 });
 
-/* ── Draggable divider ── */
-const divider = document.getElementById('divider');
-const layout  = document.getElementById('layout');
-let dragging  = false;
-
-divider.addEventListener('mousedown', e => {
-    dragging = true;
-    divider.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-});
-document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    layout.style.setProperty('--split', Math.max(260, Math.min(window.innerWidth - 300, e.clientX)) + 'px');
-    map.resize();
-});
-document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    divider.classList.remove('dragging');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    map.resize();
-});
-divider.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive:false });
-document.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    layout.style.setProperty('--split', Math.max(260, Math.min(window.innerWidth - 300, e.touches[0].clientX)) + 'px');
-    map.resize();
-}, { passive:true });
-document.addEventListener('touchend', () => { if (dragging) { dragging = false; map.resize(); } });
 
 /* ── Boot ── */
 const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQN-ypfkWmCiKmf618fHMDF6PSDn3j33te6csSoZyxjM2p5RpG1PvN53Q_7wL4Tju8WJMk_sKJEiaMN/pub?gid=612286300&single=true&output=csv';
