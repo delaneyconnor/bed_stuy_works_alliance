@@ -354,11 +354,18 @@
             border: 1px solid #ececec;
             cursor: pointer;
             overflow: hidden;
-            transition: box-shadow 0.12s, background 0.1s;
+            transition: box-shadow 0.15s, border-color 0.15s;
         }
-        .tl-card:hover { background: #fafafa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tl-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tl-card.open {
+            z-index: 5;
+            border-color: #222;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+            overflow: visible;
+        }
         .tl-card-accent { width: 3px; flex-shrink: 0; }
         .tl-card-inner { flex: 1; padding: 6px 7px 7px 6px; min-width: 0; overflow: hidden; }
+        .tl-card.open .tl-card-inner { overflow: visible; }
         .tl-card-date {
             font-size: 8px;
             letter-spacing: 0.06em;
@@ -376,6 +383,47 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+        .tl-card.open .tl-card-title {
+            display: block;
+            overflow: visible;
+            -webkit-line-clamp: unset;
+        }
+        .tl-card-expand {
+            display: none;
+            padding: 6px 7px 9px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 4px;
+        }
+        .tl-card.open .tl-card-expand { display: block; }
+        .tl-card-sub-text {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+        .tl-card-body-text {
+            font-size: 9px;
+            color: #333;
+            line-height: 1.55;
+            margin-bottom: 7px;
+        }
+        .tl-card-src-link {
+            display: inline-block;
+            font-size: 8px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #888;
+            text-decoration: none;
+            border-bottom: 1px solid #ddd;
+            margin-right: 8px;
+        }
+        .tl-card-src-link:hover { color: #111; border-color: #111; }
+        .tl-card-contrib {
+            font-size: 8px;
+            color: #bbb;
+            margin-top: 6px;
         }
         .tl-empty {
             padding: 60px 24px;
@@ -873,7 +921,7 @@ function updateMapFilter() {
     setBasemap(yearMax);
     loadEventsToMap(filtered);
 }
-const TL_PX_PER_YEAR = 5;
+const TL_PX_PER_YEAR = 10;
 const TL_AXIS_W      = 52;
 const TL_PAD_TOP     = 16;
 const TL_CARD_GAP    = 5;
@@ -928,7 +976,11 @@ function buildTimelineCards() {
         card.style.left = colX + 'px';
         card.style.width = cardW + 'px';
         card.style.visibility = 'hidden';
-        card.addEventListener('click', () => showDetail(ev, color));
+        card.addEventListener('click', () => {
+            const wasOpen = card.classList.contains('open');
+            container.querySelectorAll('.tl-card.open').forEach(c => c.classList.remove('open'));
+            if (!wasOpen) card.classList.add('open');
+        });
 
         const accent = document.createElement('div');
         accent.className = 'tl-card-accent';
@@ -939,6 +991,22 @@ function buildTimelineCards() {
         inner.innerHTML =
             `<div class="tl-card-date" style="color:${color}">${escH(dateLabel)}</div>` +
             `<div class="tl-card-title">${escH(ev.title)}</div>`;
+
+        const expand = document.createElement('div');
+        expand.className = 'tl-card-expand';
+        let expandHtml = '';
+        if (ev.subtitle) expandHtml += `<div class="tl-card-sub-text">${escH(ev.subtitle)}</div>`;
+        if (ev.body)     expandHtml += `<div class="tl-card-body-text">${escH(ev.body)}</div>`;
+        if (ev.source_url) {
+            ev.source_url.split(/\s*\|\s*/).filter(Boolean).forEach((url, i, arr) => {
+                expandHtml += `<a href="${escH(url)}" target="_blank" rel="noopener" class="tl-card-src-link">Source${arr.length > 1 ? ' ' + (i+1) : ''} ↗</a>`;
+            });
+        }
+        if (ev.contributor && ev.contributor !== 'Delaney Connor') {
+            expandHtml += `<div class="tl-card-contrib">Submitted by ${escH(ev.contributor)}</div>`;
+        }
+        expand.innerHTML = expandHtml;
+        inner.appendChild(expand);
 
         card.appendChild(accent);
         card.appendChild(inner);
