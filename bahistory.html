@@ -613,26 +613,15 @@ function buildTimelineSVG(events) {
         const k = `${si}-${year}`;
         const stack = stackCount[k] || 0;
         stackCount[k] = stack + 1;
-        const cy = baseY + stack * 16;
+        const cy = baseY + stack * 13;
 
         // Halo
         const halo = mk('circle', { cx, cy, r:10, fill:color, opacity:0.04 });
         halo.style.pointerEvents = 'none';
         tlSvg.appendChild(halo);
 
-        // Title label (replaces dot)
-        const maxChars = Math.max(6, Math.floor(colW / 4.8));
-        const labelText = ev.title.length > maxChars ? ev.title.slice(0, maxChars - 1) + '…' : ev.title;
-        const dot = mk('text', {
-            x: cx, y: cy + 3,
-            'text-anchor': 'middle',
-            'dominant-baseline': 'middle',
-            'font-family': 'IBM Plex Mono, monospace',
-            'font-size': 8,
-            fill: '#000',
-            opacity: 0.15,
-        });
-        dot.textContent = labelText;
+        // Dot
+        const dot = mk('circle', { cx, cy, r:4.5, fill:color, stroke:'none', 'stroke-width':0, opacity:0.15 });
         dot.style.cursor = 'pointer';
         dot.dataset.id   = ev.id;
         dot.dataset.year = year;
@@ -641,14 +630,16 @@ function buildTimelineSVG(events) {
             tip.innerHTML = `<div style="font-size:8px;color:#999;margin-bottom:3px">${ev.date||year} &nbsp;·&nbsp; ${ev.scope||''}</div><div style="font-weight:600;line-height:1.35">${ev.title}</div>`;
             tip.style.display = 'block';
             posTip(e);
-            dot.setAttribute('fill', color);
-            dot.setAttribute('font-weight', '700');
+            dot.setAttribute('r', 7);
+            dot.setAttribute('stroke', '#fff');
+            dot.setAttribute('stroke-width', 1.5);
         });
         dot.addEventListener('mousemove',  e => posTip(e));
         dot.addEventListener('mouseleave', () => {
             tip.style.display = 'none';
-            dot.setAttribute('fill', '#000');
-            dot.setAttribute('font-weight', 'normal');
+            dot.setAttribute('r', 4.5);
+            dot.setAttribute('stroke', 'none');
+            dot.setAttribute('stroke-width', 0);
         });
         dot.addEventListener('click', e => {
             e.stopPropagation();
@@ -667,10 +658,8 @@ function buildTimelineSVG(events) {
 
 function updateSVGHighlight(year) {
     svgDotRefs.forEach(({ dot, halo, year:y }) => {
-        const active = y <= year;
-        dot.setAttribute('opacity',     active ? '0.9'  : '0.15');
-        dot.setAttribute('font-weight', active ? '600'  : 'normal');
-        halo.setAttribute('opacity',    active ? '0.18' : '0.05');
+        dot.setAttribute('opacity',  y <= year ? '0.9'  : '0.15');
+        halo.setAttribute('opacity', y <= year ? '0.18' : '0.05');
     });
     const era = eraForYear(year);
     document.getElementById('tl-year').textContent = year;
