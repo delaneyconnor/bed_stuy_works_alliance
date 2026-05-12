@@ -196,7 +196,7 @@
         #fp-micro-tl {
             display: block;
             width: 100%;
-            height: 28px;
+            height: auto;
             overflow: visible;
         }
 
@@ -853,14 +853,22 @@ function updateCount() {
 function buildMicroTimeline() {
     const svg = document.getElementById('fp-micro-tl');
     if (!svg || !allEvents.length) return;
+    const NS      = 'http://www.w3.org/2000/svg';
+    const TYPES   = Object.keys(TYPE_COLORS);
+    const LABEL_W = 78;
+    const ROW_H   = 12;
+    const PAD_TOP = 4;
+    const PAD_BOT = 4;
     const W = svg.parentElement.clientWidth || 280;
-    const H = 28;
+    const H = PAD_TOP + TYPES.length * ROW_H + PAD_BOT;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.setAttribute('width', W);
     svg.setAttribute('height', H);
     svg.innerHTML = '';
-    const NS = 'http://www.w3.org/2000/svg';
-    const xOf = y => (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * W;
+
+    const chartW = W - LABEL_W;
+    const xOf = yr => LABEL_W + (yr - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * chartW;
+    const yOf = i  => PAD_TOP + i * ROW_H + ROW_H / 2;
 
     // Selected range fill
     const rx1 = xOf(yearMin), rx2 = xOf(yearMax);
@@ -870,25 +878,43 @@ function buildMicroTimeline() {
     fill.setAttribute('fill', 'rgba(0,0,0,0.04)');
     svg.appendChild(fill);
 
-    // Base line
-    const line = document.createElementNS(NS, 'line');
-    line.setAttribute('x1', 0); line.setAttribute('y1', H / 2);
-    line.setAttribute('x2', W); line.setAttribute('y2', H / 2);
-    line.setAttribute('stroke', '#e8e8e8'); line.setAttribute('stroke-width', 1);
-    svg.appendChild(line);
-
-    // Event marks — all events, colored if matching current filters
     const filtered = new Set(getFilteredEvents().map(e => e.id));
+
+    // Row baselines + labels
+    TYPES.forEach((type, i) => {
+        const color = TYPE_COLORS[type];
+        const cy = yOf(i);
+
+        const base = document.createElementNS(NS, 'line');
+        base.setAttribute('x1', LABEL_W); base.setAttribute('y1', cy);
+        base.setAttribute('x2', W);       base.setAttribute('y2', cy);
+        base.setAttribute('stroke', '#f0f0f0'); base.setAttribute('stroke-width', 1);
+        svg.appendChild(base);
+
+        const lbl = document.createElementNS(NS, 'text');
+        lbl.setAttribute('x', LABEL_W - 5); lbl.setAttribute('y', cy + 3.5);
+        lbl.setAttribute('text-anchor', 'end');
+        lbl.setAttribute('font-family', 'IBM Plex Mono, monospace');
+        lbl.setAttribute('font-size', 7);
+        lbl.setAttribute('fill', color);
+        lbl.textContent = type;
+        svg.appendChild(lbl);
+    });
+
+    // Dots
     allEvents.forEach(ev => {
-        const y = parseInt(ev.date_start, 10);
-        const x = xOf(y);
-        const color = TYPE_COLORS[resolveType(ev)] || '#888';
+        const type = resolveType(ev);
+        const i = TYPES.indexOf(type);
+        if (i < 0) return;
+        const cx    = xOf(parseInt(ev.date_start, 10));
+        const cy    = yOf(i);
+        const color = TYPE_COLORS[type];
         const active = filtered.has(ev.id);
         const dot = document.createElementNS(NS, 'circle');
-        dot.setAttribute('cx', x); dot.setAttribute('cy', H / 2);
-        dot.setAttribute('r', active ? 3 : 2);
+        dot.setAttribute('cx', cx); dot.setAttribute('cy', cy);
+        dot.setAttribute('r', active ? 2.5 : 1.5);
         dot.setAttribute('fill', active ? color : '#ddd');
-        dot.setAttribute('opacity', active ? '0.9' : '0.35');
+        dot.setAttribute('opacity', active ? '0.85' : '0.3');
         svg.appendChild(dot);
     });
 }
