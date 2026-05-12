@@ -170,6 +170,37 @@
         }
         .dual-slider input[type=range]::-webkit-slider-runnable-track { background: transparent; }
 
+        /* Search */
+        #fp-search-wrap {
+            padding: 11px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+        #fp-search {
+            width: 100%;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            padding: 7px 10px;
+            border: 1.5px solid #ddd;
+            background: #fff;
+            outline: none;
+            color: #111;
+            letter-spacing: 0.02em;
+        }
+        #fp-search:focus { border-color: #111; }
+        #fp-search::placeholder { color: #ccc; letter-spacing: 0.02em; }
+
+        /* Micro timeline bar */
+        #fp-micro-tl-wrap {
+            padding: 8px 0 0;
+        }
+        #fp-micro-tl {
+            display: block;
+            width: 100%;
+            height: 28px;
+            overflow: visible;
+        }
+
         /* Results count */
         #fp-count-row {
             padding: 10px 16px;
@@ -454,6 +485,10 @@
             <span id="fp-sub">preserve, share, and learn about your block</span>
         </div>
 
+        <div id="fp-search-wrap">
+            <input type="text" id="fp-search" placeholder="Search events…" autocomplete="off" spellcheck="false">
+        </div>
+
         <div class="fp-section">
             <div class="fp-section-label">Years</div>
             <div class="year-range-wrap">
@@ -466,6 +501,9 @@
                     <div class="dual-slider-fill" id="fp-slider-fill"></div>
                     <input type="range" id="fp-yr-min" min="1600" max="2026" step="1" value="1600">
                     <input type="range" id="fp-yr-max" min="1600" max="2026" step="1" value="2026">
+                </div>
+                <div id="fp-micro-tl-wrap">
+                    <svg id="fp-micro-tl" preserveAspectRatio="none"></svg>
                 </div>
             </div>
         </div>
@@ -752,13 +790,20 @@ function applyJitter(events) {
         ev._lat=ev.lat+r*Math.sin(angle); ev._lng=ev.lng+r*Math.cos(angle);
     });
 }
+let searchQuery = '';
 function getFilteredEvents() {
+    const q = searchQuery.trim().toLowerCase();
     return allEvents.filter(ev => {
         const y = parseInt(ev.date_start, 10);
         if (y < yearMin || y > yearMax) return false;
         if (!activeTypes.has(resolveType(ev))) return false;
         if (ev.content_type && !activeContentTypes.has(ev.content_type)) return false;
         if (ev.scope && !activeScopes.has(ev.scope)) return false;
+        if (q) {
+            const hay = [ev.title, ev.subtitle, ev.body, ev.location, ev.address, ev.contributor]
+                .map(s => (s || '').toLowerCase()).join(' ');
+            if (!hay.includes(q)) return false;
+        }
         return true;
     }).sort((a, b) => parseInt(a.date_start) - parseInt(b.date_start));
 }
@@ -768,24 +813,56 @@ function updateCount() {
     const n = getFilteredEvents().length;
     el.textContent = `${n} event${n !== 1 ? 's' : ''}`;
 }
+function buildMicroTimeline() {
+    const svg = document.getElementById('fp-micro-tl');
+    if (!svg || !allEvents.length) return;
+    const W = svg.parentElement.clientWidth || 280;
+    const H = 28;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('width', W);
+    svg.setAttribute('height', H);
+    svg.innerHTML = '';
+    const NS = 'http://www.w3.org/2000/svg';
+    const xOf = y => (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * W;
+
+    // Selected range fill
+    const rx1 = xOf(yearMin), rx2 = xOf(yearMax);
+    const fill = document.createElementNS(NS, 'rect');
+    fill.setAttribute('x', rx1); fill.setAttribute('y', 0);
+    fill.setAttribute('width', Math.max(0, rx2 - rx1)); fill.setAttribute('height', H);
+    fill.setAttribute('fill', 'rgba(0,0,0,0.04)');
+    svg.appendChild(fill);
+
+    // Base line
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', 0); line.setAttribute('y1', H / 2);
+    line.setAttribute('x2', W); line.setAttribute('y2', H / 2);
+    line.setAttribute('stroke', '#e8e8e8'); line.setAttribute('stroke-width', 1);
+    svg.appendChild(line);
+
+    // Event marks — all events, colored if matching current filters
+    const filtered = new Set(getFilteredEvents().map(e => e.id));
+    allEvents.forEach(ev => {
+        const y = parseInt(ev.date_start, 10);
+        const x = xOf(y);
+        const color = TYPE_COLORS[resolveType(ev)] || '#888';
+        const active = filtered.has(ev.id);
+        const dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', x); dot.setAttribute('cy', H / 2);
+        dot.setAttribute('r', active ? 3 : 2);
+        dot.setAttribute('fill', active ? color : '#ddd');
+        dot.setAttribute('opacity', active ? '0.9' : '0.35');
+        svg.appendChild(dot);
+    });
+}
 function updateMapFilter() {
+    const filtered = getFilteredEvents();
+    updateCount();
+    buildMicroTimeline();
+    if (activeView === 'timeline') buildTimelineCards();
     if (!mapLoaded || !map.getSource('events')) return;
     setBasemap(yearMax);
-    map.setFilter('events-layer', ['all',
-        ['>=', ['get', 'year'], yearMin],
-        ['<=', ['get', 'year'], yearMax],
-        ['in', ['get', 'ev_type'], ['literal', [...activeTypes]]],
-        ['any',
-            ['==', ['get', 'content_type'], ''],
-            ['in', ['get', 'content_type'], ['literal', [...activeContentTypes]]]
-        ],
-        ['any',
-            ['==', ['get', 'scope'], ''],
-            ['in', ['get', 'scope'], ['literal', [...activeScopes]]]
-        ]
-    ]);
-    updateCount();
-    if (activeView === 'timeline') buildTimelineCards();
+    loadEventsToMap(filtered);
 }
 function buildTimelineCards() {
     const container = document.getElementById('tl-cards');
@@ -971,6 +1048,11 @@ document.getElementById('fp-yr-min').addEventListener('input', updateYearSlider)
 document.getElementById('fp-yr-max').addEventListener('input', updateYearSlider);
 updateYearSlider();
 
+document.getElementById('fp-search').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    updateMapFilter();
+});
+
 /* ── View toggle ── */
 let activeView = 'map';
 document.getElementById('btn-map').addEventListener('click', () => {
@@ -1077,9 +1159,10 @@ function loadAndInit(data) {
     allEvents = data;
     applyJitter(allEvents);
     buildFilterChips();
+    buildMicroTimeline();
     updateCount();
     if (activeView === 'timeline') buildTimelineCards();
-    if (mapLoaded) { loadEventsToMap(allEvents); updateMapFilter(); }
+    if (mapLoaded) updateMapFilter();
 }
 
 fetch(SHEET_CSV)
