@@ -294,7 +294,7 @@
         .preview-wrap.open { display: block; }
         .preview-wrap iframe { width: 100%; height: 240px; border: 1px solid #e0e0e0; display: block; }
 
-        /* ── Bottom-left panel: legend + citation stacked ── */
+        /* ── Bottom-left panel: citation stacked ── */
         #map-bl-panel {
             position: absolute;
             bottom: 12px; left: 12px;
@@ -302,40 +302,33 @@
             display: flex; flex-direction: column; gap: 6px;
             pointer-events: none;
         }
-        #legend {
-            background: rgba(10,10,10,0.92);
-            padding: 10px 13px;
-            display: flex; flex-direction: column; gap: 6px;
-        }
-        .leg-row   { display: flex; align-items: center; gap: 8px; }
-        .leg-dot   { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.2); flex-shrink: 0; }
-        .leg-label { font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: #bbb; }
-
         #map-cite {
-            background: rgba(10,10,10,0.92);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #e0e0e0;
             padding: 10px 13px;
             display: flex; flex-direction: column; gap: 3px;
         }
         #map-cite-basemap {
             font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
-            color: #bbb;
+            color: #333;
         }
         #map-cite-sources {
             font-size: 9px; letter-spacing: 0.04em;
-            color: #666;
+            color: #888;
         }
         #tiles-toggle-wrap {
-            background: rgba(10,10,10,0.92);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #e0e0e0;
             padding: 8px 13px;
             pointer-events: all;
         }
         #tiles-toggle-wrap label {
             display: flex; align-items: center; gap: 7px;
             font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase;
-            color: #bbb; cursor: pointer; user-select: none;
+            color: #333; cursor: pointer; user-select: none;
         }
         #tiles-toggle-wrap input[type=checkbox] {
-            accent-color: #fff;
+            accent-color: #111;
             width: 11px; height: 11px; cursor: pointer; flex-shrink: 0;
         }
 
@@ -415,7 +408,6 @@
     <div id="map-panel">
         <div id="map"></div>
         <div id="map-bl-panel">
-            <div id="legend"></div>
             <div id="map-cite">
                 <div id="map-cite-basemap">Current satellite</div>
                 <div id="map-cite-sources">Historical tiles: NYC Map Warper · NYPL · NYC DoITT · Mapbox</div>
@@ -901,7 +893,6 @@ function csvToEvents(text) {
 function loadAndInit(data) {
     allEvents = data;
     applyJitter(allEvents);
-    buildLegend();
     buildFilterChips();
     updateCount();
     if (mapLoaded) { loadEventsToMap(allEvents); updateMapFilter(); }
