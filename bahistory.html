@@ -990,6 +990,7 @@ let allEvents = [], yearMin = MIN_YEAR, yearMax = MAX_YEAR;
 let activeTypes        = new Set(Object.keys(TYPE_COLORS));
 let activeContentTypes = new Set(['Person', 'Place', 'Event', 'Story']);
 let activeScopes       = new Set(SCOPE_ORDER);
+let activeView         = 'map';
 
 function updateYearSlider() {
     let v1 = parseInt(document.getElementById('fp-yr-min').value);
@@ -1054,7 +1055,6 @@ document.getElementById('fp-search').addEventListener('input', e => {
 });
 
 /* ── View toggle ── */
-let activeView = 'map';
 document.getElementById('btn-map').addEventListener('click', () => {
     if (activeView === 'map') return;
     activeView = 'map';
