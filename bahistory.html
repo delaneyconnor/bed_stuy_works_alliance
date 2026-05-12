@@ -324,6 +324,26 @@
             scrollbar-width: thin;
             scrollbar-color: #e0e0e0 transparent;
         }
+        #tl-col-hdr {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #fff;
+            border-bottom: 1.5px solid #111;
+            display: none;
+        }
+        .tl-col-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #aaa;
+            text-align: center;
+            padding: 8px 2px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
         #tl-cards {
             position: relative;
         }
@@ -333,35 +353,32 @@
             background: #fff;
             border: 1px solid #ececec;
             cursor: pointer;
+            overflow: hidden;
             transition: box-shadow 0.12s, background 0.1s;
         }
-        .tl-card:hover { background: #fafafa; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+        .tl-card:hover { background: #fafafa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .tl-card-accent { width: 3px; flex-shrink: 0; }
-        .tl-card-inner { flex: 1; padding: 11px 14px 12px 11px; min-width: 0; }
-        .tl-card-meta {
-            font-size: 9px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #aaa;
-            margin-bottom: 5px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
+        .tl-card-inner { flex: 1; padding: 6px 7px 7px 6px; min-width: 0; overflow: hidden; }
+        .tl-card-date {
+            font-size: 8px;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .tl-card-type-label { font-weight: 600; }
-        .tl-card-title { font-size: 12px; font-weight: 600; line-height: 1.35; margin-bottom: 3px; }
-        .tl-card-sub { font-size: 10px; color: #777; font-style: italic; line-height: 1.5; margin-bottom: 8px; }
-        .tl-card-img {
-            width: 100%;
-            max-height: 160px;
-            object-fit: cover;
-            display: block;
-            margin-bottom: 8px;
+        .tl-card-title {
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        .tl-card-text { font-size: 10px; line-height: 1.75; color: #444; font-weight: 300; }
         .tl-empty {
-            padding: 60px 24px 60px 96px;
+            padding: 60px 24px;
             font-size: 11px;
             color: #bbb;
             font-style: italic;
@@ -550,6 +567,7 @@
         </div>
 
         <div id="timeline-view">
+            <div id="tl-col-hdr"></div>
             <div id="tl-cards"></div>
         </div>
 
@@ -856,41 +874,59 @@ function updateMapFilter() {
     loadEventsToMap(filtered);
 }
 const TL_PX_PER_YEAR = 5;
-const TL_AXIS_W      = 64;
-const TL_PAD_TOP     = 32;
-const TL_CARD_GAP    = 8;
-const TL_CARD_LEFT   = TL_AXIS_W + 16;
-const TL_CARD_RIGHT  = 16;
+const TL_AXIS_W      = 52;
+const TL_PAD_TOP     = 16;
+const TL_CARD_GAP    = 5;
+const TL_COL_GAP     = 6;
 
 function buildTimelineCards() {
+    const view      = document.getElementById('timeline-view');
     const container = document.getElementById('tl-cards');
+    const header    = document.getElementById('tl-col-hdr');
     if (!container) return;
     container.innerHTML = '';
 
-    const events = getFilteredEvents();
+    const events  = getFilteredEvents();
     if (!events.length) {
         container.style.height = '';
+        if (header) header.style.display = 'none';
         container.innerHTML = '<div class="tl-empty">No events match the current filters.</div>';
         return;
     }
 
-    // Create all cards, measure heights, then position
+    const totalW  = view.clientWidth || 700;
+    const numCols = SCOPE_ORDER.length;
+    const colW    = (totalW - TL_AXIS_W) / numCols;
+    const cardW   = Math.max(60, colW - TL_COL_GAP);
+
+    // Build sticky column header
+    if (header) {
+        header.style.display = 'flex';
+        header.style.paddingLeft = TL_AXIS_W + 'px';
+        header.innerHTML = '';
+        SCOPE_ORDER.forEach(scope => {
+            const lbl = document.createElement('div');
+            lbl.className = 'tl-col-label';
+            lbl.style.width = colW + 'px';
+            lbl.textContent = scope;
+            header.appendChild(lbl);
+        });
+    }
+
     container.style.height = '20000px';
 
+    // Phase 1 — create all cards with width set, invisible
     const cardData = events.map(ev => {
-        const year  = parseInt(ev.date_start, 10);
-        const color = TYPE_COLORS[resolveType(ev)] || '#888';
-        const type  = resolveType(ev);
-        const dateLabel = ev.date_start + (ev.date_end ? ' – ' + ev.date_end : '');
-        const isImg = ev.media_url && (
-            /\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(ev.media_url) ||
-            /image|photo/i.test(ev.media_type || '')
-        );
+        const year     = parseInt(ev.date_start, 10);
+        const color    = TYPE_COLORS[resolveType(ev)] || '#888';
+        const scopeIdx = Math.max(0, SCOPE_ORDER.indexOf(ev.scope || 'Neighborhood'));
+        const colX     = TL_AXIS_W + scopeIdx * colW + TL_COL_GAP / 2;
+        const dateLabel = ev.date_start + (ev.date_end ? '–' + ev.date_end : '');
 
         const card = document.createElement('div');
         card.className = 'tl-card';
-        card.style.left       = TL_CARD_LEFT + 'px';
-        card.style.right      = TL_CARD_RIGHT + 'px';
+        card.style.left = colX + 'px';
+        card.style.width = cardW + 'px';
         card.style.visibility = 'hidden';
         card.addEventListener('click', () => showDetail(ev, color));
 
@@ -901,91 +937,109 @@ function buildTimelineCards() {
         const inner = document.createElement('div');
         inner.className = 'tl-card-inner';
         inner.innerHTML =
-            `<div class="tl-card-meta">` +
-                `<span>${escH(dateLabel)}</span>` +
-                `<span style="color:#ddd"> · </span>` +
-                `<span class="tl-card-type-label" style="color:${color}">${escH(type)}</span>` +
-                (ev.scope ? `<span style="color:#ddd"> · </span><span>${escH(ev.scope)}</span>` : '') +
-            `</div>` +
-            `<div class="tl-card-title">${escH(ev.title)}</div>` +
-            (ev.subtitle ? `<div class="tl-card-sub">${escH(ev.subtitle)}</div>` : '') +
-            (isImg ? `<img class="tl-card-img" src="${escH(ev.media_url)}" alt="" loading="lazy" onerror="this.style.display='none'">` : '') +
-            (ev.body ? `<div class="tl-card-text">${escH(ev.body)}</div>` : '');
+            `<div class="tl-card-date" style="color:${color}">${escH(dateLabel)}</div>` +
+            `<div class="tl-card-title">${escH(ev.title)}</div>`;
 
         card.appendChild(accent);
         card.appendChild(inner);
         container.appendChild(card);
-        return { card, year, color };
+        return { card, year, color, scopeIdx, colX };
     });
 
-    // Measure heights synchronously (forces reflow), then position
+    // Phase 2 — measure all heights in one batch (one reflow)
+    const heights = cardData.map(({ card }) => card.offsetHeight);
+
+    // Phase 3 — position per column, stretching down when crowded
+    const colBottoms = new Array(numCols).fill(TL_PAD_TOP);
     const tops = [];
-    let lastBottom = 0;
-    cardData.forEach(({ card, year }) => {
+    cardData.forEach(({ card, year, scopeIdx }, i) => {
         const idealTop = TL_PAD_TOP + (year - MIN_YEAR) * TL_PX_PER_YEAR;
-        const top = Math.max(idealTop, lastBottom + TL_CARD_GAP);
+        const top = Math.max(idealTop, colBottoms[scopeIdx] + TL_CARD_GAP);
         tops.push(top);
-        card.style.top        = top + 'px';
+        card.style.top = top + 'px';
         card.style.visibility = 'visible';
-        lastBottom = top + card.offsetHeight;
+        colBottoms[scopeIdx] = top + heights[i];
     });
 
-    const totalH = Math.max(lastBottom + 80,
-        TL_PAD_TOP + (MAX_YEAR - MIN_YEAR) * TL_PX_PER_YEAR + 60);
+    const totalH = Math.max(
+        Math.max(...colBottoms) + 80,
+        TL_PAD_TOP + (MAX_YEAR - MIN_YEAR) * TL_PX_PER_YEAR + 60
+    );
     container.style.height = totalH + 'px';
 
-    // Build SVG axis
+    // Build full-width SVG (axis + column grid + event dots)
     const NS  = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('width',  TL_AXIS_W);
+    svg.setAttribute('width', totalW);
     svg.setAttribute('height', totalH);
-    svg.style.cssText = `position:absolute;top:0;left:0;pointer-events:none;`;
+    svg.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
 
-    // Vertical line
+    // Column divider lines
+    for (let i = 1; i < numCols; i++) {
+        const x = TL_AXIS_W + i * colW;
+        const d = document.createElementNS(NS, 'line');
+        d.setAttribute('x1', x); d.setAttribute('y1', 0);
+        d.setAttribute('x2', x); d.setAttribute('y2', totalH);
+        d.setAttribute('stroke', '#f0f0f0'); d.setAttribute('stroke-width', 1);
+        svg.appendChild(d);
+    }
+
+    // Vertical axis line
     const vline = document.createElementNS(NS, 'line');
-    vline.setAttribute('x1', TL_AXIS_W - 1); vline.setAttribute('y1', TL_PAD_TOP);
-    vline.setAttribute('x2', TL_AXIS_W - 1); vline.setAttribute('y2', totalH - 20);
-    vline.setAttribute('stroke', '#ddd'); vline.setAttribute('stroke-width', 1);
+    vline.setAttribute('x1', TL_AXIS_W); vline.setAttribute('y1', TL_PAD_TOP);
+    vline.setAttribute('x2', TL_AXIS_W); vline.setAttribute('y2', totalH - 10);
+    vline.setAttribute('stroke', '#ccc'); vline.setAttribute('stroke-width', 1);
     svg.appendChild(vline);
 
-    // Year ticks + labels
+    // Year ticks + labels — font matches slider scale
     for (let y = MIN_YEAR; y <= MAX_YEAR; y += 10) {
         const py      = TL_PAD_TOP + (y - MIN_YEAR) * TL_PX_PER_YEAR;
         const isMajor = y % 50 === 0;
         const tick = document.createElementNS(NS, 'line');
-        tick.setAttribute('x1', isMajor ? TL_AXIS_W - 14 : TL_AXIS_W - 6);
-        tick.setAttribute('y1', py); tick.setAttribute('x2', TL_AXIS_W - 1); tick.setAttribute('y2', py);
-        tick.setAttribute('stroke', isMajor ? '#bbb' : '#e8e8e8');
-        tick.setAttribute('stroke-width', 1);
+        tick.setAttribute('x1', isMajor ? TL_AXIS_W - 12 : TL_AXIS_W - 5);
+        tick.setAttribute('y1', py); tick.setAttribute('x2', TL_AXIS_W); tick.setAttribute('y2', py);
+        tick.setAttribute('stroke', isMajor ? '#aaa' : '#e0e0e0'); tick.setAttribute('stroke-width', 1);
         svg.appendChild(tick);
         if (isMajor) {
             const lbl = document.createElementNS(NS, 'text');
-            lbl.setAttribute('x', TL_AXIS_W - 18); lbl.setAttribute('y', py + 4);
+            lbl.setAttribute('x', TL_AXIS_W - 16); lbl.setAttribute('y', py + 4);
             lbl.setAttribute('text-anchor', 'end');
             lbl.setAttribute('font-family', 'IBM Plex Mono, monospace');
-            lbl.setAttribute('font-size', 9); lbl.setAttribute('fill', '#aaa');
+            lbl.setAttribute('font-size', 11);
+            lbl.setAttribute('font-weight', 600);
+            lbl.setAttribute('fill', '#333');
+            lbl.setAttribute('letter-spacing', '0.04em');
             lbl.textContent = y;
             svg.appendChild(lbl);
         }
     }
 
-    // Event dots on axis + connector lines to displaced cards
-    cardData.forEach(({ year, color }, i) => {
+    // Event dots on axis + horizontal guide to card column
+    cardData.forEach(({ year, color, colX }, i) => {
         const axisY  = TL_PAD_TOP + (year - MIN_YEAR) * TL_PX_PER_YEAR;
-        const cardMidY = tops[i] + 18;
+        const cardY  = tops[i] + heights[i] / 2;
 
-        if (Math.abs(cardMidY - axisY) > 4) {
+        // Faint connector if card is displaced vertically
+        if (Math.abs(cardY - axisY) > 8) {
             const conn = document.createElementNS(NS, 'line');
-            conn.setAttribute('x1', TL_AXIS_W - 1); conn.setAttribute('y1', axisY);
-            conn.setAttribute('x2', TL_AXIS_W - 1); conn.setAttribute('y2', cardMidY);
-            conn.setAttribute('stroke', color); conn.setAttribute('stroke-width', 1.5);
-            conn.setAttribute('opacity', '0.25');
+            conn.setAttribute('x1', TL_AXIS_W); conn.setAttribute('y1', axisY);
+            conn.setAttribute('x2', TL_AXIS_W); conn.setAttribute('y2', cardY);
+            conn.setAttribute('stroke', color); conn.setAttribute('stroke-width', 1);
+            conn.setAttribute('opacity', '0.2');
             svg.appendChild(conn);
         }
 
+        // Horizontal guide from axis to card column
+        const guide = document.createElementNS(NS, 'line');
+        guide.setAttribute('x1', TL_AXIS_W); guide.setAttribute('y1', axisY);
+        guide.setAttribute('x2', colX);      guide.setAttribute('y2', axisY);
+        guide.setAttribute('stroke', color); guide.setAttribute('stroke-width', 0.75);
+        guide.setAttribute('opacity', '0.25');
+        svg.appendChild(guide);
+
         const dot = document.createElementNS(NS, 'circle');
-        dot.setAttribute('cx', TL_AXIS_W - 1); dot.setAttribute('cy', axisY);
-        dot.setAttribute('r', 3.5); dot.setAttribute('fill', color);
+        dot.setAttribute('cx', TL_AXIS_W); dot.setAttribute('cy', axisY);
+        dot.setAttribute('r', 3); dot.setAttribute('fill', color);
         svg.appendChild(dot);
     });
 
