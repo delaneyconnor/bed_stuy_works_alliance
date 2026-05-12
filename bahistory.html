@@ -33,8 +33,7 @@
             flex-direction: column;
         }
         #fp-header {
-            padding: 16px 16px 14px;
-            border-bottom: 1px solid #e8e8e8;
+            padding: 16px 16px 12px;
             flex-shrink: 0;
         }
         #fp-title {
@@ -285,8 +284,10 @@
         #view-toggle {
             display: flex;
             background: #fff;
-            border-bottom: 1.5px solid #111;
+            padding: 10px 16px 14px;
+            border-bottom: 1px solid #e8e8e8;
             flex-shrink: 0;
+            gap: 4px;
         }
         .view-btn {
             font-family: 'IBM Plex Mono', monospace;
@@ -294,17 +295,16 @@
             font-weight: 600;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            padding: 10px 20px;
-            border: none;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1.5px;
+            padding: 7px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 0;
             background: none;
             color: #aaa;
             cursor: pointer;
-            transition: color 0.12s, border-color 0.12s;
+            transition: color 0.12s, border-color 0.12s, background 0.12s;
         }
-        .view-btn.active { color: #111; border-bottom-color: #111; }
-        .view-btn:hover:not(.active) { color: #555; }
+        .view-btn.active { color: #111; border-color: #111; background: #111; color: #fff; }
+        .view-btn:hover:not(.active) { color: #555; border-color: #555; }
 
         /* ── Map panel ── */
         #map-panel {
@@ -493,6 +493,11 @@
             <span id="fp-sub">preserve, share, and learn about your block</span>
         </div>
 
+        <div id="view-toggle">
+            <button id="btn-map" class="view-btn active">Map</button>
+            <button id="btn-timeline" class="view-btn">Timeline</button>
+        </div>
+
         <div id="fp-search-wrap">
             <input type="text" id="fp-search" placeholder="Search events…" autocomplete="off" spellcheck="false">
         </div>
@@ -543,13 +548,8 @@
     <!-- Draggable divider -->
     <div id="divider"></div>
 
-    <!-- Right panel: view toggle + map / timeline -->
+    <!-- Right panel: map / timeline -->
     <div id="right-panel">
-        <div id="view-toggle">
-            <button id="btn-map" class="view-btn active">Map</button>
-            <button id="btn-timeline" class="view-btn">Timeline</button>
-        </div>
-
         <div id="map-panel">
             <div id="map"></div>
             <div id="map-bl-panel">
