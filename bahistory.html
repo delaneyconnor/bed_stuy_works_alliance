@@ -445,6 +445,7 @@
         .preview-wrap { display: none; margin-top: 6px; }
         .preview-wrap.open { display: block; }
         .preview-wrap iframe { width: 100%; height: 240px; border: 1px solid #e0e0e0; display: block; }
+        .sc-wrap iframe { height: 120px; border: none; }
 
         /* ── Bottom-left panel: citation stacked ── */
         #map-bl-panel {
@@ -1134,11 +1135,17 @@ function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 function buildSrcs(raw, evId) {
     if (!raw) return '<div style="font-size:9px;color:#ccc;font-style:italic">No linked source</div>';
     return raw.split(/\s*\|\s*/).filter(Boolean).map((url,i) => {
-        const label = `Read Source${raw.includes('|')?' '+(i+1):''} ↗`;
+        const isSC = url.includes('soundcloud.com');
+        const label = isSC ? 'Listen ↗' : `Read Source${raw.includes('|')?' '+(i+1):''} ↗`;
         const canEmbed = url.includes('.pdf')||url.includes('ourstuyheights')||url.includes('nypl.org')||url.includes('citizensnyc.org');
         const pid = `pv-${evId}-${i}`;
         let h = `<a href="${escH(url)}" target="_blank" rel="noopener" class="src-btn">${label}</a>`;
-        if (canEmbed) h += `<button class="preview-toggle" onclick="togglePrev('${pid}')">Preview ▾</button><div class="preview-wrap" id="${pid}"><iframe src="${escH(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe></div>`;
+        if (isSC) {
+            const embedSrc = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23000000&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false`;
+            h += `<button class="preview-toggle" onclick="togglePrev('${pid}')">Preview ▾</button><div class="preview-wrap sc-wrap" id="${pid}"><iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="${escH(embedSrc)}"></iframe></div>`;
+        } else if (canEmbed) {
+            h += `<button class="preview-toggle" onclick="togglePrev('${pid}')">Preview ▾</button><div class="preview-wrap" id="${pid}"><iframe src="${escH(url)}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms"></iframe></div>`;
+        }
         return h;
     }).join('');
 }
@@ -1315,8 +1322,30 @@ function csvToEvents(text) {
     });
 }
 
+/* ── Our Streets, Our Stories oral history recordings (Brooklyn Public Library) ── */
+const OSOS_EVENTS = [
+    // Quincy Senior Residences — 134 Quincy St, Bed-Stuy (recorded June 13, 2016)
+    { id:9001, title:'Marie Castel',   subtitle:'Oral History · Quincy Senior Residences', body:'Marie Castel is interviewed by Emerald Carter at Quincy Senior Residences on June 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Quincy Senior Residences', address:'134 Quincy St, Bed-Stuy', lat:40.6837, lng:-73.9441, source_url:'https://soundcloud.com/ososproject/marie-castel', contributor:'' },
+    { id:9002, title:'Ray Washington', subtitle:'Oral History · Quincy Senior Residences', body:'Ray Washington is interviewed by Taina Evans at Quincy Senior Residences in Bed-Stuy on June 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Quincy Senior Residences', address:'134 Quincy St, Bed-Stuy', lat:40.6837, lng:-73.9441, source_url:'https://soundcloud.com/ososproject/ray-washington', contributor:'' },
+    { id:9003, title:'Taranell Rembert', subtitle:'Oral History · Quincy Senior Residences', body:'Taranell Rembert is interviewed by Emerald Carter at Quincy Senior Residences in Bed-Stuy on June 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Quincy Senior Residences', address:'134 Quincy St, Bed-Stuy', lat:40.6837, lng:-73.9441, source_url:'https://soundcloud.com/ososproject/taranell-rembert', contributor:'' },
+    { id:9004, title:'Victoria Heath',  subtitle:'Oral History · Quincy Senior Residences', body:'Victoria Heath is interviewed by Emerald Carter at Quincy Senior Residences in Bed-Stuy on June 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Quincy Senior Residences', address:'134 Quincy St, Bed-Stuy', lat:40.6837, lng:-73.9441, source_url:'https://soundcloud.com/ososproject/victoria-heath', contributor:'' },
+    { id:9005, title:'Anne Zeno',       subtitle:'Oral History · Quincy Senior Residences', body:'Anne Zeno is interviewed by Taina Evans at Quincy Senior Residences in Bed-Stuy on June 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Quincy Senior Residences', address:'134 Quincy St, Bed-Stuy', lat:40.6837, lng:-73.9441, source_url:'https://soundcloud.com/ososproject/anne-zeno', contributor:'' },
+    // Macon Library — 361 Lewis Ave, Bed-Stuy
+    { id:9006, title:'Aidah Muhammad',       subtitle:'Oral History · Macon Library', body:'Aidah Muhammad is interviewed by Lauren Fiorelli at the Macon Library on March 23rd, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Macon Library', address:'361 Lewis Ave, Bed-Stuy', lat:40.6820, lng:-73.9367, source_url:'https://soundcloud.com/ososproject/aidah-muhammad', contributor:'' },
+    { id:9007, title:'Tony Davenport',        subtitle:'Oral History · Macon Library', body:'Tony Davenport is interviewed by Taina Evans at the Macon Library on March 26th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Macon Library', address:'361 Lewis Ave, Bed-Stuy', lat:40.6820, lng:-73.9367, source_url:'https://soundcloud.com/ososproject/tony-davenport', contributor:'' },
+    { id:9008, title:'Eric Weston',           subtitle:'Oral History · Macon Library — Tuskegee Airman', body:'Tuskegee Airman Eric Weston is interviewed by Taina Evans in Bed-Stuy on April 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Macon Library', address:'361 Lewis Ave, Bed-Stuy', lat:40.6820, lng:-73.9367, source_url:'https://soundcloud.com/ososproject/eric-weston', contributor:'' },
+    { id:9009, title:'Patricia Weston McNabb', subtitle:'Oral History · Macon Library', body:'Patricia Weston McNabb is interviewed by Taina Evans in Bed-Stuy on April 13th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Macon Library', address:'361 Lewis Ave, Bed-Stuy', lat:40.6820, lng:-73.9367, source_url:'https://soundcloud.com/ososproject/patricia-weston-mcnabb', contributor:'' },
+    // Boys and Girls High School — 1700 Fulton St, Bed-Stuy (recorded March 8, 2016)
+    { id:9010, title:'Roseanne Clark-White & Randolph White', subtitle:'Oral History · Boys and Girls High School', body:'Roseanne Clark-White and Randolph White are interviewed by Taina Evans at Boys and Girls High School in Bed-Stuy on March 8th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Boys and Girls High School', address:'1700 Fulton St, Bed-Stuy', lat:40.6789, lng:-73.9384, source_url:'https://soundcloud.com/ososproject/roseanne-clark-white-and-randolph-white', contributor:'' },
+    { id:9011, title:'Ray Haskins',   subtitle:'Oral History · Boys and Girls High School', body:'Ray Haskins is interviewed by Taina Evans at Boys and Girls High School in Bed-Stuy on March 8th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Boys and Girls High School', address:'1700 Fulton St, Bed-Stuy', lat:40.6789, lng:-73.9384, source_url:'https://soundcloud.com/ososproject/ray-haskins', contributor:'' },
+    { id:9012, title:'Emerald Carter', subtitle:'Oral History · Boys and Girls High School', body:'Emerald Carter is interviewed by Taina Evans at Boys and Girls High School in Bed-Stuy on March 8th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Boys and Girls High School', address:'1700 Fulton St, Bed-Stuy', lat:40.6789, lng:-73.9384, source_url:'https://soundcloud.com/ososproject/emerald-carter', contributor:'' },
+    // Tompkins Park Senior Center — Bed-Stuy (recorded July 8, 2016)
+    { id:9013, title:'Sandra Williams & Bertha Brooks', subtitle:'Oral History · Tompkins Park Senior Center', body:'Sandra Williams and Bertha Brooks are interviewed by Taina Evans at Tompkins Park Senior Center on July 8th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Tompkins Park Senior Center', address:'Tompkins Ave, Bed-Stuy', lat:40.6893, lng:-73.9448, source_url:'https://soundcloud.com/ososproject/sandra-williams-and-bertha-brooks', contributor:'' },
+    { id:9014, title:'Yolanda Moultrie-Fogg', subtitle:'Oral History · Tompkins Park Senior Center', body:'Yolanda Moultrie-Fogg is interviewed by Taina Evans at Tompkins Park Senior Center on July 8th, 2016.', date_start:'2016', date_end:'', type:'Everyday Life', scope:'Neighborhood', content_type:'Story', location:'Tompkins Park Senior Center', address:'Tompkins Ave, Bed-Stuy', lat:40.6893, lng:-73.9448, source_url:'https://soundcloud.com/ososproject/yolanda-moultrie-fogg', contributor:'' },
+];
+
 function loadAndInit(data) {
-    allEvents = data;
+    allEvents = [...data, ...OSOS_EVENTS];
     applyJitter(allEvents);
     buildFilterChips();
     buildMicroTimeline();
